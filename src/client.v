@@ -60,10 +60,9 @@ pub:
 }
 
 fn (config BotConfig) setup_logger() log.Log {
-	mut l := log.Log{
-		output_label: 'discord.v'
-	}
+	mut l := log.Log{}
 	l.set_level(if config.debug { .debug } else { .info })
+	l.set_output_label('discord.v')
 	return l
 }
 
