@@ -46,7 +46,7 @@ fn test_applications() {
 	application := rest.fetch_my_application() or { panic(err) }
 	assert rest.list_skus(application.id) or { panic(err) } == []
 
-	current_time := time.now().unix.str()
+	current_time := time.now().unix().str()
 	assert rest.edit_my_application(description: current_time) or { panic(err) }.description == current_time
 }
 

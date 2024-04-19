@@ -16,8 +16,8 @@ fn test_cdn_attachment() {
 	attachment := CDNAttachment.parse(sample) or {
 		panic('CDNAttachment.parse should not return error on sample: ${err}')
 	}
-	assert attachment.expires_on.unix == 1708721118
-	assert attachment.issued_at.unix == 1707511518
+	assert attachment.expires_on.unix() == 1708721118
+	assert attachment.issued_at.unix() == 1707511518
 	assert attachment.unique_signature.len == 32
 	assert attachment.unique_signature == [u8(0x24), 0x81, 0xf3, 0x0d, 0xd6, 0x7f, 0x50, 0x3f,
 		0x54, 0xd0, 0x20, 0xae, 0x3b, 0x55, 0x33, 0xb9, 0x98, 0x7f, 0xae, 0x4e, 0x55, 0xf2, 0xb4,

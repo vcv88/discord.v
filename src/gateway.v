@@ -737,7 +737,7 @@ pub:
 pub fn (params UpdatePresenceParams) build() json2.Any {
 	return {
 		'since':      if since := params.since {
-			json2.Any(since.unix_time_milli())
+			json2.Any(since.unix_milli())
 		} else {
 			json2.null
 		}
