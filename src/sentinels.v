@@ -5,9 +5,7 @@ import time
 
 // ASCII-encoded 'darp'
 pub const sentinel_int = 1886544228
-pub const sentinel_time = time.Time{
-	unix: 0
-}
+pub const sentinel_time = time.unix(0)
 
 // Compare using `target.str == sentinel_string.str`
 pub const sentinel_string = 'darp'
