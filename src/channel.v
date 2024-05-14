@@ -1196,11 +1196,12 @@ pub fn FollowedChannel.parse(j json2.Any) !FollowedChannel {
 }
 
 // Follow an Announcement Channel to send messages to a target channel. Requires the `.manage_webhooks` permission in the target channel. Fires a Webhooks Update Gateway event for the target channel.
-pub fn (rest &REST) follow_announcement_channel(channel_id Snowflake, webhook_channel_id Snowflake) !FollowedChannel {
+pub fn (rest &REST) follow_announcement_channel(channel_id Snowflake, webhook_channel_id Snowflake, params ReasonParam) !FollowedChannel {
 	return FollowedChannel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/followers',
 		json: {
 			'webhook_channel_id': webhook_channel_id.build()
 		}
+		reason: params.reason
 	)!.body)!)!
 }
 
