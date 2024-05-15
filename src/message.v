@@ -1411,16 +1411,26 @@ pub fn (rest &REST) delete_user_reaction(channel_id Snowflake, message_id Snowfl
 	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/${urllib.path_escape(user_id.str())}')!
 }
 
+pub enum ReactionType {
+	normal
+	burst
+}
+
 @[params]
 pub struct FetchReactionsParams {
 	ReactionParams
 pub mut:
+	// The [type of reaction](#ReactionType)
+	typ   ?ReactionType
 	after ?Snowflake
 	limit ?int
 }
 
 pub fn (params FetchReactionsParams) build_query_values() urllib.Values {
 	mut query_params := urllib.new_values()
+	if typ := params.typ {
+		query_params.set('type', int(typ).str())
+	}
 	if after := params.after {
 		query_params.set('after', after.str())
 	}
