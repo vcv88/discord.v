@@ -120,6 +120,16 @@ pub enum AuditLogEvent {
 	creator_monetization_request_created        = 150
 	// Creator monetization terms were accepted
 	creator_monetization_terms_accepted
+	// Guild Onboarding Question was created
+	onboarding_question_create                  = 163
+	// Guild Onboarding Question was updated
+	onboarding_question_update
+	// Guild Onboarding was updated
+	onboarding_update                           = 167
+	// Guild Server Guide was created
+	server_guide_create                         = 190
+	// Guild Server Guide was updated
+	server_guide_update
 }
 
 pub struct AuditLogChange {
