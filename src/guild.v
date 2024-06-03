@@ -480,6 +480,37 @@ pub fn UnavailableGuild.parse(j json2.Any) !UnavailableGuild {
 	}
 }
 
+pub struct IncidentsData {
+	// when invites get enabled again
+	invites_disabled_until ?time.Time
+	// when direct messages get enabled again
+	dms_disabled_until ?time.Time
+}
+
+pub fn IncidentsData.parse(j json2.Any) !IncidentsData {
+	match j {
+		map[string]json2.Any {
+			invites_disabled_until := j['invites_disabled_until']!
+			dms_disabled_until := j['dms_disabled_until']!
+			return IncidentsData{
+				invites_disabled_until: if invites_disabled_until !is json2.Null {
+					time.parse_iso8601(invites_disabled_until as string)!
+				} else {
+					none
+				}
+				dms_disabled_until: if dms_disabled_until !is json2.Null {
+					time.parse_iso8601(dms_disabled_until as string)!
+				} else {
+					none
+				}
+			}
+		}
+		else {
+			return error('expected IncidentsData to be object')
+		}
+	}
+}
+
 pub struct Guild {
 pub:
 	// guild id
@@ -562,6 +593,8 @@ pub:
 	premium_progress_bar_enabled bool
 	// the id of the channel where admins and moderators of Community guilds receive safety alerts from Discord
 	safety_alerts_channel_id ?Snowflake
+	// the incidents data for this guild
+	incidents_data ?IncidentsData
 }
 
 pub fn (g Guild) get_role(role_id Snowflake) ?Role {
@@ -604,6 +637,7 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 	banner := j['banner']!
 	public_updates_channel_id := j['public_updates_channel_id']!
 	safety_alerts_channel_id := j['safety_alerts_channel_id']!
+	incidents_data := j['incidents_data']!
 	return Guild{
 		id: Snowflake.parse(j['id']!)!
 		name: j['name']! as string
@@ -756,6 +790,11 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		premium_progress_bar_enabled: j['premium_progress_bar_enabled']! as bool
 		safety_alerts_channel_id: if safety_alerts_channel_id !is json2.Null {
 			Snowflake.parse(safety_alerts_channel_id)!
+		} else {
+			none
+		}
+		incidents_data: if incidents_data !is json2.Null {
+			IncidentsData.parse(incidents_data)!
 		} else {
 			none
 		}
@@ -2905,4 +2944,39 @@ pub fn (rest &REST) edit_user_voice_state(guild_id Snowflake, user_id Snowflake,
 	rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/voice-states/${urllib.path_escape(user_id.str())}',
 		json: params.build()
 	)!
+}
+
+@[params]
+pub struct EditGuildIncidentActionsParams {
+pub mut:
+	// when disabled invites will expire (up to 24 hours in the future)
+	invites_disabled_until ?time.Time = sentinel_time
+	// when disabled direct messages will expire (up to 24 hours in the future)
+	dms_disabled_until ?time.Time = sentinel_time
+}
+
+pub fn (params EditGuildIncidentActionsParams) build() json2.Any {
+	mut j := map[string]json2.Any{}
+	if invites_disabled_until := params.invites_disabled_until {
+		if !is_sentinel(invites_disabled_until) {
+			j['invites_disabled_until'] = format_iso8601(invites_disabled_until)
+		}
+	} else {
+		j['invites_disabled_until'] = json2.null
+	}
+	if dms_disabled_until := params.dms_disabled_until {
+		if !is_sentinel(dms_disabled_until) {
+			j['invites_disabled_until'] = format_iso8601(dms_disabled_until)
+		}
+	} else {
+		j['dms_disabled_until'] = json2.null
+	}
+	return j
+}
+
+// Modifies the incident actions of the guild. Returns a 200 with the [Incidents Data](#IncidentsData) object for the guild. Requires the `.manage_guild` permission.
+pub fn (rest &REST) edit_guild_incident_actions(guild_id Snowflake, params EditGuildIncidentActionsParams) !IncidentsData {
+	return IncidentsData.parse(json2.raw_decode(rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/incident-actions',
+		json: params.build()
+	)!.body)!)!
 }
