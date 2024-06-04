@@ -534,6 +534,10 @@ pub enum MessageType {
 	stage_speaker
 	stage_topic                                 = 31
 	guild_application_premium_subscription
+	guild_incident_alert_mode_enabled           = 36
+	guild_incident_alert_mode_disabled
+	guild_incident_report_raid
+	guild_incident_report_false_alarm
 }
 
 pub enum MessageActivityType {
