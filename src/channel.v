@@ -1066,6 +1066,32 @@ pub fn (rest &REST) edit_thread_channel(channel_id Snowflake, params EditThreadC
 	return rest.edit_channel(channel_id, params)!
 }
 
+@[params]
+pub struct SetVoiceChannelStatusParams {
+pub mut:
+	reason ?string
+	// new voice channel status (up to 500 characters)
+	status ?string @[required]
+}
+
+pub fn (params SetVoiceChannelStatusParams) build() json2.Any {
+	return {
+		'status': if status := params.status {
+			status
+		} else {
+			json2.null
+		}
+	}
+}
+
+// Set a voice channel's status. Requires the `.set_voice_channel_status` permission, and additionally the `.manage_channels` permission if the current user is not connected to the voice channel. Returns a 204 empty response on success. Fires a [Voice Channel Status Update](#VoiceChannelStatusUpdateEvent) event.
+pub fn (rest &REST) set_voice_channel_status(channel_id Snowflake, params SetVoiceChannelStatusParams) ! {
+	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/voice-status',
+		json: params.build()
+		reason: params.reason
+	)!
+}
+
 // Delete a channel, or close a private message. Requires the `MANAGE_CHANNELS` permission for the guild, or `MANAGE_THREADS` if
 // the channel is a thread. Deleting a category does not delete its child channels; they will have their parent_id removed and a
 // Channel Update Gateway event will fire for each of them. Returns a channel object on success. Fires a Channel Delete Gateway
