@@ -98,6 +98,9 @@ pub enum Permissions as u64 {
 	use_external_sounds
 	// Allows sending voice messages
 	send_voice_messages
+	reserved_17
+	// Allows setting voice channel status
+	set_voice_channel_status
 }
 
 pub fn Permissions.all() Permissions {

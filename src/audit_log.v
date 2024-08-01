@@ -6,7 +6,6 @@ import x.json2
 // The table below lists audit log events and values (the `action_type` field) that your app may receive.
 // The `Object Changed` column notes which object's values may be included in the entry. Though there are exceptions, possible keys in the `changes` array typically correspond to the object's fields. The descriptions and types for those fields can be found in the linked documentation for the object.
 // If no object is noted, there won't be a `changes` array in the entry, though other fields like the `target_id` still exist and many have fields in the options array.
-
 pub enum AuditLogEvent {
 	// Server settings were updated
 	guild_update                                = 1
@@ -119,7 +118,8 @@ pub enum AuditLogEvent {
 	// Creator monetization request was created
 	creator_monetization_request_created        = 150
 	// Creator monetization terms were accepted
-	creator_monetization_terms_accepted
+	creator_monetization_terms_accepted         = 151
+	
 	// Guild Onboarding Question was created
 	onboarding_question_create                  = 163
 	// Guild Onboarding Question was updated
@@ -130,6 +130,10 @@ pub enum AuditLogEvent {
 	server_guide_create                         = 190
 	// Guild Server Guide was updated
 	server_guide_update
+  // A voice channel status was updated by a user
+	voice_channel_status_update                 = 192
+	// A voice channel status was deleted by a user
+	voice_channel_status_delete
 }
 
 pub struct AuditLogChange {
@@ -191,6 +195,8 @@ pub:
 	typ ?string
 	// The type of integration which performed the action
 	integration_type ?string
+	// The new voice channel status
+	status ?string
 }
 
 pub fn AuditEntryInfo.parse(j json2.Any) !AuditEntryInfo {
@@ -253,6 +259,11 @@ pub fn AuditEntryInfo.parse(j json2.Any) !AuditEntryInfo {
 					none
 				}
 				integration_type: if s := j['integration_type'] {
+					s as string
+				} else {
+					none
+				}
+				status: if s := j['status'] {
 					s as string
 				} else {
 					none

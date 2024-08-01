@@ -513,6 +513,8 @@ pub:
 	name string
 	// the channel topic (0-4096 characters for GUILD_FORUM and GUILD_MEDIA channels, 0-1024 characters for all others)
 	topic ?string
+	// the voice channel status (0-500 characters)
+	status ?NullOr[string]
 	// whether the channel is nsfw
 	nsfw ?bool
 	// the id of the last message sent in this channel (or thread for GUILD_FORUM or GUILD_MEDIA channels) (may not point to an existing or valid message or thread)
@@ -617,6 +619,15 @@ pub fn Channel.parse(j json2.Any) !Channel {
 						s as string
 					} else {
 						none
+					}
+				} else {
+					none
+				}
+				status: if s := j['status'] {
+					if s !is json2.Null {
+						some(s as string)
+					} else {
+						null[string]()
 					}
 				} else {
 					none

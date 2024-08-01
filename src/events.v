@@ -162,6 +162,38 @@ pub fn ChannelDeleteEvent.parse(j json2.Any, base BaseEvent) !ChannelDeleteEvent
 	}
 }
 
+pub struct VoiceChannelStatusUpdateEvent {
+	BaseEvent
+pub:
+	// The channel id
+	id Snowflake
+	// The guild id
+	guild_id Snowflake
+	// The new voice channel status
+	status ?string
+}
+
+pub fn VoiceChannelStatusUpdateEvent.parse(j json2.Any, base BaseEvent) !VoiceChannelStatusUpdateEvent {
+	match j {
+		map[string]json2.Any {
+			status := j['status']!
+			return VoiceChannelStatusUpdateEvent{
+				BaseEvent: base
+				id: Snowflake.parse(j['id']!)!
+				guild_id: Snowflake.parse(j['guild_id']!)!
+				status: if status !is json2.Null {
+					status as string
+				} else {
+					none
+				}
+			}
+		}
+		else {
+			return error('expected VoiceChannelStatusUpdateEvent to be object, got ${j.type_name()}')
+		}
+	}
+}
+
 pub struct AutoModerationActionExecutionEvent {
 	BaseEvent
 pub:
@@ -1551,6 +1583,7 @@ pub mut:
 	on_channel_create                         EventController[ChannelCreateEvent]
 	on_channel_update                         EventController[ChannelUpdateEvent]
 	on_channel_delete                         EventController[ChannelDeleteEvent]
+	on_voice_channel_status_update            EventController[VoiceChannelStatusUpdateEvent]
 	on_thread_create                          EventController[ThreadCreateEvent]
 	on_thread_update                          EventController[ThreadUpdateEvent]
 	on_thread_delete                          EventController[ThreadDeleteEvent]
@@ -1686,6 +1719,13 @@ fn event_process_channel_delete(mut gc GatewayClient, data json2.Any, options Em
 	})!
 	gc.events.on_channel_delete.emit(event, options)
 	gc.cache.channels.delete(event.channel.id)
+}
+
+fn event_process_voice_channel_status_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
+	gc.events.on_voice_channel_status_update.emit(VoiceChannelStatusUpdateEvent.parse(data,
+		BaseEvent{
+		creator: gc
+	})!, options)
 }
 
 fn event_process_thread_create(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -2230,6 +2270,7 @@ const events_table = EventsTable({
 	'CHANNEL_CREATE':                         event_process_channel_create
 	'CHANNEL_UPDATE':                         event_process_channel_update
 	'CHANNEL_DELETE':                         event_process_channel_delete
+	'VOICE_CHANNEL_STATUS_UPDATE':            event_process_voice_channel_status_update
 	'THREAD_CREATE':                          event_process_thread_create
 	'THREAD_UPDATE':                          event_process_thread_update
 	'THREAD_DELETE':                          event_process_thread_delete
