@@ -1,6 +1,9 @@
 module discord
 
+import encoding.hex
 import net.urllib
+import strconv
+import time
 
 pub const default_cdn_url = 'https://cdn.discordapp.com'
 
@@ -154,6 +157,28 @@ pub fn (c CDN) guild_scheduled_event_cover(scheduled_event_id Snowflake, schedul
 
 pub fn (c CDN) guild_member_banner(guild_id Snowflake, user_id Snowflake, member_banner string, params CDNGetParams) string {
 	return '${c.base}/guilds/${urllib.path_escape(guild_id.str())}/users/${urllib.path_escape(user_id.str())}/banners/${urllib.path_escape(member_banner)}${params.build()}'
+}
+
+pub struct CDNAttachment {
+	// Timestamp indicating when an attachment CDN URL will expire
+	expires_on time.Time
+	// Timestamp indicating when the URL was issued
+	issued_at time.Time
+	// Unique signature that remains valid until the URL's expiration
+	unique_signature []u8
+}
+
+pub fn CDNAttachment.parse(url string) !CDNAttachment {
+	query := urllib.parse(url)!.query()
+	return CDNAttachment{
+		expires_on: time.unix(strconv.parse_int(query.get('ex') or {
+			return error("no 'ex' query param")
+		}, 16, 64)!)
+		issued_at: time.unix(strconv.parse_int(query.get('is') or {
+			return error("no 'is' query param")
+		}, 16, 64)!)
+		unique_signature: hex.decode(query.get('hm') or { return error("no 'hm' query param") })!
+	}
 }
 
 pub const cdn = new_cdn()

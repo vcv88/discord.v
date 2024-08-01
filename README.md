@@ -42,20 +42,20 @@ import discord
 import os
 
 fn main() {
-	mut c := discord.bot(os.getenv_opt('DISCORD_BOT_TOKEN') or {
+	mut bot := discord.bot(os.getenv_opt('DISCORD_BOT_TOKEN') or {
 		eprintln('No token specified')
 		exit(1)
 	}, intents: .message_content | .guild_messages)
-	c.events.on_ready.listen(fn (event discord.ReadyEvent) ! {
+	bot.events.on_ready.listen(fn (event discord.ReadyEvent) ! {
 		println('Logged as ${event.user.username}! Bot has ${event.guilds.len} guilds')
 	})
-	c.events.on_message_create.listen(fn (event discord.MessageCreateEvent) ! {
+	bot.events.on_message_create.listen(fn (event discord.MessageCreateEvent) ! {
 		if event.message.content != '!ping' {
 			return
 		}
 		event.creator.rest.create_message(event.message.channel_id, content: 'Pong')!
 	})
-	c.launch()!
+	bot.launch()!
 }
 ```
 

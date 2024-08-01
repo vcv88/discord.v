@@ -17,7 +17,7 @@ pub fn (s Snowflake) timestamp() time.Time {
 }
 
 pub fn Snowflake.from(t time.Time) Snowflake {
-	return u64(t.unix_time_milli() - discord.snowflake_epoch) << 22
+	return u64(t.unix_milli() - discord.snowflake_epoch) << 22
 }
 
 pub fn Snowflake.now() Snowflake {

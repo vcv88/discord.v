@@ -1,10 +1,11 @@
 module discord
 
-import x.json2
+import io
 import log
 import math
 import net.websocket
 import time
+import x.json2
 
 @[flag]
 pub enum GatewayIntents {
@@ -44,6 +45,68 @@ pub fn GatewayIntents.all() GatewayIntents {
 	return GatewayIntents.all_unprivileged() | GatewayIntents.all_privileged()
 }
 
+pub enum GatewayOpcode {
+	// An event was dispatched.
+	dispatch              = 0
+	// Fired periodically by the client to keep the connection alive.
+	heartbeat
+	// Starts a new session during the initial handshake.
+	identify
+	// Update the client's presence.
+	update_presence
+	// Used to join/leave or move between voice channels.
+	voice_state_update
+	// Resume a previous session that was disconnected.
+	resume                = 6
+	// You should attempt to reconnect and resume immediately.
+	reconnect
+	// Request information about offline guild members in a large guild.
+	request_guild_members
+	// The session has been invalidated. You should reconnect and identify/resume accordingly.
+	invalid_session
+	// Sent immediately after connecting, contains the `heartbeat_interval` to use.
+	hello
+	// Sent in response to receiving a heartbeat to acknowledge that it has been received.
+	heartbeat_ack
+}
+
+pub struct GatewayMessage {
+pub:
+	opcode GatewayOpcode
+	data   json2.Any
+	seq    ?int
+	event  string
+}
+
+fn GatewayMessage.parse(j json2.Any) !GatewayMessage {
+	$if trace ? {
+		eprintln('Gateway < ${j}')
+	}
+	m := j as map[string]json2.Any
+	return GatewayMessage{
+		opcode: unsafe { GatewayOpcode(m['op']!.int()) }
+		data: m['d'] or { json2.null }
+		seq: if s := m['s'] {
+			if s !is json2.Null {
+				s.int()
+			} else {
+				none
+			}
+		} else {
+			none
+		}
+		event: if t := m['t'] {
+			if t !is json2.Null {
+				t.str()
+			} else {
+				''
+			}
+		} else {
+			''
+		}
+	}
+}
+
 @[flag]
 pub enum GatewayClientSettings {
 	ignore_unknown_events
@@ -51,7 +114,36 @@ pub enum GatewayClientSettings {
 	dont_cut_debug
 	dont_process_guild_events
 	no_info_block
+	dont_spawn_events
 }
+
+pub struct ShardInfo {
+pub mut:
+	shard_id    int
+	shard_count int
+}
+
+pub fn (si ShardInfo) build() json2.Any {
+	return [json2.Any(si.shard_id), si.shard_count]
+}
+
+pub struct Gateway {
+pub mut:
+	client             &GatewayClient
+	close_event        chan int
+	events             &Events
+	large_threshold    ?int
+	base_url           string
+	resume_gateway_url string
+	shard              ?ShardInfo
+	hbq                ?time.Time
+	hbs                ?time.Time
+	sequence           ?int
+	session_id         string
+	socket             &websocket.Client = unsafe { nil }
+}
+
+pub fn (mut g Gateway) mainloop() {}
 
 @[heap]
 pub struct GatewayClient {
@@ -61,6 +153,7 @@ pub:
 	properties      Properties
 	large_threshold ?int
 	gateway_url     string = 'wss://gateway.discord.gg'
+	log             log.Logger
 	rest            REST
 	token           string
 mut:
@@ -75,6 +168,7 @@ mut:
 	sequence           ?int
 	session_id         string
 	write_timeout      ?time.Duration
+	close_event        chan voidptr
 pub mut:
 	user     User
 	cache    Cache
@@ -83,23 +177,27 @@ pub mut:
 	ws       &websocket.Client = unsafe { nil }
 }
 
-fn (mut c GatewayClient) recv() !WSMessage {
-	return ws_recv_message(mut c.ws)!
+fn (mut c GatewayClient) recv() !GatewayMessage {
+	return GatewayMessage.parse(json2.raw_decode(c.ws.read_next_message()!.payload.bytestr())!)!
 }
 
-fn (mut c GatewayClient) send(message WSMessage) ! {
-	ws_send_message(mut c.ws, message)!
+fn (mut c GatewayClient) send(op GatewayOpcode, d json2.Any) ! {
+	payload := json2.Any({
+		'op': json2.Any(int(op))
+		'd':  d
+	}).json_str()
+	$if trace ? {
+		eprintln('Gateway > ${payload}')
+	}
+	c.ws.write(payload.bytes(), websocket.OPCode.text_frame)!
 }
 
 fn (mut c GatewayClient) heartbeat() ! {
 	c.last_heartbeat_req = time.now()
-	c.send(WSMessage{
-		opcode: .heartbeat
-		data: if seq := c.sequence {
-			json2.Any(seq)
-		} else {
-			json2.null
-		}
+	c.send(.heartbeat, if seq := c.sequence {
+		json2.Any(seq)
+	} else {
+		json2.null
 	})!
 }
 
@@ -139,9 +237,15 @@ fn (mut c GatewayClient) raw_dispatch(name string, data json2.Any) ! {
 fn (mut c GatewayClient) spawn_heart(interval i64) {
 	spawn fn (mut client GatewayClient, heartbeat_interval time.Duration) {
 		client.logger.info('Heart spawned with interval: ${heartbeat_interval}')
-		for client.ready {
+		for {
 			client.logger.debug('Sleeping')
-			time.sleep(heartbeat_interval)
+			select {
+				_ := <-client.close_event {
+					client.logger.info('Heart closed')
+					return
+				}
+				heartbeat_interval.nanoseconds() {}
+			}
 			s := client.last_heartbeat_res
 			if rq := client.last_heartbeat_req {
 				rs := s or { time.unix(0) }
@@ -174,23 +278,20 @@ fn (mut c GatewayClient) spawn_heart(interval i64) {
 fn (mut gc GatewayClient) hello() ! {
 	if gc.session_id != '' {
 		gc.logger.info('Sending RESUME')
-		gc.send(WSMessage{
-			opcode: .resume
-			data: json2.Any({
-				'token':      json2.Any(gc.token)
-				'session_id': gc.session_id
-				'seq':        if seq := gc.sequence {
-					int(seq)
-				} else {
-					json2.null
-				}
-			})
+		gc.send(.resume, {
+			'token':      json2.Any(gc.token)
+			'session_id': gc.session_id
+			'seq':        if seq := gc.sequence {
+				int(seq)
+			} else {
+				json2.null
+			}
 		})!
 		gc.logger.info('Sent RESUME')
 	} else {
 		props := gc.properties
 		gc.logger.info('Sending IDENTIFY')
-		mut data := {
+		mut d := {
 			'token':      json2.Any(gc.token)
 			'intents':    gc.intents
 			'properties': json2.Any({
@@ -198,17 +299,15 @@ fn (mut gc GatewayClient) hello() ! {
 				'browser': props.browser
 				'device':  props.device
 			})
+			'shard':      [json2.Any(0), 1]
 		}
 		if large_threshold := gc.large_threshold {
-			data['large_threshold'] = large_threshold
+			d['large_threshold'] = large_threshold
 		}
 		if presence := gc.presence {
-			data['presence'] = presence.build()
+			d['presence'] = presence.build()
 		}
-		gc.send(WSMessage{
-			opcode: .identify
-			data: data
-		})!
+		gc.send(.identify, d)!
 	}
 }
 
@@ -218,24 +317,22 @@ fn (mut c GatewayClient) init_ws(mut ws websocket.Client) {
 		$compile_warn('Websocket connection with Discord may die at some events with vschannel. Please pass `-d no_vschannel` if you want it work correctly.')
 	} */
 	ws.on_close_ref(fn (mut _ websocket.Client, code int, reason string, mut client GatewayClient) ! {
+		client.close_event <- unsafe { nil }
 		if reason != 'closed by client' {
 			client.close_code = code
-
 			client.logger.error('Websocket closed with ${code} ${reason}')
 		}
 	}, &mut c)
 	ws.on_message_ref(fn (mut _ websocket.Client, m &websocket.Message, mut client GatewayClient) ! {
-		message := decode_websocket_message(m)!
+		message := GatewayMessage.parse(json2.raw_decode(m.payload.bytestr())!)!
 		if !client.ready {
 			if message.opcode != .hello {
 				return error('First message was not HELLO')
 			}
 			client.ready = true
 			client.hello()!
-			if client.session_id == '' {
-				client.logger.debug('Spawning heart')
-				client.spawn_heart(message.data.as_map()['heartbeat_interval']!.i64())
-			}
+			client.logger.debug('Spawning heart')
+			client.spawn_heart(message.data.as_map()['heartbeat_interval']!.i64())
 			return
 		}
 		match message.opcode {
@@ -265,6 +362,7 @@ fn (mut c GatewayClient) init_ws(mut ws websocket.Client) {
 				return
 			}
 			.reconnect {
+				client.close_event <- unsafe { nil }
 				client.ws.close(1000, 'Discord restarting')!
 			}
 			.invalid_session {
@@ -272,7 +370,9 @@ fn (mut c GatewayClient) init_ws(mut ws websocket.Client) {
 					// not resumable
 					client.resume_gateway_url = ''
 					client.session_id = ''
+					client.sequence = none
 				}
+				client.close_event <- unsafe { nil }
 				client.ws.close(1000, 'Invalid session')!
 			}
 			else {}
@@ -369,6 +469,7 @@ pub fn (mut c GatewayClient) run() ! {
 	mut n := 0
 	for {
 		if connected {
+			c.close_event <- unsafe { nil }
 			c.ws.close(1000, 'reconnect') or {}
 		}
 		c.ws.connect() or {
@@ -385,8 +486,8 @@ pub fn (mut c GatewayClient) run() ! {
 				return err
 			}
 		}
-		n = 0
 		connected = true
+		n = 0
 		$if trace ? {
 			eprintln('calling listen')
 		}
@@ -395,6 +496,10 @@ pub fn (mut c GatewayClient) run() ! {
 			$if trace ? {
 				eprintln('listen failed: ${err}; with code ${err.code()}; message: ${err.msg()}')
 			}
+			if err is io.Eof {
+				connected = false
+				continue
+			}
 			if err.code() !in [4, -76, -29184] && !err.msg().contains('SSL') {
 				$if trace ? {
 					eprintln('returned error')
@@ -402,13 +507,15 @@ pub fn (mut c GatewayClient) run() ! {
 				return err
 			}
 			// EINTR/SSL, should retry
-			time.sleep(5 * time.second)
+			time.sleep(2 * time.second)
 			c.ready = false
 			c.resume_gateway_url = ''
 			c.session_id = ''
 			c.sequence = none
+			connected = false
 			continue
 		}
+		c.close_event <- unsafe { nil }
 		$if trace ? {
 			eprintln('listen returned')
 		}
@@ -424,7 +531,6 @@ pub fn (mut c GatewayClient) run() ! {
 			}
 		}
 		c.logger.error('Recieved close code ${close_code}: ${cc.message}')
-		c.ready = false
 		if !cc.reconnect {
 			return error(cc.message)
 		}
@@ -582,10 +688,7 @@ pub fn (params RequestGuildMembersParams) build() json2.Any {
 }
 
 pub fn (mut gc GatewayClient) request_guild_members(params RequestGuildMembersParams) ! {
-	gc.send(WSMessage{
-		opcode: .request_guild_members
-		data: params.build()
-	})!
+	gc.send(.request_guild_members, params.build())!
 }
 
 @[params]
@@ -615,10 +718,7 @@ pub fn (params VoiceStateUpdateParams) build() json2.Any {
 }
 
 pub fn (mut gc GatewayClient) update_voice_state(params VoiceStateUpdateParams) ! {
-	gc.send(WSMessage{
-		opcode: .voice_state_update
-		data: params.build()
-	})!
+	gc.send(.voice_state_update, params.build())!
 }
 
 @[params]
@@ -637,7 +737,7 @@ pub:
 pub fn (params UpdatePresenceParams) build() json2.Any {
 	return {
 		'since':      if since := params.since {
-			json2.Any(since.unix_time_milli())
+			json2.Any(since.unix_milli())
 		} else {
 			json2.null
 		}
@@ -648,8 +748,5 @@ pub fn (params UpdatePresenceParams) build() json2.Any {
 }
 
 pub fn (mut gc GatewayClient) update_presence(params UpdatePresenceParams) ! {
-	gc.send(WSMessage{
-		opcode: .update_presence
-		data: params.build()
-	})!
+	gc.send(.update_presence, params.build())!
 }

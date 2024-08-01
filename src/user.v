@@ -235,6 +235,8 @@ pub mut:
 	username ?string
 	// if passed, modifies the user's avatar
 	avatar ?Image = sentinel_image
+	// if passed, modifies the user's banner
+	banner ?Image = sentinel_image
 }
 
 pub fn (params EditMyUserParams) build() json2.Any {
@@ -248,6 +250,13 @@ pub fn (params EditMyUserParams) build() json2.Any {
 		}
 	} else {
 		r['avatar'] = json2.null
+	}
+	if banner := params.banner {
+		if !is_sentinel(banner) {
+			r['banner'] = banner.build()
+		}
+	} else {
+		r['banner'] = json2.null
 	}
 	return r
 }

@@ -125,7 +125,7 @@ pub fn EmbedVideo.parse(j json2.Any) !EmbedVideo {
 
 pub fn (ev EmbedVideo) build() json2.Any {
 	return {
-		'url': json2.Any(ev.url)
+		'url': json2.Any(ev.url or { return map[string]json2.Any{} })
 	}
 }
 
@@ -534,6 +534,10 @@ pub enum MessageType {
 	stage_speaker
 	stage_topic                                 = 31
 	guild_application_premium_subscription
+	guild_incident_alert_mode_enabled           = 36
+	guild_incident_alert_mode_disabled
+	guild_incident_report_raid
+	guild_incident_report_false_alarm
 }
 
 pub enum MessageActivityType {
@@ -1312,6 +1316,8 @@ pub mut:
 	files ?[]File
 	// Message flags combined as a bitfield (only SUPPRESS_EMBEDS and SUPPRESS_NOTIFICATIONS can be set)
 	flags ?MessageFlags
+	// If `true` and nonce is present, it will be checked for uniqueness in the past few minutes. If another message was created by the same author with the same nonce, that message will be returned and no new message will be created.
+	enforce_nonce ?bool
 }
 
 pub fn (params CreateMessageParams) build() json2.Any {
@@ -1350,6 +1356,9 @@ pub fn (params CreateMessageParams) build() json2.Any {
 	}
 	if flags := params.flags {
 		r['flags'] = int(flags)
+	}
+	if enforce_nonce := params.enforce_nonce {
+		r['enforce_nonce'] = enforce_nonce
 	}
 	return r
 }
@@ -1406,16 +1415,26 @@ pub fn (rest &REST) delete_user_reaction(channel_id Snowflake, message_id Snowfl
 	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/${urllib.path_escape(user_id.str())}')!
 }
 
+pub enum ReactionType {
+	normal
+	burst
+}
+
 @[params]
 pub struct FetchReactionsParams {
 	ReactionParams
 pub mut:
+	// The [type of reaction](#ReactionType)
+	typ   ?ReactionType
 	after ?Snowflake
 	limit ?int
 }
 
 pub fn (params FetchReactionsParams) build_query_values() urllib.Values {
 	mut query_params := urllib.new_values()
+	if typ := params.typ {
+		query_params.set('type', int(typ).str())
+	}
 	if after := params.after {
 		query_params.set('after', after.str())
 	}

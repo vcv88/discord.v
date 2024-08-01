@@ -215,12 +215,25 @@ pub fn (rest &REST) edit_webhook(webhook_id Snowflake, params EditWebhookParams)
 }
 
 // Same as above, except this call does not require authentication, does not accept a `channel_id` parameter in the body, and does not return a user in the webhook object.
-pub fn (rest &REST) edit_webhook_with_token(webhook_id Snowflake, webhook_token string, params EditWebhookParams) !Webhook {
-	return Webhook.parse(json2.raw_decode(rest.request(.patch, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+pub fn REST.edit_webhook_with_token(webhook_id Snowflake, webhook_token string, params EditWebhookParams) !Webhook {
+	return Webhook.parse(json2.raw_decode(REST.do_request(unsafe { nil }, .patch, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 		json: params.build()
 		reason: params.reason
 		authenticate: false
 	)!.body)!)!
+}
+
+// Same as [static `REST.edit_webhook_with_token`](#REST.edit_webhook_with_token)
+@[inline]
+pub fn (rest &REST) edit_webhook_with_token(webhook_id Snowflake, webhook_token string, params EditWebhookParams) !Webhook {
+	return REST.edit_webhook_with_token(webhook_id, webhook_token, params)!
+}
+
+pub fn (webhook &Webhook) edit(params EditWebhookParams) !Webhook {
+	return REST.edit_webhook_with_token(webhook.id, webhook.token or {
+		return error('no webhook token given in Webhook object')
+	}, params)!
+	// return Webhook.parse(json2.raw_decode(REST.do_request(unsafe { nil }, .patch, '/webhooks/${urllib.path_escape(webhook.id.str())}/${urllib.path_escape(webhook_token)}')!.body)!)!
 }
 
 // Delete a webhook permanently. Requires the `.manage_webhooks` permission. Returns a 204 No Content response on success. Fires a Webhooks Update Gateway event.
@@ -229,11 +242,23 @@ pub fn (rest &REST) delete_webhook(webhook_id Snowflake, params ReasonParam) ! {
 }
 
 // Same as above, except this call does not require authentication.
-pub fn (rest &REST) delete_webhook_with_token(webhook_id Snowflake, webhook_token string, params ReasonParam) ! {
-	rest.request(.delete, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+pub fn REST.delete_webhook_with_token(webhook_id Snowflake, webhook_token string, params ReasonParam) ! {
+	REST.do_request(unsafe { nil }, .delete, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 		reason: params.reason
 		authenticate: false
 	)!
+}
+
+// Same as [static `REST.delete_webhook_with_token`](#REST.delete_webhook_with_token)
+@[inline]
+pub fn (rest &REST) delete_webhook_with_token(webhook_id Snowflake, webhook_token string, params ReasonParam) ! {
+	REST.delete_webhook_with_token(webhook_id, webhook_token, params)!
+}
+
+pub fn (webhook &Webhook) delete(params ReasonParam) ! {
+	REST.delete_webhook_with_token(webhook.id, webhook.token or {
+		return error('no webhook token given in Webhook object')
+	}, params)!
 }
 
 pub struct ExecuteWebhookParams {
@@ -321,10 +346,11 @@ pub fn (params ExecuteWebhookParams) build_query_values() urllib.Values {
 // > i Note that when sending a message, you must provide a value for at least one of `content`, `embeds`, `components`, or `files`.
 // > i If the webhook channel is a forum or media channel, you must provide either `thread_id` in the query string params, or `thread_name` in the JSON/form params. If `thread_id` is provided, the message will send in that thread. If `thread_name` is provided, a thread with that name will be created in the channel.
 // > ! Discord may strip certain characters from message content, like invalid unicode characters or characters which cause unexpected message formatting. If you are passing user-generated strings into message content, consider sanitizing the data to prevent unexpected behavior and using `allowed_mentions` to prevent unexpected mentions.
-pub fn (rest &REST) execute_webhook(webhook_id Snowflake, webhook_token string, params ExecuteWebhookParams) !&Message {
+// pub fn (rest &REST) execute_webhook(webhook_id Snowflake, webhook_token string, params ExecuteWebhookParams) !&Message {
+pub fn REST.execute_webhook(webhook_id Snowflake, webhook_token string, params ExecuteWebhookParams) !&Message {
 	response := if files := params.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		rest.request(.post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+		REST.do_request(unsafe { nil }, .post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 			query_params: params.build_query_values()
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
@@ -333,7 +359,7 @@ pub fn (rest &REST) execute_webhook(webhook_id Snowflake, webhook_token string, 
 			body: body
 		)!
 	} else {
-		rest.request(.post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+		REST.do_request(unsafe { nil }, .post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 			query_params: params.build_query_values()
 			authenticate: false
 			json: params.build()
@@ -344,6 +370,18 @@ pub fn (rest &REST) execute_webhook(webhook_id Snowflake, webhook_token string, 
 		return &m
 	}
 	return unsafe { nil }
+}
+
+// Same as [static `REST.execute_webhook`](#REST.execute_webhook)
+@[inline]
+pub fn (rest &REST) execute_webhook(webhook_id Snowflake, webhook_token string, params ExecuteWebhookParams) !&Message {
+	return REST.execute_webhook(webhook_id, webhook_token, params)!
+}
+
+pub fn (webhook &Webhook) execute(params ExecuteWebhookParams) !&Message {
+	return REST.execute_webhook(webhook.id, webhook.token or {
+		return error('no webhook token given in Webhook object')
+	}, params)!
 }
 
 @[params]

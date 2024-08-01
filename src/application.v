@@ -236,6 +236,153 @@ pub fn (ip InstallParams) build() json2.Any {
 	}
 }
 
+pub enum ApplicationMonetizationState {
+	// Application has no monetization set up
+	none_   = 1
+	// Application has monetization set up
+	enabled
+	// Application has been blocked from monetizing
+	blocked
+}
+
+pub enum ApplicationDiscoverabilityState {
+	// Application is ineligible for the application directory
+	ineligible       = 1
+	// Application is not listed in the application directory
+	not_discoverable
+	// Application is listed in the application directory
+	discoverable
+	// Application is featureable in the application directory
+	featureable
+	// Application has been blocked from appearing in the application directory
+	blocked
+}
+
+@[flag]
+pub enum ApplicationDiscoveryEligibilityFlags {
+	// Application is verified
+	verified
+	// Application has at least one tag set
+	tag
+	// Application has a description
+	description
+	// Application has terms of service set
+	terms_of_service
+	// Application has a privacy policy set
+	privacy_policy
+	// Application has a custom install URL or install parameters
+	install_params
+	// Application's name is safe for work
+	safe_name
+	// Application's description is safe for work
+	safe_description
+	// Application has the message content intent approved or uses application commands
+	approved_commands
+	// Application has a support guild set
+	support_guild
+	// Application's commands are safe for work
+	safe_commands
+	// Application's owner has MFA enabled
+	mfa
+	// Application's directory long description is safe for work
+	safe_directory_overview
+	// Application has at least one supported locale set
+	supported_locales
+	// Application's directory short description is safe for work
+	safe_short_description
+	// Application's role connections metadata is safe for work
+	safe_role_connections
+	// Application is eligible for discovery
+	eligible
+}
+
+pub enum ApplicationExplicitContentFilterLevel {
+	// Media content will not be filtered
+	disabled
+	// Media content will be filtered
+	enabled
+}
+
+pub enum ApplicationInteractionsVersion {
+	// Only [Interaction Create](#InteractionCreateEvent) events are sent as documented (default)
+	version_1 = 1
+	// A selection of chosen events are sent
+	version_2
+}
+
+@[flags]
+pub enum ApplicationMonetizationEligibilityFlags {
+	// Application is verified
+	verified
+	// Application is owned by a team
+	has_team
+	// Application has the message content intent approved or uses application commands
+	approved_commands
+	// Application has terms of service set
+	terms_of_service
+	// Application has a privacy policy set
+	privacy_policy
+	// Application's name is safe for work
+	safe_name
+	// Application's description is safe for work
+	safe_description
+	// Application's role connections metadata is safe for work
+	safe_role_connections
+	reserved_8
+	// Application is not quarantined	
+	not_quarantined
+	reserved_10
+	reserved_11
+	reserved_12
+	reserved_13
+	reserved_14
+	// Application's team members all have verified emails
+	team_members_email_verified
+	// Application's team members all have MFA enabled
+	team_members_mfa_verified
+	// Application has no issues blocking monetization
+	no_blocking_issues
+	// Application's team has a valid payout status
+	valid_payout_status
+}
+
+pub enum RPCApplicationState {
+	// Application does not have access to RPC
+	disabled
+	// Application has not yet been applied for RPC access
+	unsubmitted
+	// Application has submitted a RPC access request
+	submitted
+	// Application has been approved for RPC access
+	approved
+	// Application has been rejected from RPC access
+	rejected
+}
+
+pub enum StoreApplicationState {
+	// Application does not have a commerce license
+	none_     = 1
+	// Application has a commerce license but has not yet submitted a store approval request
+	paid
+	// Application has submitted a store approval request
+	submitted
+	// Application has been approved for the store
+	approved
+	// Application has been rejected from the store
+	rejected
+}
+
+pub enum ApplicationVerificationState {
+	// Application is ineligible for verification
+	ineligible  = 1
+	// Application has not yet been applied for verification
+	unsubmitted
+	// Application has submitted a verification request
+	submitted
+	// Application has been verified
+	succeeded
+}
+
 pub struct Application {
 pub:
 	// ID of the app
@@ -290,6 +437,30 @@ pub:
 	install_params ?InstallParams
 	// Default custom authorization URL for the app, if enabled
 	custom_install_url ?string
+	// Directory discoverability state of the application
+	discoverability_state ?ApplicationDiscoverabilityState
+	// Directory eligibility flags for the application
+	discovery_eligibility_flags ?ApplicationDiscoveryEligibilityFlags
+	// Explicit content filter level for uploaded media content used in application commands
+	explicit_content_filter ?ApplicationExplicitContentFilterLevel
+	// Whether the bot is allowed to hook into the application's game directly
+	hook bool
+	// Gateway events to send to the interaction endpoint
+	interactions_event_types ?[]string
+	// Interactions version of the application
+	interactions_version ?ApplicationInteractionsVersion
+	// Whether the application has premium subscription set up
+	is_monetized bool
+	// Monetization eligibility flags for the application
+	monetization_eligibility_flags ?ApplicationMonetizationEligibilityFlags
+	// Monetization state of the application
+	monetization_state ?ApplicationMonetizationState
+	// RPC application state of the application
+	rpc_application_state ?RPCApplicationState
+	// Store application state of the commerce application
+	store_application_state ?StoreApplicationState
+	// Verification state of the application
+	verification_state ?ApplicationVerificationState
 }
 
 pub fn Application.parse(j json2.Any) !Application {
@@ -409,6 +580,58 @@ pub fn Application.parse(j json2.Any) !Application {
 				}
 				custom_install_url: if s := j['custom_install_url'] {
 					s as string
+				} else {
+					none
+				}
+				discoverability_state: if i := j['discoverability_state'] {
+					unsafe { ApplicationDiscoverabilityState(i.int()) }
+				} else {
+					none
+				}
+				discovery_eligibility_flags: if i := j['discovery_eligibility_flags'] {
+					unsafe { ApplicationDiscoveryEligibilityFlags(i.int()) }
+				} else {
+					none
+				}
+				explicit_content_filter: if i := j['explicit_content_filter'] {
+					unsafe { ApplicationExplicitContentFilterLevel(i.int()) }
+				} else {
+					none
+				}
+				hook: j['hook']! as bool
+				interactions_event_types: if a := j['interactions_event_types'] {
+					(a as []json2.Any).map(|s| s as string)
+				} else {
+					none
+				}
+				interactions_version: if i := j['interactions_version'] {
+					unsafe { ApplicationInteractionsVersion(i.int()) }
+				} else {
+					none
+				}
+				is_monetized: j['is_monetized']! as bool
+				monetization_eligibility_flags: if i := j['monetization_eligibility_flags'] {
+					unsafe { ApplicationMonetizationEligibilityFlags(i.int()) }
+				} else {
+					none
+				}
+				monetization_state: if i := j['monetization_state'] {
+					unsafe { ApplicationMonetizationState(i.int()) }
+				} else {
+					none
+				}
+				rpc_application_state: if i := j['rpc_application_state'] {
+					unsafe { RPCApplicationState(i.int()) }
+				} else {
+					none
+				}
+				store_application_state: if i := j['store_application_state'] {
+					unsafe { StoreApplicationState(i.int()) }
+				} else {
+					none
+				}
+				verification_state: if i := j['verification_state'] {
+					unsafe { ApplicationVerificationState(i.int()) }
 				} else {
 					none
 				}

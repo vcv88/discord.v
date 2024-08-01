@@ -480,6 +480,37 @@ pub fn UnavailableGuild.parse(j json2.Any) !UnavailableGuild {
 	}
 }
 
+pub struct IncidentsData {
+	// when invites get enabled again
+	invites_disabled_until ?time.Time
+	// when direct messages get enabled again
+	dms_disabled_until ?time.Time
+}
+
+pub fn IncidentsData.parse(j json2.Any) !IncidentsData {
+	match j {
+		map[string]json2.Any {
+			invites_disabled_until := j['invites_disabled_until']!
+			dms_disabled_until := j['dms_disabled_until']!
+			return IncidentsData{
+				invites_disabled_until: if invites_disabled_until !is json2.Null {
+					time.parse_iso8601(invites_disabled_until as string)!
+				} else {
+					none
+				}
+				dms_disabled_until: if dms_disabled_until !is json2.Null {
+					time.parse_iso8601(dms_disabled_until as string)!
+				} else {
+					none
+				}
+			}
+		}
+		else {
+			return error('expected IncidentsData to be object')
+		}
+	}
+}
+
 pub struct Guild {
 pub:
 	// guild id
@@ -562,6 +593,8 @@ pub:
 	premium_progress_bar_enabled bool
 	// the id of the channel where admins and moderators of Community guilds receive safety alerts from Discord
 	safety_alerts_channel_id ?Snowflake
+	// the incidents data for this guild
+	incidents_data ?IncidentsData
 }
 
 pub fn (g Guild) get_role(role_id Snowflake) ?Role {
@@ -604,6 +637,7 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 	banner := j['banner']!
 	public_updates_channel_id := j['public_updates_channel_id']!
 	safety_alerts_channel_id := j['safety_alerts_channel_id']!
+	incidents_data := j['incidents_data']!
 	return Guild{
 		id: Snowflake.parse(j['id']!)!
 		name: j['name']! as string
@@ -756,6 +790,11 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		premium_progress_bar_enabled: j['premium_progress_bar_enabled']! as bool
 		safety_alerts_channel_id: if safety_alerts_channel_id !is json2.Null {
 			Snowflake.parse(safety_alerts_channel_id)!
+		} else {
+			none
+		}
+		incidents_data: if incidents_data !is json2.Null {
+			IncidentsData.parse(incidents_data)!
 		} else {
 			none
 		}
@@ -1414,7 +1453,7 @@ pub mut:
 	// sorting position of the channel
 	position ?int = sentinel_int
 	// syncs the permission overwrites with the new parent, if moving to a new category
-	lock_permissions ?bool = sentinel_bool
+	lock_permissions ?bool
 	// the new parent ID for the channel that is moved
 	parent_id ?Snowflake = sentinel_snowflake
 }
@@ -1431,11 +1470,7 @@ pub fn (params EditGuildChannelPositionsParams) build() json2.Any {
 		r['position'] = json2.null
 	}
 	if lock_permissions := params.lock_permissions {
-		if !is_sentinel(lock_permissions) {
-			r['lock_permissions'] = lock_permissions
-		}
-	} else {
-		r['lock_permissions'] = json2.null
+		r['lock_permissions'] = lock_permissions
 	}
 	if parent_id := params.parent_id {
 		if !is_sentinel(parent_id) {
@@ -1544,9 +1579,9 @@ pub mut:
 	// array of role ids the member is assigned
 	roles ?[]Snowflake = sentinel_snowflakes
 	// whether the user is muted in voice channels. Will throw a 400 error if the user is not in a voice channel
-	mute ?bool = sentinel_bool
+	mute ?bool
 	// whether the user is deafened in voice channels. Will throw a 400 error if the user is not in a voice channel
-	deaf ?bool = sentinel_bool
+	deaf ?bool
 	// id of channel to move user to (if they are connected to voice)
 	channel_id ?Snowflake = sentinel_snowflake
 	// when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to `none` to remove timeout. Will throw a 403 error if the user has the `administrator` permission or is the owner of the guild
@@ -1572,18 +1607,10 @@ pub fn (params EditGuildMemberParams) build() json2.Any {
 		r['roles'] = json2.null
 	}
 	if mute := params.mute {
-		if !is_sentinel(mute) {
-			r['mute'] = mute
-		}
-	} else {
-		r['mute'] = json2.null
+		r['mute'] = mute
 	}
 	if deaf := params.deaf {
-		if !is_sentinel(deaf) {
-			r['deaf'] = deaf
-		}
-	} else {
-		r['deaf'] = json2.null
+		r['deaf'] = deaf
 	}
 	if channel_id := params.channel_id {
 		if !is_sentinel(channel_id) {
@@ -1757,6 +1784,75 @@ pub fn (rest &REST) create_guild_ban(guild_id Snowflake, user_id Snowflake, para
 	)!
 }
 
+pub struct BulkBanResponse {
+pub:
+	// list of user ids, that were successfully banned
+	banned_users ?[]Snowflake
+	// list of user ids, that were not banned
+	failed_users ?[]Snowflake
+}
+
+pub fn BulkBanResponse.parse(j json2.Any) !BulkBanResponse {
+	match j {
+		map[string]json2.Any {
+			return BulkBanResponse{
+				banned_users: if a := j['banned_users'] {
+					if a !is json2.Null {
+						maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
+							return Snowflake.parse(k)!
+						})!
+					} else {
+						none
+					}
+				} else {
+					none
+				}
+				failed_users: if a := j['failed_users'] {
+					if a !is json2.Null {
+						maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
+							return Snowflake.parse(k)!
+						})!
+					} else {
+						none
+					}
+				} else {
+					none
+				}
+			}
+		}
+		else {
+			return error('expected BulkBanResponse to be object, got ${j.type_name()}')
+		}
+	}
+}
+
+@[params]
+pub struct BulkGuildBanParams {
+pub mut:
+	reason   ?string
+	user_ids []Snowflake @[required]
+	// number of seconds to delete messages for, between 0 and 604800 (7 days)
+	delete_message_seconds ?time.Duration
+}
+
+pub fn (params BulkGuildBanParams) build() json2.Any {
+	mut r := {
+		'user_ids': json2.Any(params.user_ids.map(|s| s.build()))
+	}
+	if delete_message_seconds := params.delete_message_seconds {
+		r['delete_message_seconds'] = delete_message_seconds / time.second
+	}
+	return r
+}
+
+// Ban up to 200 users from a guild, and optionally delete previous messages sent by the banned users. Requires both the `.ban_members` and `.manage_guild` permissions. Returns 200 response on success, including a field `banned_users` with the IDs of the banned users and `failed_users` with all that were not be banned. The list of `failed_users` will also include all users that were already banned.
+pub fn (rest &REST) bulk_guild_ban(guild_id Snowflake, params BulkGuildBanParams) !BulkBanResponse {
+	return BulkBanResponse.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/bulk-ban',
+		json: params.build()
+		reason: params.reason
+	)!.body)!)!
+}
+
 // Remove the ban for a user. Requires the `.ban_members` permissions. Returns a 204 empty response on success. Fires a Guild Ban Remove Gateway event.
 pub fn (rest &REST) remove_guild_ban(guild_id Snowflake, user_id Snowflake, params ReasonParam) ! {
 	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}',
@@ -1878,13 +1974,13 @@ pub mut:
 	// RGB color value
 	color ?int = sentinel_int
 	// whether the role should be displayed separately in the sidebar
-	hoist ?bool = sentinel_bool
+	hoist ?bool
 	// the role's icon image (if the guild has the ROLE_ICONS feature)
 	icon ?Image = sentinel_image
 	// the role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
 	unicode_emoji ?string = sentinel_string
 	// whether the role should be mentionable
-	mentionable ?bool = sentinel_bool
+	mentionable ?bool
 }
 
 pub fn (params EditGuildRoleParams) build() json2.Any {
@@ -1911,11 +2007,7 @@ pub fn (params EditGuildRoleParams) build() json2.Any {
 		r['color'] = json2.null
 	}
 	if hoist := params.hoist {
-		if !is_sentinel(hoist) {
-			r['hoist'] = hoist
-		}
-	} else {
-		r['hoist'] = json2.null
+		r['hoist'] = hoist
 	}
 	if icon := params.icon {
 		if !is_sentinel(icon) {
@@ -1932,11 +2024,7 @@ pub fn (params EditGuildRoleParams) build() json2.Any {
 		r['unicode_emoji'] = json2.null
 	}
 	if mentionable := params.mentionable {
-		if !is_sentinel(mentionable) {
-			r['mentionable'] = mentionable
-		}
-	} else {
-		r['mentionable'] = json2.null
+		r['mentionable'] = mentionable
 	}
 	return r
 }
@@ -1952,11 +2040,11 @@ pub fn (rest &REST) edit_guild_role(guild_id Snowflake, role_id Snowflake, param
 // Modify a guild's MFA level. Requires guild ownership. Returns the updated level on success. Fires a Guild Update Gateway event.
 pub fn (rest &REST) edit_guild_mfa_level(guild_id Snowflake, level MFALevel, params ReasonParam) !MFALevel {
 	return unsafe {
-		MFALevel(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/mfa',
+		MFALevel((json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/mfa',
 			json: {
 				'level': json2.Any(int(level))
 			}
-		)!.body)!.int())
+		)!.body)! as map[string]json2.Any)['level']!.int())
 	}
 }
 
@@ -2856,4 +2944,39 @@ pub fn (rest &REST) edit_user_voice_state(guild_id Snowflake, user_id Snowflake,
 	rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/voice-states/${urllib.path_escape(user_id.str())}',
 		json: params.build()
 	)!
+}
+
+@[params]
+pub struct EditGuildIncidentActionsParams {
+pub mut:
+	// when disabled invites will expire (up to 24 hours in the future)
+	invites_disabled_until ?time.Time = sentinel_time
+	// when disabled direct messages will expire (up to 24 hours in the future)
+	dms_disabled_until ?time.Time = sentinel_time
+}
+
+pub fn (params EditGuildIncidentActionsParams) build() json2.Any {
+	mut j := map[string]json2.Any{}
+	if invites_disabled_until := params.invites_disabled_until {
+		if !is_sentinel(invites_disabled_until) {
+			j['invites_disabled_until'] = format_iso8601(invites_disabled_until)
+		}
+	} else {
+		j['invites_disabled_until'] = json2.null
+	}
+	if dms_disabled_until := params.dms_disabled_until {
+		if !is_sentinel(dms_disabled_until) {
+			j['invites_disabled_until'] = format_iso8601(dms_disabled_until)
+		}
+	} else {
+		j['dms_disabled_until'] = json2.null
+	}
+	return j
+}
+
+// Modifies the incident actions of the guild. Returns a 200 with the [Incidents Data](#IncidentsData) object for the guild. Requires the `.manage_guild` permission.
+pub fn (rest &REST) edit_guild_incident_actions(guild_id Snowflake, params EditGuildIncidentActionsParams) !IncidentsData {
+	return IncidentsData.parse(json2.raw_decode(rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/incident-actions',
+		json: params.build()
+	)!.body)!)!
 }

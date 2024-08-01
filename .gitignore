@@ -29,3 +29,6 @@ token.txt
 *.def
 /*.c
 /*.db
+/test*.py
+/test.py
+/test*.vsh

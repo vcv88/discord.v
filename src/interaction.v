@@ -14,21 +14,36 @@ pub enum InteractionType {
 
 pub struct Interaction {
 pub:
-	id              Snowflake
-	application_id  Snowflake
-	typ             InteractionType
-	data            ?json2.Any
-	guild_id        ?Snowflake
-	channel         ?PartialChannel
-	channel_id      ?Snowflake
-	member          ?GuildMember
-	user            ?User
-	token           string
-	message         ?Message
+	// ID of the interaction
+	id Snowflake
+	// ID of the application this interaction is for
+	application_id Snowflake
+	// Type of interaction
+	typ InteractionType
+	// Interaction data payload
+	data ?json2.Any
+	// Guild that the interaction was sent from
+	guild_id ?Snowflake
+	// Channel that the interaction was sent from
+	channel ?PartialChannel
+	// Channel that the interaction was sent from
+	channel_id ?Snowflake
+	// Guild member data for the invoking user, including permissions
+	member ?GuildMember
+	// User object for the invoking user, if invoked in a DM
+	user ?User
+	// Continuation token for responding to the interaction
+	token string
+	// For components, the message they were attached to
+	message ?Message
+	// Bitwise set of permissions the app or bot has within the channel the interaction was sent from
 	app_permissions ?Permissions
-	locale          ?Locale
-	guild_locale    ?Locale
-	entitlements    []Entitlement
+	// Selected [language](#Locale) of the invoking user
+	locale ?Locale
+	// Guild's [preferred locale](#Locale), if invoked in a guild
+	guild_locale ?Locale
+	// For monetized apps, any entitlements for the invoking user, representing access to premium [SKUs](#Sku)
+	entitlements []Entitlement
 }
 
 pub fn Interaction.parse(j json2.Any) !Interaction {
@@ -69,6 +84,11 @@ pub fn Interaction.parse(j json2.Any) !Interaction {
 					none
 				}
 				token: j['token']! as string
+				message: if o := j['message'] {
+					Message.parse(o)!
+				} else {
+					none
+				}
 				app_permissions: if s := j['app_permissions'] {
 					Permissions.parse(s)!
 				} else {

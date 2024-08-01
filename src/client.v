@@ -59,12 +59,11 @@ pub:
 	write_timeout   ?time.Duration
 }
 
-fn (config BotConfig) get_level() log.Level {
-	return if config.debug {
-		.debug
-	} else {
-		.info
-	}
+fn (config BotConfig) setup_logger() log.Log {
+	mut l := log.Log{}
+	l.set_level(if config.debug { .debug } else { .info })
+	l.set_output_label('discord.v')
+	return l
 }
 
 // `bot` creates a new [GatewayClient] that can be used to listen events.
@@ -76,10 +75,7 @@ pub fn bot(token string, config BotConfig) GatewayClient {
 		cache: config.cache
 		intents: int(config.intents)
 		large_threshold: config.large_threshold
-		logger: log.Log{
-			level: config.get_level()
-			output_label: 'discord.v'
-		}
+		logger: config.setup_logger()
 		presence: config.presence
 		properties: config.properties
 		read_timeout: config.read_timeout

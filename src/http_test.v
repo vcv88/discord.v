@@ -4,17 +4,12 @@ import net.http
 import os
 import time
 
-struct InterfacePlaceholder {
-	v voidptr @[export: '_object']
-}
-
 fn cast_interface[T, U](u U) T {
 	$if U is $interface {
 		if u is T {
-			// cannot use `u` directly due to cgen bug
-			return unsafe { *&T((&InterfacePlaceholder(voidptr(&u))).v) }
+			return u
 		} else {
-			panic('expected t to be ${typeof[T]().name}, got ${typeof[U]().name}')
+			panic('expected `u` to be ${typeof[T]().name}, got ${typeof[U]().name}')
 		}
 	} $else {
 		$compile_error('not an interface')
@@ -51,7 +46,7 @@ fn test_applications() {
 	application := rest.fetch_my_application() or { panic(err) }
 	assert rest.list_skus(application.id) or { panic(err) } == []
 
-	current_time := time.now().unix.str()
+	current_time := time.now().unix().str()
 	assert rest.edit_my_application(description: current_time) or { panic(err) }.description == current_time
 }
 
@@ -421,6 +416,24 @@ fn test_webhooks() {
 	assert message2.id == message.id
 	rest.delete_webhook_message(webhook.id, token, message.id) or { panic(err) }
 	rest.delete_webhook_with_token(webhook.id, token) or { panic(err) }
+
+	webhook2 := rest.create_webhook(channel_id, name: 'Test webhook 2') or { panic(err) }
+	if name := webhook2.name {
+		assert name == 'Test webhook 2'
+	} else {
+		assert false
+	}
+	token2 := webhook2.token or { panic(err) }
+	assert token2 != ''
+
+	message3 := webhook2.execute(wait: true, content: '[2] Test webhook message') or { panic(err) }
+	assert message3 != unsafe { nil }
+	message4 := rest.edit_webhook_message(webhook2.id, token2, message3.id,
+		content: '[2] New webhook content'
+	) or { panic(err) }
+	assert message4.id == message3.id
+	rest.delete_webhook_message(webhook2.id, token2, message3.id) or { panic(err) }
+	webhook2.delete() or { panic(err) }
 }
 
 fn test_voice() {

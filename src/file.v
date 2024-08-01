@@ -147,3 +147,84 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 		}
 	}
 }
+
+pub interface Image {
+	data []u8
+	is_image()
+	content_type() string
+	build() string
+}
+
+pub struct JpegImage {
+pub:
+	data []u8 @[required]
+}
+
+fn (_ JpegImage) is_image() {}
+
+pub fn (_ JpegImage) content_type() string {
+	return 'image/jpeg'
+}
+
+pub fn (jf JpegImage) build() string {
+	return 'data:${jf.content_type()};base64,${base64.encode(jf.data)}'
+}
+
+pub struct PngImage {
+pub:
+	data []u8 @[required]
+}
+
+fn (_ PngImage) is_image() {}
+
+pub fn (_ PngImage) content_type() string {
+	return 'image/png'
+}
+
+pub fn (pf PngImage) build() string {
+	return 'data:${pf.content_type()};base64,${base64.encode(pf.data)}'
+}
+
+pub struct ApngImage {
+pub:
+	data []u8 @[required]
+}
+
+fn (_ ApngImage) is_image() {}
+
+pub fn (_ ApngImage) content_type() string {
+	return 'image/apng'
+}
+
+pub fn (af ApngImage) build() string {
+	return 'data:${af.content_type()};base64,${base64.encode(af.data)}'
+}
+
+pub struct GifImage {
+pub:
+	data []u8 @[required]
+}
+
+fn (_ GifImage) is_image() {}
+
+pub fn (_ GifImage) content_type() string {
+	return 'image/gif'
+}
+
+pub fn (gf GifImage) build() string {
+	return 'data:${gf.content_type()};base64,${base64.encode(gf.data)}'
+}
+
+pub struct NoneFile {
+	data []u8 = []
+}
+
+fn (_ NoneFile) is_image() {}
+
+pub fn (_ NoneFile) content_type() string {
+	return ''
+}
+
+pub fn (_ NoneFile) build() string {
+	return ''
+}

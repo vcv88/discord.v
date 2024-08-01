@@ -6,6 +6,7 @@ import net.http
 import x.json2
 
 pub struct RestError {
+	Error
 	code    int
 	errors  map[string]json2.Any
 	message string

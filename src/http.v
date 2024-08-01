@@ -7,11 +7,8 @@ import rand
 import strings
 import x.json2
 
-pub type Prepare = fn (mut http.Request) !
-
 @[params]
 pub struct RequestOptions {
-	prepare        ?Prepare
 	authenticate   bool = true
 	reason         ?string
 	json           ?json2.Any
@@ -21,11 +18,15 @@ pub struct RequestOptions {
 	headers        map[string]string
 }
 
-pub fn (rest &REST) request(method http.Method, route string, options RequestOptions) !http.Response {
+pub fn REST.do_request(rest &REST, method http.Method, route string, options RequestOptions) !http.Response {
 	if options.json != none && options.body != none {
 		return error('cannot have json and body')
 	}
-	mut req := http.new_request(method, rest.base_url.trim_right('/') + '/' + route.all_before('?') + (if query_params := options.query_params {
+	mut req := http.new_request(method, if rest != unsafe { nil } {
+		rest.base_url.trim_right('/') + '/'
+	} else {
+		'https://discord.com/api/v10'
+	} + route.all_before('?') + (if query_params := options.query_params {
 		tmp := query_params.encode()
 		if tmp != '' {
 			'?${tmp}'
@@ -41,9 +42,13 @@ pub fn (rest &REST) request(method http.Method, route string, options RequestOpt
 	} else {
 		''
 	})
-	req.user_agent = rest.user_agent
+	req.user_agent = if rest != unsafe { nil } {
+		rest.user_agent
+	} else {
+		default_user_agent
+	}
 	req.header = http.Header{}
-	if options.authenticate {
+	if options.authenticate && rest != unsafe { nil } {
 		req.header.add(.authorization, rest.token)
 	}
 	if options.json != none {
@@ -61,15 +66,15 @@ pub fn (rest &REST) request(method http.Method, route string, options RequestOpt
 	if req.data == '' {
 		req.header.add(.content_length, '0')
 	}
-	if f := options.prepare {
-		f(mut &req)!
-	}
 	$if trace ? {
 		eprintln('HTTP > ${method.str()} ${route}; with payload: ${req.data}')
 	}
-
-	res := if h := rest.http {
-		h.perform(req)!
+	res := if rest != unsafe { nil } {
+		if h := rest.http {
+			h.perform(req)!
+		} else {
+			req.do()!
+		}
 	} else {
 		req.do()!
 	}
@@ -137,6 +142,11 @@ pub fn (rest &REST) request(method http.Method, route string, options RequestOpt
 		}
 	}
 	return res
+}
+
+@[inline]
+pub fn (rest &REST) request(method http.Method, route string, options RequestOptions) !http.Response {
+	return REST.do_request(rest, method, route, options)
 }
 
 pub fn multipart_form_body(files map[string][]http.FileData) (string, string) {
