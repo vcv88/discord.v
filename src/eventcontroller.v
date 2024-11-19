@@ -47,7 +47,7 @@ pub fn (mut ec EventController[T]) emit(e T, options EmitOptions) {
 	for _, w in ec.wait_fors {
 		mut b := false
 		if w.check != none {
-			c := w.check or { panic('corrupted') }
+			c := w.check
 			b = c(e)
 		} else {
 			b = true
