@@ -153,7 +153,7 @@ pub:
 	properties      Properties
 	large_threshold ?int
 	gateway_url     string = 'wss://gateway.discord.gg'
-	log             log.Logger
+	log             &log.Logger = unsafe { log.get_logger() }
 	rest            REST
 	token           string
 mut:
