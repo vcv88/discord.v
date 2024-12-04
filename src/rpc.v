@@ -32,7 +32,7 @@ pub fn (mut rpc RPC) recv() !RPCPacket {
 	rpc.conn.read(mut data)!
 	dump(data.bytestr())
 	return RPCPacket{
-		op: op
+		op: int(op)
 		data: data
 	}
 }
