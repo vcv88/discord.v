@@ -83,7 +83,7 @@ pub fn REST.do_request(rest &REST, method http.Method, route string, options Req
 	}
 	if res.status_code >= 400 {
 		status := res.status()
-		er := json2.raw_decode(res.body)! as map[string]json2.Any
+		er := json2.decode[json2.Any](res.body)! as map[string]json2.Any
 		code := (er['code'] or { json2.Any(0) }).int()
 		message := er['message'] or { '' } as string
 		errors := er['errors'] or {

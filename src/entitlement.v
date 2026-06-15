@@ -125,7 +125,7 @@ pub fn (params ListEntitlementParams) build_query_values() urllib.Values {
 
 // Returns all entitlements for a given app, active and expired.
 pub fn (rest &REST) list_entitlements(application_id Snowflake, params ListEntitlementParams) ![]Entitlement {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/entitlements',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/entitlements',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (k json2.Any) !Entitlement {
 		return Entitlement.parse(k)!
@@ -161,7 +161,7 @@ pub fn (params CreateTestEntitlementParams) build() json2.Any {
 // Creates a test entitlement to a given SKU for a given guild or user. Discord will act as though that user or guild has entitlement to your premium offering.
 // After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
 pub fn (rest &REST) create_test_entitlement(application_id Snowflake, params CreateTestEntitlementParams) !Entitlement {
-	return Entitlement.parse(json2.raw_decode(rest.request(.post, '/applications/${urllib.path_escape(application_id.str())}/entitlements',
+	return Entitlement.parse(json2.decode[json2.Any](rest.request(.post, '/applications/${urllib.path_escape(application_id.str())}/entitlements',
 		json: params.build()
 	)!.body)!)!
 }

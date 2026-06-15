@@ -61,7 +61,7 @@ pub fn Sku.parse(j json2.Any) !Sku {
 }
 
 pub fn (rest &REST) list_skus(application_id Snowflake) ![]Sku {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/skus')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/skus')!.body)! as []json2.Any,
 		fn (j json2.Any) !Sku {
 		return Sku.parse(j)!
 	})!

@@ -1236,7 +1236,7 @@ pub fn (params GetChannelMessagesParams) build_query_values() urllib.Values {
 }
 
 pub fn (rest &REST) fetch_messages(channel_id Snowflake, params GetChannelMessagesParams) ![]Message {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !Message {
 		return Message.parse(j)!
@@ -1244,7 +1244,7 @@ pub fn (rest &REST) fetch_messages(channel_id Snowflake, params GetChannelMessag
 }
 
 pub fn (rest &REST) fetch_message(channel_id Snowflake, message_id Snowflake) !Message {
-	return Message.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}')!.body)!)!
+	return Message.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}')!.body)!)!
 }
 
 pub enum AllowedMentionType {
@@ -1366,14 +1366,14 @@ pub fn (params CreateMessageParams) build() json2.Any {
 pub fn (rest &REST) create_message(channel_id Snowflake, params CreateMessageParams) !Message {
 	if files := params.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		return Message.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
+		return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
 			body: body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
 		)!.body)!)!
 	} else {
-		return Message.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
+		return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
 			json: params.build()
 		)!.body)!)!
 	}
@@ -1382,7 +1382,7 @@ pub fn (rest &REST) create_message(channel_id Snowflake, params CreateMessagePar
 // Crosspost a message in an Announcement Channel to following channels. This endpoint requires the SEND_MESSAGES permission, if the current user sent the message, or additionally the `.manage_messages` permission, for all other messages, to be present for the current user.
 // Returns a [`message`](#Message) object. Fires a Message Update Gateway event.
 pub fn (rest &REST) crosspost_message(channel_id Snowflake, message_id Snowflake) !Message {
-	return Message.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/crosspost')!.body)!)!
+	return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/crosspost')!.body)!)!
 }
 
 @[params]
@@ -1446,7 +1446,7 @@ pub fn (params FetchReactionsParams) build_query_values() urllib.Values {
 
 // Get a list of users that reacted with this emoji. Returns an array of [user](#User) objects on success.
 pub fn (rest &REST) fetch_reactions(channel_id Snowflake, message_id Snowflake, params FetchReactionsParams) ![]User {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !User {
 		return User.parse(j)!
@@ -1515,14 +1515,14 @@ pub fn (params EditMessageParams) build() json2.Any {
 pub fn (rest &REST) edit_message(channel_id Snowflake, message_id Snowflake, params EditMessageParams) !Message {
 	if fs := params.files {
 		body, boundary := build_multipart_with_files(fs, params.build())
-		return Message.parse(json2.raw_decode(rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
+		return Message.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
 			body: body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
 		)!.body)!)!
 	}
-	return Message.parse(json2.raw_decode(rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
+	return Message.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
 		json: params.build()
 	)!.body)!)!
 }
@@ -1548,7 +1548,7 @@ pub fn (rest &REST) delete_messages(channel_id Snowflake, message_ids []Snowflak
 
 // Returns all pinned messages in the channel as an array of message objects.
 pub fn (rest &REST) fetch_pinned_messagse(channel_id Snowflake) ![]Message {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/pins')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/pins')!.body)! as []json2.Any,
 		fn (j json2.Any) !Message {
 		return Message.parse(j)!
 	})!
@@ -1658,7 +1658,7 @@ pub fn (params StartThreadInForumChannelParams) build() json2.Any {
 pub fn (rest &REST) start_thread_in_forum_channel(channel_id Snowflake, params StartThreadInForumChannelParams) !Channel {
 	if files := params.message.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		return Channel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
+		return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
 			body: body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
@@ -1666,7 +1666,7 @@ pub fn (rest &REST) start_thread_in_forum_channel(channel_id Snowflake, params S
 			reason: params.reason
 		)!.body)!)!
 	} else {
-		return Channel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
+		return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
 			json: params.build()
 			reason: params.reason
 		)!.body)!)!

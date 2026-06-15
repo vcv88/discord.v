@@ -176,7 +176,7 @@ pub fn (params FetchScheduledEventsParams) build_query_values() urllib.Values {
 
 // Returns a list of [guild scheduled event](#GuildScheduledEvent) objects for the given guild.
 pub fn (rest &REST) list_scheduled_events_for_guild(guild_id Snowflake, params FetchScheduledEventsParams) ![]GuildScheduledEvent {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (k json2.Any) !GuildScheduledEvent {
 		return GuildScheduledEvent.parse(k)!
@@ -235,7 +235,7 @@ pub fn (params CreateGuildScheduledEventParams) build() json2.Any {
 // Create a guild scheduled event in the guild. Returns a [guild scheduled event](#GuildScheduledEvent) object on success. Fires a Guild Scheduled Event Create Gateway event.
 // > i A guild can have a maximum of 100 events with `.scheduled` or `.active` status at any time.
 pub fn (rest &REST) create_guild_scheduled_event(guild_id Snowflake, params CreateGuildScheduledEventParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -243,7 +243,7 @@ pub fn (rest &REST) create_guild_scheduled_event(guild_id Snowflake, params Crea
 
 // Get a guild scheduled event. Returns a guild scheduled event object on success.
 pub fn (rest &REST) fetch_guild_scheduled_event(guild_id Snowflake, guild_scheduled_event_id Snowflake, params FetchScheduledEventsParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -328,7 +328,7 @@ pub fn (params EditGuildScheduledEventParams) build() json2.Any {
 // > i To start or end an event, use this function to modify the event's status field.
 // > i This endpoint silently discards `entity_metadata` for non-`.external` events.
 pub fn (rest &REST) edit_guild_scheduled_event(guild_id Snowflake, guild_scheduled_event_id Snowflake, params EditGuildScheduledEventParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -402,7 +402,7 @@ pub fn (params FetchGuildScheduledEventUsersParams) build_query_values() urllib.
 
 // Get a list of guild scheduled event users subscribed to a guild scheduled event. Returns a list of [guild scheduled event user](#GuildScheduledEventUser) objects on success. Guild member data, if it exists, is included if the `with_member` parameter is set.
 pub fn (rest &REST) fetch_guild_scheduled_event_users(guild_id Snowflake, guild_scheduled_event_id Snowflake, params FetchGuildScheduledEventUsersParams) ![]GuildScheduledEventUser {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/users',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/users',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (k json2.Any) !GuildScheduledEventUser {
 		return GuildScheduledEventUser.parse(k)!

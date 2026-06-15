@@ -178,7 +178,7 @@ pub mut:
 }
 
 fn (mut c GatewayClient) recv() !GatewayMessage {
-	return GatewayMessage.parse(json2.raw_decode(c.ws.read_next_message()!.payload.bytestr())!)!
+	return GatewayMessage.parse(json2.decode[json2.Any](c.ws.read_next_message()!.payload.bytestr())!)!
 }
 
 fn (mut c GatewayClient) send(op GatewayOpcode, d json2.Any) ! {
@@ -324,7 +324,7 @@ fn (mut c GatewayClient) init_ws(mut ws websocket.Client) {
 		}
 	}, &mut c)
 	ws.on_message_ref(fn (mut _ websocket.Client, m &websocket.Message, mut client GatewayClient) ! {
-		message := GatewayMessage.parse(json2.raw_decode(m.payload.bytestr())!)!
+		message := GatewayMessage.parse(json2.decode[json2.Any](m.payload.bytestr())!)!
 		if !client.ready {
 			if message.opcode != .hello {
 				return error('First message was not HELLO')
@@ -578,7 +578,7 @@ pub fn (mut gc GatewayClient) latency() f64 {
 }
 
 pub fn (rest &REST) fetch_gateway_url() !string {
-	return (json2.raw_decode(rest.request(.get, '/gateway', authenticate: false)!.body)! as map[string]json2.Any)['url']! as string
+	return (json2.decode[json2.Any](rest.request(.get, '/gateway', authenticate: false)!.body)! as map[string]json2.Any)['url']! as string
 }
 
 pub struct SessionStartLimit {
@@ -635,7 +635,7 @@ pub fn GatewayConfiguration.parse(j json2.Any) !GatewayConfiguration {
 }
 
 pub fn (rest &REST) fetch_gateway_configuration() !GatewayConfiguration {
-	return GatewayConfiguration.parse(json2.raw_decode(rest.request(.get, '/gateway/bot')!.body)!)!
+	return GatewayConfiguration.parse(json2.decode[json2.Any](rest.request(.get, '/gateway/bot')!.body)!)!
 }
 
 pub type ArrayOrSnowflake = Snowflake | []Snowflake

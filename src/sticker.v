@@ -155,12 +155,12 @@ pub fn StickerPack.parse(j json2.Any) !StickerPack {
 
 // Returns a [sticker](#Sticker) object for the given sticker ID.
 pub fn (rest &REST) fetch_sticker(sticker_id Snowflake) !Sticker {
-	return Sticker.parse(json2.raw_decode(rest.request(.get, '/stickers/${urllib.path_escape(sticker_id.str())}')!.body)!)!
+	return Sticker.parse(json2.decode[json2.Any](rest.request(.get, '/stickers/${urllib.path_escape(sticker_id.str())}')!.body)!)!
 }
 
 // Returns a list of available sticker packs.
 pub fn (rest &REST) list_sticker_packs() ![]StickerPack {
-	return maybe_map((json2.raw_decode(rest.request(.get, '/sticker-packs')!.body)! as map[string]json2.Any)['sticker_packs']! as []json2.Any,
+	return maybe_map((json2.decode[json2.Any](rest.request(.get, '/sticker-packs')!.body)! as map[string]json2.Any)['sticker_packs']! as []json2.Any,
 		fn (k json2.Any) !StickerPack {
 		return StickerPack.parse(k)!
 	})!
@@ -168,7 +168,7 @@ pub fn (rest &REST) list_sticker_packs() ![]StickerPack {
 
 // Returns an array of [sticker](#Sticker) objects for the given guild. Includes `user` fields if the bot has the `.create_guild_expressions` or `.manage_guild_expressions` permission.
 pub fn (rest &REST) list_guild_stickers(guild_id Snowflake) ![]Sticker {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/stickers')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/stickers')!.body)! as []json2.Any,
 		fn (k json2.Any) !Sticker {
 		return Sticker.parse(k)!
 	})!
@@ -176,7 +176,7 @@ pub fn (rest &REST) list_guild_stickers(guild_id Snowflake) ![]Sticker {
 
 // Returns a [sticker](#Sticker) object for the given guild and sticker IDs. Includes the `user` field if the bot has the `.create_guild_expressions` or `.manage_guild_expressions` permission.
 pub fn (rest &REST) fetch_guild_sticker(guild_id Snowflake, sticker_id Snowflake) !Sticker {
-	return Sticker.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/stickers/${urllib.path_escape(sticker_id.str())}')!.body)!)!
+	return Sticker.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/stickers/${urllib.path_escape(sticker_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -219,7 +219,7 @@ pub fn (params CreateGuildStickerParams) build() map[string][]http.FileData {
 // > i Lottie stickers can only be uploaded on guilds that have either the `VERIFIED` and/or the `PARTNERED` [guild feature](#GuildFeature).
 pub fn (rest &REST) create_guild_sticker(guild_id Snowflake, params CreateGuildStickerParams) !Sticker {
 	boundary, body := multipart_form_body(params.build())
-	return Sticker.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/stickers',
+	return Sticker.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/stickers',
 		body: body
 		common_headers: {
 			.content_type: 'multipart/form-data; boundary="${boundary}"'
@@ -260,7 +260,7 @@ pub fn (params EditGuildStickerParams) build() json2.Any {
 
 // Modify the given sticker. For stickers created by the current user, requires either the `.create_guild_expressions` or `.manage_guild_expressions` permission. For other stickers, requires the `.manage_guild_expressions` permission. Returns the updated [sticker](#Sticker) object on success. Fires a Guild Stickers Update Gateway event.
 pub fn (rest &REST) edit_guild_sticker(guild_id Snowflake, sticker_id Snowflake, params EditGuildStickerParams) !Sticker {
-	return Sticker.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/stickers/${urllib.path_escape(sticker_id.str())}',
+	return Sticker.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/stickers/${urllib.path_escape(sticker_id.str())}',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!

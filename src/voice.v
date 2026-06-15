@@ -114,7 +114,7 @@ pub fn VoiceRegion.parse(j json2.Any) !VoiceRegion {
 
 // Returns an array of voice region objects that can be used when setting a voice or stage channel's `rtc_region`.
 pub fn (rest &REST) list_voice_regions() ![]VoiceRegion {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/voice/regions')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/voice/regions')!.body)! as []json2.Any,
 		fn (j json2.Any) !VoiceRegion {
 		return VoiceRegion.parse(j)!
 	})!

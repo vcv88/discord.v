@@ -83,7 +83,7 @@ pub fn (params CreateStageInstanceParams) build() json2.Any {
 // Creates a new Stage instance associated to a Stage channel. Returns that [Stage instance](#StageInstance). Fires a Stage Instance Create Gateway event.
 // Requires the user to be a moderator of the Stage channel.
 pub fn (rest &REST) create_stage_instance(params CreateStageInstanceParams) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.post, '/stage-instances',
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.post, '/stage-instances',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -91,7 +91,7 @@ pub fn (rest &REST) create_stage_instance(params CreateStageInstanceParams) !Sta
 
 // Gets the stage instance associated with the Stage channel, if it exists.
 pub fn (rest &REST) fetch_stage_instance(channel_id Snowflake) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.get, '/stage-instances/${urllib.path_escape(channel_id.str())}')!.body)!)!
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.get, '/stage-instances/${urllib.path_escape(channel_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -118,7 +118,7 @@ pub fn (params EditStageInstanceParams) build() json2.Any {
 // Updates fields of an existing Stage instance. Returns the updated [Stage instance](#StageInstance). Fires a Stage Instance Update Gateway event.
 // Requires the user to be a moderator of the Stage channel.
 pub fn (rest &REST) edit_stage_instance(channel_id Snowflake, params EditStageInstanceParams) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.patch, '/stage-instances/${urllib.path_escape(channel_id.str())}',
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.patch, '/stage-instances/${urllib.path_escape(channel_id.str())}',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!

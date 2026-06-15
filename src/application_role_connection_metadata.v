@@ -66,7 +66,7 @@ pub fn ApplicationRoleConnectionMetadata.parse(j json2.Any) !ApplicationRoleConn
 
 // Returns a list of [application role connection metadata](#ApplicationRoleConnectionMetadata) objects for the given application.
 pub fn (rest &REST) fetch_application_role_connection_metadata_records(application_id Snowflake) ![]ApplicationRoleConnectionMetadata {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/role-connections/metadata')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/role-connections/metadata')!.body)! as []json2.Any,
 		fn (j json2.Any) !ApplicationRoleConnectionMetadata {
 		return ApplicationRoleConnectionMetadata.parse(j)!
 	})!
@@ -74,7 +74,7 @@ pub fn (rest &REST) fetch_application_role_connection_metadata_records(applicati
 
 // Updates and returns a [application role connection metadata](#ApplicationRoleConnectionMetadata) objects for the given application.
 pub fn (rest &REST) update_application_role_connection_metadata_records(application_id Snowflake) ![]ApplicationRoleConnectionMetadata {
-	return maybe_map(json2.raw_decode(rest.request(.put, '/applications/${urllib.path_escape(application_id.str())}/role-connections/metadata')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.put, '/applications/${urllib.path_escape(application_id.str())}/role-connections/metadata')!.body)! as []json2.Any,
 		fn (j json2.Any) !ApplicationRoleConnectionMetadata {
 		return ApplicationRoleConnectionMetadata.parse(j)!
 	})!

@@ -816,7 +816,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 
 // Get a channel by ID. Returns a channel object. If the channel is a thread, a thread member object is included in the returned result.
 pub fn (rest &REST) fetch_channel(channel_id Snowflake) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}')!.body)!)!
+	return Channel.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}')!.body)!)!
 }
 
 pub interface EditChannelParams {
@@ -1045,7 +1045,7 @@ pub fn (params EditThreadChannelParams) build() json2.Any {
 
 // Update a channel's settings. Returns a channel on success, and a 400 BAD REQUEST on invalid parameters. All JSON parameters are optional.
 pub fn (rest &REST) edit_channel(channel_id Snowflake, params EditChannelParams) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}',
 		reason: params.reason
 		json: params.build()
 	)!.body)!)!
@@ -1097,7 +1097,7 @@ pub fn (rest &REST) set_voice_channel_status(channel_id Snowflake, params SetVoi
 // Channel Update Gateway event will fire for each of them. Returns a channel object on success. Fires a Channel Delete Gateway
 // event (or Thread Delete if the channel was a thread).
 pub fn (rest &REST) delete_channel(channel_id Snowflake, params ReasonParam) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}',
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1145,7 +1145,7 @@ pub fn (rest &REST) edit_channel_permissions(channel_id Snowflake, overwrite_id 
 
 // Returns a list of invite objects (with invite metadata) for the channel. Only usable for guild channels. Requires the `.manage_channels` permission.
 pub fn (rest &REST) fetch_invites(channel_id Snowflake) ![]InviteMetadata {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/invites')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/invites')!.body)! as []json2.Any,
 		fn (j json2.Any) !InviteMetadata {
 		return InviteMetadata.parse(j)!
 	})!
@@ -1198,7 +1198,7 @@ pub fn (params CreateInviteParams) build() json2.Any {
 
 // Create a new invite object for the channel. Only usable for guild channels. Requires the `.create_instant_invite` permission. All JSON parameters for this route are optional. Returns an invite object. Fires an Invite Create Gateway event.
 pub fn (rest &REST) create_invite(channel_id Snowflake, params CreateInviteParams) !Invite {
-	return Invite.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/invites',
+	return Invite.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/invites',
 		json: params.build()
 	)!.body)!)!
 }
@@ -1234,7 +1234,7 @@ pub fn FollowedChannel.parse(j json2.Any) !FollowedChannel {
 
 // Follow an Announcement Channel to send messages to a target channel. Requires the `.manage_webhooks` permission in the target channel. Fires a Webhooks Update Gateway event for the target channel.
 pub fn (rest &REST) follow_announcement_channel(channel_id Snowflake, webhook_channel_id Snowflake, params ReasonParam) !FollowedChannel {
-	return FollowedChannel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/followers',
+	return FollowedChannel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/followers',
 		json: {
 			'webhook_channel_id': webhook_channel_id.build()
 		}
@@ -1311,7 +1311,7 @@ pub fn (params StartThreadFromMessageParams) build() json2.Any {
 // Creates a new thread from an existing message. Fires a Thread Create and a Message Update Gateway event.
 // When called on a `.guild_text` channel, creates a `.public_thread`. When called on a `.guild_announcement` channel, creates a `.announcement_thread`. Does not work on a `.guild_forum` or a `.guild_media` channel. The id of the created thread will be the same as the id of the source message, and as such a message can only have a single thread created from it.
 pub fn (rest &REST) start_thread_from_message(channel_id Snowflake, message_id Snowflake, params StartThreadFromMessageParams) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/threads',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/threads',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -1356,7 +1356,7 @@ pub fn (params StartThreadWithoutMessageParams) build() json2.Any {
 
 // Creates a new thread that is not connected to an existing message. Fires a Thread Create Gateway event.
 pub fn (rest &REST) start_thread_without_message(channel_id Snowflake, params StartThreadWithoutMessageParams) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -1400,7 +1400,7 @@ pub fn (params FetchThreadMemberParams) build_query_values() urllib.Values {
 // Returns a thread member object for the specified user if they are a member of the thread, returns a 404 response otherwise.
 // When with_member is set to `true`, the thread member object will include a `member` field containing a guild member object.
 pub fn (rest &REST) fetch_thread_member(channel_id Snowflake, user_id Snowflake, params FetchThreadMemberParams) !ThreadMember {
-	return ThreadMember.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}',
+	return ThreadMember.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1433,7 +1433,7 @@ pub fn (params ListThreadMembersParams) build_query_values() urllib.Values {
 // Returns array of thread members objects that are members of the thread.
 // When with_member is set to `true`, the results will be paginated and each thread member object will include a `member` field containing a guild member object.
 pub fn (rest &REST) list_thread_members(channel_id Snowflake, params FetchThreadMemberParams) ![]ThreadMember {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !ThreadMember {
 		return ThreadMember.parse(j)!
@@ -1491,14 +1491,14 @@ pub fn ListThreadsResponse.parse(j json2.Any) !ListThreadsResponse {
 
 // Returns archived threads in the channel that are public. When called on a `.guild_text` channel, returns threads of type `.public_thread`. When called on a `.guild_announcement` channel returns threads of type `.announcement_thread`. Threads are ordered by `archive_timestamp`, in descending order. Requires the `.read_message_history` permission.
 pub fn (rest &REST) list_public_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/public',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/public',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
 
 // Returns archived threads in the channel that are of type `.private_thread`. Threads are ordered by `archive_timestamp`, in descending order. Requires both the `.read_message_history` and `.manage_threads` permissions.
 pub fn (rest &REST) list_private_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/private',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/private',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1525,7 +1525,7 @@ pub fn (params ListJoinedPrivateArchivedThreadsParams) build_query_values() urll
 
 // Returns archived threads in the channel that are of type `.private_threads`, and the user has joined. Threads are ordered by their `id`, in descending order. Requires the `.read_message_history` permission.
 pub fn (rest &REST) list_joined_private_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.raw_decode(rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/users/@me/threads/archived/private',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/users/@me/threads/archived/private',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1701,7 +1701,7 @@ pub fn (params CreateGuildChannelParams) build() json2.Any {
 
 // Create a new channel object for the guild. Requires the `.manage_channels` permission. If setting permission overwrites, only permissions your bot has in the guild can be allowed/denied. Setting `.manage_roles` permission in channels is only possible for guild administrators. Returns the new [channel](#Channel) object on success. Fires a Channel Create Gateway event.
 pub fn (rest &REST) create_guild_channel(guild_id Snowflake, params CreateGuildChannelParams) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/channels',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/channels',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -1709,7 +1709,7 @@ pub fn (rest &REST) create_guild_channel(guild_id Snowflake, params CreateGuildC
 
 // Returns all active threads in the guild, including public and private threads. Threads are ordered by their [`id`](#Snowflake), in descending order.
 pub fn (rest &REST) list_active_guild_threads(guild_id Snowflake) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/threads/active')!.body)!)!
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/threads/active')!.body)!)!
 }
 
 fn compute_base_permissions(member GuildMember, guild Guild) Permissions {

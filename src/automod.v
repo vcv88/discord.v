@@ -266,7 +266,7 @@ pub fn AutoModerationRule.parse(j json2.Any) !AutoModerationRule {
 
 // Get a list of all rules currently configured for the guild. Returns a list of auto moderation rule objects for the given guild.
 pub fn (rest &REST) list_auto_moderation_rules_for_guild(guild_id Snowflake) ![]AutoModerationRule {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules')!.body)! as []json2.Any,
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules')!.body)! as []json2.Any,
 		fn (j json2.Any) !AutoModerationRule {
 		return AutoModerationRule.parse(j)!
 	})!
@@ -274,7 +274,7 @@ pub fn (rest &REST) list_auto_moderation_rules_for_guild(guild_id Snowflake) ![]
 
 // Get a single rule. Returns an auto moderation rule object.
 pub fn (rest &REST) fetch_auto_moderation_rule(guild_id Snowflake, auto_moderation_rule_id Snowflake) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}')!.body)!)!
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -323,7 +323,7 @@ pub fn (params CreateAutoModerationRuleParams) build() json2.Any {
 
 // Create a new rule. Returns an auto moderation rule on success. Fires an Auto Moderation Rule Create Gateway event.
 pub fn (rest &REST) create_auto_moderation_rule(guild_id Snowflake, params CreateAutoModerationRuleParams) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules',
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!
@@ -382,7 +382,7 @@ pub fn (params EditAutoModerationRuleParams) build() json2.Any {
 
 // Modify an existing rule. Returns an auto moderation rule on success. Fires an Auto Moderation Rule Update Gateway event.
 pub fn (rest &REST) edit_auto_moderation_rule(guild_id Snowflake, auto_moderation_rule_id Snowflake, params EditAutoModerationRuleParams) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
 		json: params.build()
 		reason: params.reason
 	)!.body)!)!

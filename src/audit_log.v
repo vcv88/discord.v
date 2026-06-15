@@ -440,7 +440,7 @@ pub fn (params FetchGuildAuditLogParams) build_query_values() urllib.Values {
 // Returns an [audit log](#AuditLog) object for the guild. Requires the `.view_audit_log` permission.
 // The returned list of audit log entries is ordered based on whether you use `before` or `after`. When using `before`, the list is ordered by the audit log entry ID descending (newer entries first). If `after` is used, the list is reversed and appears in ascending order (older entries first). Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order by ID, the opposite can be achieved using `after: 0` (showing oldest entries).
 pub fn (rest &REST) fetch_guild_audit_log(guild_id Snowflake, params FetchGuildAuditLogParams) !AuditLog {
-	return AuditLog.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/audit-logs',
+	return AuditLog.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/audit-logs',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
