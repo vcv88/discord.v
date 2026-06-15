@@ -24,7 +24,7 @@ pub fn ChannelMention.parse(j json2.Any) !ChannelMention {
 				id:       Snowflake.parse(j['id']!)!
 				guild_id: Snowflake.parse(j['guild_id']!)!
 				typ:      unsafe { ChannelType(j['type']!.int()) }
-				name:     j['name']! as string
+				name:     json_string(j, 'name')!
 			}
 		}
 		else {
@@ -49,7 +49,7 @@ pub fn EmbedThumbnail.parse(j json2.Any) !EmbedThumbnail {
 	match j {
 		map[string]json2.Any {
 			return EmbedThumbnail{
-				url:       j['url']! as string
+				url:       json_string(j, 'url')!
 				proxy_url: if s := j['proxy_url'] {
 					s as string
 				} else {
@@ -145,7 +145,7 @@ pub fn EmbedImage.parse(j json2.Any) !EmbedImage {
 	match j {
 		map[string]json2.Any {
 			return EmbedImage{
-				url:       j['url']! as string
+				url:       json_string(j, 'url')!
 				proxy_url: if s := j['proxy_url'] {
 					s as string
 				} else {
@@ -187,7 +187,7 @@ pub fn EmbedProvider.parse(j json2.Any) !EmbedProvider {
 	match j {
 		map[string]json2.Any {
 			return EmbedProvider{
-				name: j['name']! as string
+				name: json_string(j, 'name')!
 				url:  if s := j['url'] {
 					s as string
 				} else {
@@ -227,7 +227,7 @@ pub fn EmbedAuthor.parse(j json2.Any) !EmbedAuthor {
 	match j {
 		map[string]json2.Any {
 			return EmbedAuthor{
-				name:           j['name']! as string
+				name:           json_string(j, 'name')!
 				url:            if s := j['url'] {
 					s as string
 				} else {
@@ -278,7 +278,7 @@ pub fn EmbedFooter.parse(j json2.Any) !EmbedFooter {
 	match j {
 		map[string]json2.Any {
 			return EmbedFooter{
-				text:           j['text']! as string
+				text:           json_string(j, 'text')!
 				icon_url:       if s := j['icon_url'] {
 					s as string
 				} else {
@@ -321,8 +321,8 @@ pub fn EmbedField.parse(j json2.Any) !EmbedField {
 	match j {
 		map[string]json2.Any {
 			return EmbedField{
-				name:   j['name']! as string
-				value:  j['value']! as string
+				name:   json_string(j, 'name')!
+				value:  json_string(j, 'value')!
 				inline: if b := j['inline'] {
 					b as bool
 				} else {
@@ -667,7 +667,7 @@ pub fn MessageInteraction.parse(j json2.Any) !MessageInteraction {
 			return MessageInteraction{
 				id:     Snowflake.parse(j['id']!)!
 				typ:    unsafe { InteractionType(j['type']!.int()) }
-				name:   j['name']! as string
+				name:   json_string(j, 'name')!
 				user:   User.parse(j['user']!)!
 				member: if o := j['member'] {
 					PartialGuildMember.parse(o)!
@@ -699,9 +699,9 @@ pub fn RoleSubscriptionData.parse(j json2.Any) !RoleSubscriptionData {
 		map[string]json2.Any {
 			return RoleSubscriptionData{
 				role_subscription_listing_id: Snowflake.parse(j['role_subscription_listing_id']!)!
-				tier_name:                    j['tier_name']! as string
+				tier_name:                    json_string(j, 'tier_name')!
 				total_months_subscribed:      j['total_months_subscribed']!.int()
-				is_renewal:                   j['is_renewal']! as bool
+				is_renewal:                   json_bool(j, 'is_renewal')!
 			}
 		}
 		else {
@@ -786,19 +786,19 @@ pub fn Message.parse(j json2.Any) !Message {
 				id:                     Snowflake.parse(j['id']!)!
 				channel_id:             Snowflake.parse(j['channel_id']!)!
 				author:                 User.parse(j['author']!)!
-				content:                j['content']! as string
-				timestamp:              time.parse_iso8601(j['timestamp']! as string)!
+				content:                json_string(j, 'content')!
+				timestamp:              time.parse_iso8601(json_string(j, 'timestamp')!)!
 				edited_timestamp:       if edited_timestamp !is json2.Null {
 					?time.Time(time.parse_iso8601(edited_timestamp as string)!)
 				} else {
 					none
 				}
-				tts:                    j['tts']! as bool
-				mention_everyone:       j['mention_everyone']! as bool
-				mentions:               maybe_map(j['mentions']! as []json2.Any, fn (k json2.Any) !User {
+				tts:                    json_bool(j, 'tts')!
+				mention_everyone:       json_bool(j, 'mention_everyone')!
+				mentions:               maybe_map(json_array(j, 'mentions')!, fn (k json2.Any) !User {
 					return User.parse(k)!
 				})!
-				mention_roles:          maybe_map(j['mention_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				mention_roles:          maybe_map(json_array(j, 'mention_roles')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
 				mention_channels:       if a := j['mention_channels'] {
@@ -808,10 +808,10 @@ pub fn Message.parse(j json2.Any) !Message {
 				} else {
 					none
 				}
-				attachments:            maybe_map(j['attachments']! as []json2.Any, fn (k json2.Any) !Attachment {
+				attachments:            maybe_map(json_array(j, 'attachments')!, fn (k json2.Any) !Attachment {
 					return Attachment.parse(k)!
 				})!
-				embeds:                 maybe_map(j['embeds']! as []json2.Any, fn (k json2.Any) !Embed {
+				embeds:                 maybe_map(json_array(j, 'embeds')!, fn (k json2.Any) !Embed {
 					return Embed.parse(k)!
 				})!
 				reactions:              if a := j['reactions'] {
@@ -836,7 +836,7 @@ pub fn Message.parse(j json2.Any) !Message {
 				} else {
 					none
 				}
-				pinned:                 j['pinned']! as bool
+				pinned:                 json_bool(j, 'pinned')!
 				webhook_id:             if s := j['webhook_id'] {
 					Snowflake.parse(s)!
 				} else {

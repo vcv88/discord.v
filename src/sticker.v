@@ -42,13 +42,13 @@ pub fn Sticker.parse(j json2.Any) !Sticker {
 				} else {
 					none
 				}
-				name:        j['name']! as string
+				name:        json_string(j, 'name')!
 				description: if description !is json2.Null {
 					description as string
 				} else {
 					none
 				}
-				tags:        j['tags']! as string
+				tags:        json_string(j, 'tags')!
 				typ:         unsafe { StickerType(j['type']!.int()) }
 				format_type: unsafe { StickerFormatType(j['format_type']!.int()) }
 				available:   if b := j['available'] {
@@ -95,7 +95,7 @@ pub fn StickerItem.parse(j json2.Any) !StickerItem {
 		map[string]json2.Any {
 			return StickerItem{
 				id:          Snowflake.parse(j['id']!)!
-				name:        j['name']! as string
+				name:        json_string(j, 'name')!
 				format_type: unsafe { StickerFormatType(j['format_type']!.int()) }
 			}
 		}
@@ -129,17 +129,17 @@ pub fn StickerPack.parse(j json2.Any) !StickerPack {
 		map[string]json2.Any {
 			return StickerPack{
 				id:               Snowflake.parse(j['id']!)!
-				stickers:         maybe_map(j['stickers']! as []json2.Any, fn (k json2.Any) !Sticker {
+				stickers:         maybe_map(json_array(j, 'stickers')!, fn (k json2.Any) !Sticker {
 					return Sticker.parse(k)!
 				})!
-				name:             j['name']! as string
+				name:             json_string(j, 'name')!
 				sku_id:           Snowflake.parse(j['sku_id']!)!
 				cover_sticker_id: if s := j['cover_sticker_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				description:      j['description']! as string
+				description:      json_string(j, 'description')!
 				banner_asset_id:  if s := j['banner_asset_id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -161,7 +161,10 @@ pub fn (rest &REST) fetch_sticker(sticker_id Snowflake) !Sticker {
 
 // Returns a list of available sticker packs.
 pub fn (rest &REST) list_sticker_packs() ![]StickerPack {
-	return maybe_map((json2.decode[json2.Any](rest.request(.get, '/sticker-packs')!.body)! as map[string]json2.Any)['sticker_packs']! as []json2.Any, fn (k json2.Any) !StickerPack {
+	res := rest.request(.get, '/sticker-packs')!
+	decoded := json2.decode[json2.Any](res.body)!
+	decoded_map := decoded as map[string]json2.Any
+	return maybe_map(json_array(decoded_map, 'sticker_packs')!, fn (k json2.Any) !StickerPack {
 		return StickerPack.parse(k)!
 	})!
 }

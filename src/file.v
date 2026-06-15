@@ -88,7 +88,7 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 		map[string]json2.Any {
 			return Attachment{
 				id:            Snowflake.parse(j['id']!)!
-				filename:      j['filename']! as string
+				filename:      json_string(j, 'filename')!
 				description:   if s := j['description'] {
 					s as string
 				} else {
@@ -100,8 +100,8 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 					none
 				}
 				size:          j['size']!.int()
-				url:           j['url']! as string
-				proxy_url:     j['proxy_url']! as string
+				url:           json_string(j, 'url')!
+				proxy_url:     json_string(j, 'proxy_url')!
 				height:        if i := j['height'] {
 					if i !is json2.Null {
 						i.int()

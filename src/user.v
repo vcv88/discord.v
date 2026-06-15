@@ -67,7 +67,7 @@ pub fn AvatarDecorationData.parse(j json2.Any) !AvatarDecorationData {
 	match j {
 		map[string]json2.Any {
 			return AvatarDecorationData{
-				asset:  j['asset']! as string
+				asset:  json_string(j, 'asset')!
 				sku_id: Snowflake.parse(j['sku_id']!)!
 			}
 		}
@@ -122,8 +122,8 @@ pub fn User.parse(j json2.Any) !User {
 			avatar := j['avatar']!
 			return User{
 				id:                     Snowflake.parse(j['id']!)!
-				username:               j['username']! as string
-				discriminator:          j['discriminator']! as string
+				username:               json_string(j, 'username')!
+				discriminator:          json_string(j, 'discriminator')!
 				global_name:            if global_name !is json2.Null {
 					global_name as string
 				} else {
@@ -499,9 +499,9 @@ pub fn Connection.parse(j json2.Any) !Connection {
 	match j {
 		map[string]json2.Any {
 			return Connection{
-				id:            j['id']! as string
-				name:          j['name']! as string
-				typ:           ConnectionService(j['type']! as string)
+				id:            json_string(j, 'id')!
+				name:          json_string(j, 'name')!
+				typ:           ConnectionService(json_string(j, 'type')!)
 				revoked:       if b := j['revoked'] {
 					b as bool
 				} else {
@@ -514,10 +514,10 @@ pub fn Connection.parse(j json2.Any) !Connection {
 				} else {
 					none
 				}
-				verified:      j['verified']! as bool
-				friend_sync:   j['friend_sync']! as bool
-				show_activity: j['show_activity']! as bool
-				two_way_link:  j['two_way_link']! as bool
+				verified:      json_bool(j, 'verified')!
+				friend_sync:   json_bool(j, 'friend_sync')!
+				show_activity: json_bool(j, 'show_activity')!
+				two_way_link:  json_bool(j, 'two_way_link')!
 				visibility:    unsafe { Visibility(j['visibility']!.int()) }
 			}
 		}
@@ -529,7 +529,10 @@ pub fn Connection.parse(j json2.Any) !Connection {
 
 // Returns a list of [connection](#Connection) objects. Requires the `connections` OAuth2 scope.
 pub fn (rest &REST) fetch_my_connections() ![]Connection {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/users/@me/connections')!.body)! as []json2.Any, fn (j json2.Any) !Connection {
+	res := rest.request(.get, '/users/@me/connections')!
+	decoded := json2.decode[json2.Any](res.body)!
+	connections := decoded as []json2.Any
+	return maybe_map(connections, fn (j json2.Any) !Connection {
 		return Connection.parse(j)!
 	})!
 }
@@ -560,7 +563,8 @@ pub fn ApplicationRoleConnection.parse(j json2.Any) !ApplicationRoleConnection {
 				} else {
 					none
 				}
-				metadata:          maps.to_map[string, json2.Any, string, string](j['metadata']! as map[string]json2.Any, fn (k string, v json2.Any) (string, string) {
+				metadata:          maps.to_map[string, json2.Any, string, string](json_map(j,
+					'metadata')!, fn (k string, v json2.Any) (string, string) {
 					return k, v as string
 				})
 			}

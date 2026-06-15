@@ -49,8 +49,8 @@ pub fn Sku.parse(j json2.Any) !Sku {
 				id:             Snowflake.parse(j['id']!)!
 				typ:            unsafe { SkuType(j['type']!.int()) }
 				application_id: Snowflake.parse(j['application_id']!)!
-				name:           j['name']! as string
-				slug:           j['slug']! as string
+				name:           json_string(j, 'name')!
+				slug:           json_string(j, 'slug')!
 				flags:          unsafe { SkuFlags(j['flags']!.int()) }
 			}
 		}

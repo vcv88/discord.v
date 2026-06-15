@@ -29,7 +29,7 @@ pub fn PartialEmoji.parse(j json2.Any) !PartialEmoji {
 				} else {
 					none
 				}
-				name:           j['name']! as string
+				name:           json_string(j, 'name')!
 				roles:          if a := j['roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
@@ -182,10 +182,10 @@ pub fn Reaction.parse(j json2.Any) !Reaction {
 			return Reaction{
 				count:         j['count']!.int()
 				count_details: ReactionCountDetails.parse(j['count_details']!)!
-				me:            j['me']! as bool
-				me_burst:      j['me_burst']! as bool
+				me:            json_bool(j, 'me')!
+				me_burst:      json_bool(j, 'me_burst')!
 				emoji:         PartialEmoji.parse(j['emoji']!)!
-				burst_colors:  maybe_map(j['burst_colors']! as []json2.Any, fn (k json2.Any) !int {
+				burst_colors:  maybe_map(json_array(j, 'burst_colors')!, fn (k json2.Any) !int {
 					return int(strconv.parse_uint((k as string)[1..], 16, 24)!)
 				})!
 			}

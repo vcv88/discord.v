@@ -138,9 +138,9 @@ pub fn Role.parse(j json2.Any) !Role {
 		map[string]json2.Any {
 			return Role{
 				id:            Snowflake.parse(j['id']!)!
-				name:          j['name']! as string
+				name:          json_string(j, 'name')!
 				color:         j['color']!.int()
-				hoist:         j['hoist']! as bool
+				hoist:         json_bool(j, 'hoist')!
 				icon:          if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
@@ -161,8 +161,8 @@ pub fn Role.parse(j json2.Any) !Role {
 				}
 				position:      j['position']!.int()
 				permissions:   Permissions.parse(j['permissions']!)!
-				managed:       j['managed']! as bool
-				mentionable:   j['mentionable']! as bool
+				managed:       json_bool(j, 'managed')!
+				mentionable:   json_bool(j, 'mentionable')!
 				tags:          if o := j['tags'] {
 					RoleTags.parse(o)!
 				} else {
@@ -230,7 +230,7 @@ pub fn WelcomeChannel.parse(j json2.Any) !WelcomeChannel {
 			emoji_name := j['emoji_name']!
 			return WelcomeChannel{
 				channel_id:  Snowflake.parse(j['channel_id']!)!
-				description: j['description']! as string
+				description: json_string(j, 'description')!
 				emoji_id:    if emoji_id !is json2.Null {
 					Snowflake.parse(emoji_id)!
 				} else {
@@ -284,7 +284,7 @@ pub fn WelcomeScreen.parse(j json2.Any) !WelcomeScreen {
 				} else {
 					none
 				}
-				welcome_channels: maybe_map(j['welcome_channels']! as []json2.Any, fn (k json2.Any) !WelcomeChannel {
+				welcome_channels: maybe_map(json_array(j, 'welcome_channels')!, fn (k json2.Any) !WelcomeChannel {
 					return WelcomeChannel.parse(k)!
 				})!
 			}
@@ -338,7 +338,7 @@ pub fn PartialGuild.parse(j json2.Any) !PartialGuild {
 				} else {
 					0
 				}
-				name:                          j['name']! as string
+				name:                          json_string(j, 'name')!
 				icon:                          if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
@@ -471,7 +471,7 @@ pub fn UnavailableGuild.parse(j json2.Any) !UnavailableGuild {
 		map[string]json2.Any {
 			return UnavailableGuild{
 				id:          Snowflake.parse(j['id']!)!
-				unavailable: j['unavailable']! as bool
+				unavailable: json_bool(j, 'unavailable')!
 			}
 		}
 		else {
@@ -640,7 +640,7 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 	incidents_data := j['incidents_data']!
 	return Guild{
 		id:                            Snowflake.parse(j['id']!)!
-		name:                          j['name']! as string
+		name:                          json_string(j, 'name')!
 		icon:                          if icon !is json2.Null {
 			icon as string
 		} else {
@@ -689,13 +689,13 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		verification_level:            unsafe { VerificationLevel(j['verification_level']!.int()) }
 		default_message_notifications: unsafe { MessageNotificationsLevel(j['default_message_notifications']!.int()) }
 		explicit_content_filter:       unsafe { ExplicitContentFilterLevel(j['explicit_content_filter']!.int()) }
-		roles:                         maybe_map(j['roles']! as []json2.Any, fn (k json2.Any) !Role {
+		roles:                         maybe_map(json_array(j, 'roles')!, fn (k json2.Any) !Role {
 			return Role.parse(k)!
 		})!
-		emojis:                        maybe_map(j['emojis']! as []json2.Any, fn (k json2.Any) !Emoji {
+		emojis:                        maybe_map(json_array(j, 'emojis')!, fn (k json2.Any) !Emoji {
 			return Emoji.parse(k)!
 		})!
-		features:                      (j['features']! as []json2.Any).map(|s| GuildFeature(s as string))
+		features:                      (json_array(j, 'features')!).map(|s| GuildFeature(s as string))
 		mfa_level:                     unsafe { MFALevel(j['mfa_level']!.int()) }
 		application_id:                if application_id !is json2.Null {
 			Snowflake.parse(application_id)!
@@ -752,7 +752,7 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		preferred_locale:              j['preferred_locale']! as string
+		preferred_locale:              json_string(j, 'preferred_locale')!
 		public_updates_channel_id:     if public_updates_channel_id !is json2.Null {
 			Snowflake.parse(public_updates_channel_id)!
 		} else {
@@ -784,10 +784,10 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 			none
 		}
 		nsfw_level:                    unsafe { NSFWLevel(j['nsfw_level']!.int()) }
-		stickers:                      maybe_map((j['stickers'] or { []json2.Any{} }) as []json2.Any, fn (k json2.Any) !Sticker {
+		stickers:                      maybe_map(json_array(j, 'stickers') or { []json2.Any{} }, fn (k json2.Any) !Sticker {
 			return Sticker.parse(k)!
 		})!
-		premium_progress_bar_enabled:  j['premium_progress_bar_enabled']! as bool
+		premium_progress_bar_enabled:  json_bool(j, 'premium_progress_bar_enabled')!
 		safety_alerts_channel_id:      if safety_alerts_channel_id !is json2.Null {
 			Snowflake.parse(safety_alerts_channel_id)!
 		} else {
@@ -840,27 +840,27 @@ pub:
 pub fn Guild2.internal_parse(j map[string]json2.Any) !Guild2 {
 	return Guild2{
 		Guild:                  Guild.internal_parse(j)!
-		large:                  j['large']! as bool
+		large:                  json_bool(j, 'large')!
 		member_count:           j['member_count']!.int()
-		voice_states:           maybe_map(j['voice_states']! as []json2.Any, fn (k json2.Any) !VoiceState {
+		voice_states:           maybe_map(json_array(j, 'voice_states')!, fn (k json2.Any) !VoiceState {
 			return VoiceState.parse(k)!
 		})!
-		users:                  maybe_map(j['users']! as []json2.Any, fn (k json2.Any) !GuildMember {
+		users:                  maybe_map(json_array(j, 'users')!, fn (k json2.Any) !GuildMember {
 			return GuildMember.parse(k)!
 		})!
-		channels:               maybe_map(j['channels']! as []json2.Any, fn (k json2.Any) !Channel {
+		channels:               maybe_map(json_array(j, 'channels')!, fn (k json2.Any) !Channel {
 			return Channel.parse(k)!
 		})!
-		threads:                maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+		threads:                maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 			return Channel.parse(k)!
 		})!
-		presences:              maybe_map(j['presences']! as []json2.Any, fn (k json2.Any) !Presence {
+		presences:              maybe_map(json_array(j, 'presences')!, fn (k json2.Any) !Presence {
 			return Presence.parse(k)!
 		})!
-		stage_instances:        maybe_map(j['stage_instances']! as []json2.Any, fn (k json2.Any) !StageInstance {
+		stage_instances:        maybe_map(json_array(j, 'stage_instances')!, fn (k json2.Any) !StageInstance {
 			return StageInstance.parse(k)!
 		})!
-		guild_scheduled_events: maybe_map(j['guild_scheduled_events']! as []json2.Any, fn (k json2.Any) !GuildScheduledEvent {
+		guild_scheduled_events: maybe_map(json_array(j, 'guild_scheduled_events')!, fn (k json2.Any) !GuildScheduledEvent {
 			return GuildScheduledEvent.parse(k)!
 		})!
 	}
@@ -945,10 +945,10 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 				} else {
 					none
 				}
-				roles:                        maybe_map(j['roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				roles:                        maybe_map(json_array(j, 'roles')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				joined_at:                    time.parse_iso8601(j['joined_at']! as string)!
+				joined_at:                    time.parse_iso8601(json_string(j, 'joined_at')!)!
 				premium_since:                if s := j['premium_since'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
@@ -958,8 +958,8 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 				} else {
 					none
 				}
-				deaf:                         j['deaf']! as bool
-				mute:                         j['mute']! as bool
+				deaf:                         json_bool(j, 'deaf')!
+				mute:                         json_bool(j, 'mute')!
 				flags:                        unsafe { GuildMemberFlags(j['flags']!.int()) }
 				pending:                      if b := j['pending'] {
 					b as bool
@@ -1212,7 +1212,7 @@ pub fn GuildPreview.parse(j json2.Any) !GuildPreview {
 			description := j['description']!
 			return GuildPreview{
 				id:                         Snowflake.parse(j['id']!)!
-				name:                       j['name']! as string
+				name:                       json_string(j, 'name')!
 				icon:                       if icon !is json2.Null {
 					icon as string
 				} else {
@@ -1228,10 +1228,10 @@ pub fn GuildPreview.parse(j json2.Any) !GuildPreview {
 				} else {
 					none
 				}
-				emojis:                     maybe_map(j['emojis']! as []json2.Any, fn (k json2.Any) !Emoji {
+				emojis:                     maybe_map(json_array(j, 'emojis')!, fn (k json2.Any) !Emoji {
 					return Emoji.parse(k)!
 				})!
-				features:                   (j['features']! as []json2.Any).map(|f| GuildFeature(f as string))
+				features:                   (json_array(j, 'features')!).map(|f| GuildFeature(f as string))
 				approximate_member_count:   j['approximate_member_count']!.int()
 				approximate_presence_count: j['approximate_presence_count']!.int()
 				description:                if description !is json2.Null {
@@ -1239,7 +1239,7 @@ pub fn GuildPreview.parse(j json2.Any) !GuildPreview {
 				} else {
 					none
 				}
-				stickers:                   maybe_map(j['stickers']! as []json2.Any, fn (k json2.Any) !Sticker {
+				stickers:                   maybe_map(json_array(j, 'stickers')!, fn (k json2.Any) !Sticker {
 					return Sticker.parse(k)!
 				})!
 			}
@@ -2174,8 +2174,8 @@ pub fn IntegrationAccount.parse(j json2.Any) !IntegrationAccount {
 	match j {
 		map[string]json2.Any {
 			return IntegrationAccount{
-				id:   j['id']! as string
-				name: j['name']! as string
+				id:   json_string(j, 'id')!
+				name: json_string(j, 'name')!
 			}
 		}
 		else {
@@ -2204,13 +2204,13 @@ pub fn IntegrationApplication.parse(j json2.Any) !IntegrationApplication {
 			icon := j['icon']!
 			return IntegrationApplication{
 				id:          Snowflake.parse(j['id']!)!
-				name:        j['name']! as string
+				name:        json_string(j, 'name')!
 				icon:        if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				description: j['description']! as string
+				description: json_string(j, 'description')!
 				bot:         if o := j['bot'] {
 					User.parse(o)!
 				} else {
@@ -2265,9 +2265,9 @@ pub fn Integration.parse(j json2.Any) !Integration {
 		map[string]json2.Any {
 			return Integration{
 				id:                  Snowflake.parse(j['id']!)!
-				name:                j['name']! as string
-				typ:                 j['type']! as string
-				enabled:             j['enabled']! as bool
+				name:                json_string(j, 'name')!
+				typ:                 json_string(j, 'type')!
+				enabled:             json_bool(j, 'enabled')!
 				syncing:             if b := j['syncing'] {
 					b as bool
 				} else {
@@ -2501,7 +2501,7 @@ pub fn GuildWidgetSettings.parse(j json2.Any) !GuildWidgetSettings {
 		map[string]json2.Any {
 			channel_id := j['channel_id']!
 			return GuildWidgetSettings{
-				enabled:    j['enabled']! as bool
+				enabled:    json_bool(j, 'enabled')!
 				channel_id: if channel_id !is json2.Null {
 					Snowflake.parse(channel_id)!
 				} else {
@@ -2577,16 +2577,16 @@ pub fn GuildWidget.parse(j json2.Any) !GuildWidget {
 			instant_invite := j['instant_invite']!
 			return GuildWidget{
 				id:             Snowflake.parse(j['id']!)!
-				name:           j['name']! as string
+				name:           json_string(j, 'name')!
 				instant_invite: if instant_invite !is json2.Null {
 					instant_invite as string
 				} else {
 					none
 				}
-				channels:       maybe_map(j['channels']! as []json2.Any, fn (k json2.Any) !PartialChannel {
+				channels:       maybe_map(json_array(j, 'channels')!, fn (k json2.Any) !PartialChannel {
 					return PartialChannel.parse(k)!
 				})!
-				members:        maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !PartialUser {
+				members:        maybe_map(json_array(j, 'members')!, fn (k json2.Any) !PartialUser {
 					return PartialUser.parse(k)!
 				})!
 				presence_count: j['presence_count']!.int()
@@ -2698,10 +2698,10 @@ pub fn PromptOption.parse(j json2.Any) !PromptOption {
 		map[string]json2.Any {
 			return PromptOption{
 				id:             Snowflake.parse(j['id']!)!
-				channel_ids:    maybe_map(j['channel_ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				channel_ids:    maybe_map(json_array(j, 'channel_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				role_ids:       maybe_map(j['role_ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				role_ids:       maybe_map(json_array(j, 'role_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
 				emoji:          if o := j['emoji'] {
@@ -2724,8 +2724,8 @@ pub fn PromptOption.parse(j json2.Any) !PromptOption {
 				} else {
 					none
 				}
-				title:          j['title']! as string
-				description:    j['description']! as string
+				title:          json_string(j, 'title')!
+				description:    json_string(j, 'description')!
 			}
 		}
 		else {
@@ -2782,13 +2782,13 @@ pub fn OnboardingPrompt.parse(j json2.Any) !OnboardingPrompt {
 			return OnboardingPrompt{
 				id:            Snowflake.parse(j['id']!)!
 				typ:           unsafe { PromptType(j['type']!.int()) }
-				options:       maybe_map(j['options']! as []json2.Any, fn (k json2.Any) !PromptOption {
+				options:       maybe_map(json_array(j, 'options')!, fn (k json2.Any) !PromptOption {
 					return PromptOption.parse(k)!
 				})!
-				title:         j['title']! as string
-				single_select: j['single_select']! as bool
-				required:      j['required']! as bool
-				in_onboarding: j['in_onboarding']! as bool
+				title:         json_string(j, 'title')!
+				single_select: json_bool(j, 'single_select')!
+				required:      json_bool(j, 'required')!
+				in_onboarding: json_bool(j, 'in_onboarding')!
 			}
 		}
 		else {
@@ -2835,13 +2835,13 @@ pub fn GuildOnboarding.parse(j json2.Any) !GuildOnboarding {
 		map[string]json2.Any {
 			return GuildOnboarding{
 				guild_id:            Snowflake.parse(j['guild_id']!)!
-				prompts:             maybe_map(j['prompts']! as []json2.Any, fn (k json2.Any) !OnboardingPrompt {
+				prompts:             maybe_map(json_array(j, 'prompts')!, fn (k json2.Any) !OnboardingPrompt {
 					return OnboardingPrompt.parse(k)!
 				})!
-				default_channel_ids: maybe_map(j['default_channel_ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				default_channel_ids: maybe_map(json_array(j, 'default_channel_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				enabled:             j['enabled']! as bool
+				enabled:             json_bool(j, 'enabled')!
 				mode:                unsafe { OnboardingMode(j['mode']!.int()) }
 			}
 		}

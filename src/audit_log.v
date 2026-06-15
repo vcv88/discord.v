@@ -160,7 +160,7 @@ pub fn AuditLogChange.parse(j json2.Any) !AuditLogChange {
 				} else {
 					none
 				}
-				key:       j['key']! as string
+				key:       json_string(j, 'key')!
 			}
 		}
 		else {
@@ -366,28 +366,28 @@ pub fn AuditLog.parse(j json2.Any) !AuditLog {
 	match j {
 		map[string]json2.Any {
 			return AuditLog{
-				application_commands:   maybe_map(j['application_commands']! as []json2.Any, fn (k json2.Any) !ApplicationCommand {
+				application_commands:   maybe_map(json_array(j, 'application_commands')!, fn (k json2.Any) !ApplicationCommand {
 					return ApplicationCommand.parse(k)!
 				})!
-				audit_log_entries:      maybe_map(j['audit_log_entries']! as []json2.Any, fn (k json2.Any) !AuditLogEntry {
+				audit_log_entries:      maybe_map(json_array(j, 'audit_log_entries')!, fn (k json2.Any) !AuditLogEntry {
 					return AuditLogEntry.parse(k)!
 				})!
-				auto_moderation_rules:  maybe_map(j['auto_moderation_rules']! as []json2.Any, fn (k json2.Any) !AutoModerationRule {
+				auto_moderation_rules:  maybe_map(json_array(j, 'auto_moderation_rules')!, fn (k json2.Any) !AutoModerationRule {
 					return AutoModerationRule.parse(k)!
 				})!
-				guild_scheduled_events: maybe_map(j['guild_scheduled_events']! as []json2.Any, fn (k json2.Any) !GuildScheduledEvent {
+				guild_scheduled_events: maybe_map(json_array(j, 'guild_scheduled_events')!, fn (k json2.Any) !GuildScheduledEvent {
 					return GuildScheduledEvent.parse(k)!
 				})!
-				integrations:           maybe_map(j['integrations']! as []json2.Any, fn (k json2.Any) !PartialIntegration {
+				integrations:           maybe_map(json_array(j, 'integrations')!, fn (k json2.Any) !PartialIntegration {
 					return PartialIntegration.parse(k)!
 				})!
-				threads:                maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+				threads:                maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 					return Channel.parse(k)!
 				})!
-				users:                  maybe_map(j['users']! as []json2.Any, fn (k json2.Any) !User {
+				users:                  maybe_map(json_array(j, 'users')!, fn (k json2.Any) !User {
 					return User.parse(k)!
 				})!
-				webhooks:               maybe_map(j['webhooks']! as []json2.Any, fn (k json2.Any) !Webhook {
+				webhooks:               maybe_map(json_array(j, 'webhooks')!, fn (k json2.Any) !Webhook {
 					return Webhook.parse(k)!
 				})!
 			}

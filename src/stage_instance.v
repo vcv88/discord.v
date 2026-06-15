@@ -32,7 +32,7 @@ pub fn StageInstance.parse(j json2.Any) !StageInstance {
 				id:                       Snowflake.parse(j['id']!)!
 				guild_id:                 Snowflake.parse(j['guild_id']!)!
 				channel_id:               Snowflake.parse(j['channel_id']!)!
-				topic:                    j['topic']! as string
+				topic:                    json_string(j, 'topic')!
 				privacy_level:            unsafe { PrivacyLevel(j['privacy_level']!.int()) }
 				guild_scheduled_event_id: if s := j['guild_scheduled_event_id'] {
 					Snowflake.parse(s)!

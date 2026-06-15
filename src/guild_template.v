@@ -36,8 +36,8 @@ pub fn GuildTemplate.parse(j json2.Any) !GuildTemplate {
 			description := j['description']!
 			is_dirty := j['is_dirty']!
 			return GuildTemplate{
-				code:                    j['code']! as string
-				name:                    j['name']! as string
+				code:                    json_string(j, 'code')!
+				name:                    json_string(j, 'name')!
 				description:             if description !is json2.Null {
 					description as string
 				} else {
@@ -46,8 +46,8 @@ pub fn GuildTemplate.parse(j json2.Any) !GuildTemplate {
 				usage_count:             j['usage_count']!.int()
 				creator_id:              Snowflake.parse(j['creator_id']!)!
 				creator:                 User.parse(j['creator']!)!
-				created_at:              time.parse_iso8601(j['created_at']! as string)!
-				updated_at:              time.parse_iso8601(j['updated_at']! as string)!
+				created_at:              time.parse_iso8601(json_string(j, 'created_at')!)!
+				updated_at:              time.parse_iso8601(json_string(j, 'updated_at')!)!
 				source_guild_id:         Snowflake.parse(j['source_guild_id']!)!
 				serialized_source_guild: PartialGuild.parse(j['serialized_source_guild']!)!
 				is_dirty:                if is_dirty !is json2.Null {

@@ -190,8 +190,8 @@ pub fn ActivityButton.parse(j json2.Any) !ActivityButton {
 	match j {
 		map[string]json2.Any {
 			return ActivityButton{
-				label: j['label']! as string
-				url:   j['url']! as string
+				label: json_string(j, 'label')!
+				url:   json_string(j, 'url')!
 			}
 		}
 		else {
@@ -214,7 +214,7 @@ pub fn ActivityEmoji.parse(j json2.Any) !ActivityEmoji {
 	match j {
 		map[string]json2.Any {
 			return ActivityEmoji{
-				name:     j['name']! as string
+				name:     json_string(j, 'name')!
 				id:       if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -271,7 +271,7 @@ pub fn Activity.parse(j json2.Any) !Activity {
 	match j {
 		map[string]json2.Any {
 			return Activity{
-				name:           j['name']! as string
+				name:           json_string(j, 'name')!
 				typ:            unsafe { ActivityType(j['type']!.int()) }
 				url:            if s := j['url'] {
 					if s !is json2.Null {
@@ -493,7 +493,7 @@ pub fn Presence.parse(j json2.Any) !Presence {
 				user:          PartialUser.parse(j['user']!)!
 				guild_id:      Snowflake.parse(j['guild_id']!)!
 				status:        Status.parse(j['status']!)!
-				activities:    maybe_map(j['activities']! as []json2.Any, fn (k json2.Any) !Activity {
+				activities:    maybe_map(json_array(j, 'activities')!, fn (k json2.Any) !Activity {
 					return Activity.parse(k)!
 				})!
 				client_status: ClientStatus.parse(j['client_status']!)!

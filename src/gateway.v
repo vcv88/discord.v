@@ -216,8 +216,8 @@ fn (mut c GatewayClient) raw_dispatch(name string, data json2.Any) ! {
 	}
 	if name == 'READY' {
 		m := data as map[string]json2.Any
-		c.resume_gateway_url = (m['resume_gateway_url']! as string).replace('\\', '')
-		c.session_id = m['session_id']! as string
+		c.resume_gateway_url = (json_string(m, 'resume_gateway_url')!).replace('\\', '')
+		c.session_id = json_string(m, 'session_id')!
 	}
 
 	if c.settings.has(.dont_process) {
@@ -578,7 +578,10 @@ pub fn (mut gc GatewayClient) latency() f64 {
 }
 
 pub fn (rest &REST) fetch_gateway_url() !string {
-	return (json2.decode[json2.Any](rest.request(.get, '/gateway', authenticate: false)!.body)! as map[string]json2.Any)['url']! as string
+	res := rest.request(.get, '/gateway', authenticate: false)!
+	decoded := json2.decode[json2.Any](res.body)!
+	decoded_map := decoded as map[string]json2.Any
+	return json_string(decoded_map, 'url')!
 }
 
 pub struct SessionStartLimit {
@@ -623,7 +626,7 @@ pub fn GatewayConfiguration.parse(j json2.Any) !GatewayConfiguration {
 	match j {
 		map[string]json2.Any {
 			return GatewayConfiguration{
-				url:                 j['url']! as string
+				url:                 json_string(j, 'url')!
 				shards:              j['shards']!.int()
 				session_start_limit: SessionStartLimit.parse(j['session_start_limit']!)!
 			}

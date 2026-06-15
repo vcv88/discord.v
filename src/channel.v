@@ -129,8 +129,8 @@ pub fn ForumTag.parse(j json2.Any) !ForumTag {
 			emoji_name := j['emoji_name']!
 			return ForumTag{
 				id:         Snowflake.parse(j['id']!)!
-				name:       j['name']! as string
-				moderated:  j['moderated']! as bool
+				name:       json_string(j, 'name')!
+				moderated:  json_bool(j, 'moderated')!
 				emoji_id:   if emoji_id !is json2.Null {
 					Snowflake.parse(emoji_id)!
 				} else {
@@ -217,7 +217,7 @@ pub fn PartialChannel.parse(j json2.Any) !PartialChannel {
 				} else {
 					.unknown
 				}
-				name:        j['name']! as string
+				name:        json_string(j, 'name')!
 				topic:       if s := j['topic'] {
 					if s !is json2.Null {
 						s as string
@@ -312,10 +312,10 @@ pub fn ThreadMetadata.parse(j json2.Any) !ThreadMetadata {
 	match j {
 		map[string]json2.Any {
 			return ThreadMetadata{
-				archived:              j['archived']! as bool
+				archived:              json_bool(j, 'archived')!
 				auto_archive_duration: j['auto_archive_duration']!.int() * time.minute
-				archive_timestamp:     time.parse_iso8601(j['archive_timestamp']! as string)!
-				locked:                j['locked']! as bool
+				archive_timestamp:     time.parse_iso8601(json_string(j, 'archive_timestamp')!)!
+				locked:                json_bool(j, 'locked')!
 				invitable:             if b := j['invitable'] {
 					b as bool
 				} else {
@@ -366,7 +366,7 @@ pub fn ThreadMember.parse(j json2.Any) !ThreadMember {
 				} else {
 					none
 				}
-				join_timestamp: time.parse_iso8601(j['join_timestamp']! as string)!
+				join_timestamp: time.parse_iso8601(json_string(j, 'join_timestamp')!)!
 				flags:          j['flags']!.int()
 				member:         if o := j['member'] {
 					GuildMember.parse(o)!
@@ -1489,13 +1489,13 @@ pub fn ListThreadsResponse.parse(j json2.Any) !ListThreadsResponse {
 	match j {
 		map[string]json2.Any {
 			return ListThreadsResponse{
-				threads:  maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+				threads:  maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 					return Channel.parse(k)!
 				})!
-				members:  maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !ThreadMember {
+				members:  maybe_map(json_array(j, 'members')!, fn (k json2.Any) !ThreadMember {
 					return ThreadMember.parse(k)!
 				})!
-				has_more: j['has_more']! as bool
+				has_more: json_bool(j, 'has_more')!
 			}
 		}
 		else {

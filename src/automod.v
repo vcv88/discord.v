@@ -241,19 +241,19 @@ pub fn AutoModerationRule.parse(j json2.Any) !AutoModerationRule {
 			return AutoModerationRule{
 				id:               Snowflake.parse(j['id']!)!
 				guild_id:         Snowflake.parse(j['guild_id']!)!
-				name:             j['name']! as string
+				name:             json_string(j, 'name')!
 				creator_id:       Snowflake.parse(j['creator_id']!)!
 				event_type:       unsafe { EventType(j['event_type']!.int()) }
 				trigger_type:     unsafe { TriggerType(j['trigger_type']!.int()) }
 				trigger_metadata: TriggerMetadata.parse(j['trigger_metadata']!)!
-				actions:          maybe_map(j['actions']! as []json2.Any, fn (k json2.Any) !Action {
+				actions:          maybe_map(json_array(j, 'actions')!, fn (k json2.Any) !Action {
 					return Action.parse(k)!
 				})!
-				enabled:          j['enabled']! as bool
-				exempt_roles:     maybe_map(j['exempt_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				enabled:          json_bool(j, 'enabled')!
+				exempt_roles:     maybe_map(json_array(j, 'exempt_roles')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				exempt_channels:  maybe_map(j['exempt_channels']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				exempt_channels:  maybe_map(json_array(j, 'exempt_channels')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
 			}

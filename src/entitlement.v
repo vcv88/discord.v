@@ -54,7 +54,7 @@ pub fn Entitlement.parse(j json2.Any) !Entitlement {
 					none
 				}
 				typ:            unsafe { EntitlementType(j['type']!.int()) }
-				deleted:        j['deleted']! as bool
+				deleted:        json_bool(j, 'deleted')!
 				starts_at:      if s := j['starts_at'] {
 					time.parse_iso8601(s as string)!
 				} else {

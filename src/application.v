@@ -156,11 +156,13 @@ pub:
 pub fn TeamMember.parse(j json2.Any) !TeamMember {
 	match j {
 		map[string]json2.Any {
+			role_any := j['role']!
+			role := role_any as string
 			return TeamMember{
 				membership_state: unsafe { MembershipState(j['membership_state']!.int()) }
 				team_id:          Snowflake.parse(j['team_id']!)!
 				user:             PartialUser.parse(j['user']!)!
-				role:             TeamMemberRole(j['role']! as string)
+				role:             TeamMemberRole(role)
 			}
 		}
 		else {
@@ -187,6 +189,10 @@ pub fn Team.parse(j json2.Any) !Team {
 	match j {
 		map[string]json2.Any {
 			icon := j['icon']!
+			members_any := j['members']!
+			members := members_any as []json2.Any
+			name_any := j['name']!
+			name := name_any as string
 			return Team{
 				id:            Snowflake.parse(j['id']!)!
 				icon:          if icon !is json2.Null {
@@ -194,10 +200,10 @@ pub fn Team.parse(j json2.Any) !Team {
 				} else {
 					none
 				}
-				members:       maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !TeamMember {
+				members:       maybe_map(members, fn (k json2.Any) !TeamMember {
 					return TeamMember.parse(k)!
 				})!
-				name:          j['name']! as string
+				name:          name
 				owner_user_id: Snowflake.parse(j['owner_user_id']!)!
 			}
 		}
@@ -219,7 +225,7 @@ pub fn InstallParams.parse(j json2.Any) !InstallParams {
 	match j {
 		map[string]json2.Any {
 			return InstallParams{
-				scopes:      (j['scopes']! as []json2.Any).map(|s| s as string)
+				scopes:      (json_array(j, 'scopes')!).map(|s| s as string)
 				permissions: Permissions.parse(j['permissions']!)!
 			}
 		}
@@ -470,20 +476,20 @@ pub fn Application.parse(j json2.Any) !Application {
 			team := j['team']!
 			return Application{
 				id:                                Snowflake.parse(j['id']!)!
-				name:                              j['name']! as string
+				name:                              json_string(j, 'name')!
 				icon:                              if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				description:                       j['description']! as string
+				description:                       json_string(j, 'description')!
 				rpc_origins:                       if a := j['rpc_origins'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				bot_public:                        j['bot_public']! as bool
-				bot_require_code_grant:            j['bot_require_code_grant']! as bool
+				bot_public:                        json_bool(j, 'bot_public')!
+				bot_require_code_grant:            json_bool(j, 'bot_require_code_grant')!
 				bot:                               if o := j['user'] {
 					User.parse(o)!
 				} else {
@@ -504,7 +510,7 @@ pub fn Application.parse(j json2.Any) !Application {
 				} else {
 					none
 				}
-				verify_key:                        hex.decode(j['verify_key']! as string)!
+				verify_key:                        hex.decode(json_string(j, 'verify_key')!)!
 				team:                              if team !is json2.Null {
 					Team.parse(team)!
 				} else {
@@ -598,7 +604,7 @@ pub fn Application.parse(j json2.Any) !Application {
 				} else {
 					none
 				}
-				hook:                              j['hook']! as bool
+				hook:                              json_bool(j, 'hook')!
 				interactions_event_types:          if a := j['interactions_event_types'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
@@ -609,7 +615,7 @@ pub fn Application.parse(j json2.Any) !Application {
 				} else {
 					none
 				}
-				is_monetized:                      j['is_monetized']! as bool
+				is_monetized:                      json_bool(j, 'is_monetized')!
 				monetization_eligibility_flags:    if i := j['monetization_eligibility_flags'] {
 					unsafe { ApplicationMonetizationEligibilityFlags(i.int()) }
 				} else {

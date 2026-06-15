@@ -83,7 +83,7 @@ pub fn Interaction.parse(j json2.Any) !Interaction {
 				} else {
 					none
 				}
-				token:           j['token']! as string
+				token:           json_string(j, 'token')!
 				message:         if o := j['message'] {
 					Message.parse(o)!
 				} else {
@@ -104,7 +104,7 @@ pub fn Interaction.parse(j json2.Any) !Interaction {
 				} else {
 					none
 				}
-				entitlements:    maybe_map(j['entitlements']! as []json2.Any, fn (k json2.Any) !Entitlement {
+				entitlements:    maybe_map(json_array(j, 'entitlements')!, fn (k json2.Any) !Entitlement {
 					return Entitlement.parse(k)!
 				})!
 			}
@@ -206,7 +206,7 @@ pub fn ApplicationCommandInteractionDataOption.parse(j json2.Any) !ApplicationCo
 	match j {
 		map[string]json2.Any {
 			return ApplicationCommandInteractionDataOption{
-				name:    j['name']! as string
+				name:    json_string(j, 'name')!
 				typ:     unsafe { ApplicationCommandOptionType(j['type']!.int()) }
 				value:   if v := j['value'] {
 					ApplicationCommandInteractionDataOptionValue.parse(v)!
@@ -256,7 +256,7 @@ pub fn ApplicationCommandData.parse(j json2.Any) !ApplicationCommandData {
 		map[string]json2.Any {
 			return ApplicationCommandData{
 				id:        Snowflake.parse(j['id']!)!
-				name:      j['name']! as string
+				name:      json_string(j, 'name')!
 				typ:       unsafe { ApplicationCommandType(j['type']!.int()) }
 				resolved:  if o := j['resolved'] {
 					Resolved.parse(o)!
@@ -319,7 +319,7 @@ pub fn MessageComponentData.parse(j json2.Any) !MessageComponentData {
 	match j {
 		map[string]json2.Any {
 			return MessageComponentData{
-				custom_id:      j['custom_id']! as string
+				custom_id:      json_string(j, 'custom_id')!
 				component_type: unsafe { ComponentType(j['component_type']!.int()) }
 				values:         if a := j['values'] {
 					(a as []json2.Any).map(|s| s as string)
@@ -355,8 +355,8 @@ pub fn ModalSubmitData.parse(j json2.Any) !ModalSubmitData {
 	match j {
 		map[string]json2.Any {
 			return ModalSubmitData{
-				custom_id:  j['custom_id']! as string
-				components: maybe_map(j['components']! as []json2.Any, fn (k json2.Any) !Component {
+				custom_id:  json_string(j, 'custom_id')!
+				components: maybe_map(json_array(j, 'components')!, fn (k json2.Any) !Component {
 					return Component.parse(k)!
 				})!
 			}

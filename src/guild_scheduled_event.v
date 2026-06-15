@@ -108,7 +108,7 @@ pub fn GuildScheduledEvent.parse(j json2.Any) !GuildScheduledEvent {
 				} else {
 					none
 				}
-				name:                 j['name']! as string
+				name:                 json_string(j, 'name')!
 				description:          if s := j['description'] {
 					if s !is json2.Null {
 						s as string
@@ -118,7 +118,7 @@ pub fn GuildScheduledEvent.parse(j json2.Any) !GuildScheduledEvent {
 				} else {
 					none
 				}
-				scheduled_start_time: time.parse_iso8601(j['scheduled_start_time']! as string)!
+				scheduled_start_time: time.parse_iso8601(json_string(j, 'scheduled_start_time')!)!
 				scheduled_end_time:   if scheduled_end_time !is json2.Null {
 					time.parse_iso8601(scheduled_end_time as string)!
 				} else {

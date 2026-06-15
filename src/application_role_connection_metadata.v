@@ -43,14 +43,14 @@ pub fn ApplicationRoleConnectionMetadata.parse(j json2.Any) !ApplicationRoleConn
 		map[string]json2.Any {
 			return ApplicationRoleConnectionMetadata{
 				typ:                       unsafe { ApplicationRoleConnectionMetadataType(j['type']!.int()) }
-				key:                       j['key']! as string
-				name:                      j['name']! as string
+				key:                       json_string(j, 'key')!
+				name:                      json_string(j, 'name')!
 				name_localizations:        if m := j['name_localizations'] {
 					parse_locales(m as map[string]json2.Any)
 				} else {
 					none
 				}
-				description:               j['description']! as string
+				description:               json_string(j, 'description')!
 				description_localizations: if m := j['description_localizations'] {
 					parse_locales(m as map[string]json2.Any)
 				} else {

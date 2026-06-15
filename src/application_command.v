@@ -50,7 +50,7 @@ pub fn ApplicationCommandOptionChoice.parse(j json2.Any) !ApplicationCommandOpti
 		map[string]json2.Any {
 			value := j['value']!
 			return ApplicationCommandOptionChoice{
-				name:               j['name']! as string
+				name:               json_string(j, 'name')!
 				name_localizations: if m := j['name_localizations'] {
 					parse_locales(m as map[string]json2.Any)
 				} else {
@@ -153,7 +153,7 @@ pub fn ApplicationCommandOption.parse(j json2.Any) !ApplicationCommandOption {
 		map[string]json2.Any {
 			return ApplicationCommandOption{
 				typ:                       unsafe { ApplicationCommandOptionType(j['type']!.int()) }
-				name:                      j['name']! as string
+				name:                      json_string(j, 'name')!
 				name_localizations:        if m := j['name_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
@@ -163,7 +163,7 @@ pub fn ApplicationCommandOption.parse(j json2.Any) !ApplicationCommandOption {
 				} else {
 					none
 				}
-				description:               j['description']! as string
+				description:               json_string(j, 'description')!
 				description_localizations: if m := j['description_localizations'] {
 					if m !is json2.Null {
 						maps.to_map[string, json2.Any, Locale, string](m as map[string]json2.Any, fn (k string, v json2.Any) (Locale, string) {
@@ -315,7 +315,7 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 				} else {
 					none
 				}
-				name:                       j['name']! as string
+				name:                       json_string(j, 'name')!
 				name_localizations:         if m := j['name_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
@@ -325,7 +325,7 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 				} else {
 					none
 				}
-				description:                j['description']! as string
+				description:                json_string(j, 'description')!
 				description_localizations:  if m := j['description_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
@@ -604,7 +604,7 @@ pub fn ApplicationCommandPermission.parse(j json2.Any) !ApplicationCommandPermis
 			return ApplicationCommandPermission{
 				id:         Snowflake.parse(j['id']!)!
 				typ:        unsafe { ApplicationCommandPermissionType(j['type']!.int()) }
-				permission: j['permission']! as bool
+				permission: json_bool(j, 'permission')!
 			}
 		}
 		else {
@@ -632,7 +632,7 @@ pub fn GuildApplicationCommandPermissions.parse(j json2.Any) !GuildApplicationCo
 				id:             Snowflake.parse(j['id']!)!
 				application_id: Snowflake.parse(j['application_id']!)!
 				guild_id:       Snowflake.parse(j['guild_id']!)!
-				permissions:    maybe_map(j['permissions']! as []json2.Any, fn (k json2.Any) !ApplicationCommandPermission {
+				permissions:    maybe_map(json_array(j, 'permissions')!, fn (k json2.Any) !ApplicationCommandPermission {
 					return ApplicationCommandPermission.parse(k)!
 				})!
 			}

@@ -68,8 +68,8 @@ pub fn InviteMetadata.parse(j json2.Any) !InviteMetadata {
 				uses:       j['uses']!.int()
 				max_uses:   j['max_uses']!.int()
 				max_age:    j['max_age']!.int() * time.second
-				temporary:  j['temporary']! as bool
-				created_at: time.parse_iso8601(j['created_at']! as string)!
+				temporary:  json_bool(j, 'temporary')!
+				created_at: time.parse_iso8601(json_string(j, 'created_at')!)!
 			}
 		}
 		else {
@@ -83,7 +83,7 @@ pub fn Invite.parse(j json2.Any) !Invite {
 		map[string]json2.Any {
 			return Invite{
 				typ:                        unsafe { InviteType(j['type']!.int()) }
-				code:                       j['code']! as string
+				code:                       json_string(j, 'code')!
 				guild:                      if o := j['guild'] {
 					PartialGuild.parse(o)!
 				} else {
