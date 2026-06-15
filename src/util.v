@@ -34,6 +34,30 @@ pub fn extract_id_from_token(token string) !Snowflake {
 	return Snowflake(strconv.parse_uint(id, 10, 64) or { return error('not a id: ${err}') })
 }
 
+@[inline]
+fn json_string(j map[string]json2.Any, key string) !string {
+	value := j[key]!
+	return value as string
+}
+
+@[inline]
+fn json_bool(j map[string]json2.Any, key string) !bool {
+	value := j[key]!
+	return value as bool
+}
+
+@[inline]
+fn json_array(j map[string]json2.Any, key string) ![]json2.Any {
+	value := j[key]!
+	return value as []json2.Any
+}
+
+@[inline]
+fn json_map(j map[string]json2.Any, key string) !map[string]json2.Any {
+	value := j[key]!
+	return value as map[string]json2.Any
+}
+
 pub fn maybe_map[T, X](a []T, f fn (T) !X) ![]X {
 	mut r := []X{cap: a.len}
 	for v in a {

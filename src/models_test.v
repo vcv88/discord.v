@@ -4,41 +4,41 @@ import x.json2
 
 fn test_application_command_option_choice() {
 	assert ApplicationCommandOptionChoice{
-		name: 'foo'
+		name:  'foo'
 		value: 'bar'
 	}.build() == json2.Any({
 		'name':  json2.Any('foo')
 		'value': 'bar'
 	})
 	assert ApplicationCommandOptionChoice{
-		name: 'baz'
+		name:  'baz'
 		value: 3.14
 	}.build() == json2.Any({
 		'name':  json2.Any('baz')
 		'value': 3.14
 	})
 	assert ApplicationCommandOptionChoice{
-		name: 'qux'
+		name:  'qux'
 		value: 42
 	}.build() == json2.Any({
 		'name':  json2.Any('qux')
 		'value': 42
 	})
 	assert ApplicationCommandOptionChoice{
-		name: 'Cat'
+		name:               'Cat'
 		name_localizations: map[Locale]string{}
-		value: 'cat'
+		value:              'cat'
 	}.build() == json2.Any({
 		'name':               json2.Any('Cat')
 		'name_localizations': map[string]json2.Any{}
 		'value':              'cat'
 	})
 	assert ApplicationCommandOptionChoice{
-		name: 'Cat'
+		name:               'Cat'
 		name_localizations: {
 			locale_ru: 'кот'
 		}
-		value: 'cat'
+		value:              'cat'
 	}.build() == json2.Any({
 		'name':               json2.Any('Cat')
 		'name_localizations': {
@@ -47,12 +47,12 @@ fn test_application_command_option_choice() {
 		'value':              'cat'
 	})
 	assert ApplicationCommandOptionChoice{
-		name: 'Kitty'
+		name:               'Kitty'
 		name_localizations: {
 			locale_ru: 'кошка'
 			locale_uk: 'кішка'
 		}
-		value: 'kitty'
+		value:              'kitty'
 	}.build() == json2.Any({
 		'name':               json2.Any('Kitty')
 		'name_localizations': {
@@ -103,9 +103,9 @@ fn test_application_command_option_choice() {
 		assert false, 'Should not return error: ${err}'
 		return
 	} == ApplicationCommandOptionChoice{
-		name: 'Cat'
+		name:               'Cat'
 		name_localizations: map[Locale]string{}
-		value: 'cat'
+		value:              'cat'
 	}
 	assert ApplicationCommandOptionChoice.parse({
 		'name':               json2.Any('Cat')
@@ -117,11 +117,11 @@ fn test_application_command_option_choice() {
 		assert false, 'Should not return error: ${err}'
 		return
 	} == ApplicationCommandOptionChoice{
-		name: 'Cat'
+		name:               'Cat'
 		name_localizations: {
 			locale_ru: 'кот'
 		}
-		value: 'cat'
+		value:              'cat'
 	}
 	assert ApplicationCommandOptionChoice.parse({
 		'name':               json2.Any('Kitty')
@@ -134,19 +134,19 @@ fn test_application_command_option_choice() {
 		assert false, 'Should not return error: ${err}'
 		return
 	} == ApplicationCommandOptionChoice{
-		name: 'Kitty'
+		name:               'Kitty'
 		name_localizations: {
 			locale_ru: 'кошка'
 			locale_uk: 'кішка'
 		}
-		value: 'kitty'
+		value:              'kitty'
 	}
 }
 
 fn test_application_command_option() {
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'foo'
+		typ:         .string
+		name:        'foo'
 		description: 'This is my first command.'
 	}.build() == json2.Any({
 		'type':        json2.Any(3)
@@ -154,13 +154,13 @@ fn test_application_command_option() {
 		'description': 'This is my first command.'
 	})
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'item'
-		name_localizations: {
+		typ:                       .string
+		name:                      'item'
+		name_localizations:        {
 			locale_ru: 'вещь'
 			locale_uk: 'річ'
 		}
-		description: 'Item to be bought'
+		description:               'Item to be bought'
 		description_localizations: {
 			locale_ru: 'Вещь которую надо купить'
 			locale_uk: 'Річ, яку треба купити'
@@ -179,21 +179,21 @@ fn test_application_command_option() {
 		}
 	})
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'animal'
+		typ:         .string
+		name:        'animal'
 		description: 'The type of animal'
-		required: true
-		choices: [
+		required:    true
+		choices:     [
 			ApplicationCommandOptionChoice{
-				name: 'Dog'
+				name:  'Dog'
 				value: 'animal_dog'
 			},
 			ApplicationCommandOptionChoice{
-				name: 'Cat'
+				name:  'Cat'
 				value: 'animal_cat'
 			},
 			ApplicationCommandOptionChoice{
-				name: 'Penguin'
+				name:  'Penguin'
 				value: 'animal_penguin'
 			},
 		]
@@ -218,10 +218,10 @@ fn test_application_command_option() {
 		]
 	})
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'item'
+		typ:          .string
+		name:         'item'
 		autocomplete: false
-		description: 'Item to be bought'
+		description:  'Item to be bought'
 	}.build() == json2.Any({
 		'type':         json2.Any(3)
 		'name':         'item'
@@ -229,10 +229,10 @@ fn test_application_command_option() {
 		'autocomplete': false
 	})
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'item'
+		typ:          .string
+		name:         'item'
 		autocomplete: true
-		description: 'Item to be bought'
+		description:  'Item to be bought'
 	}.build() == json2.Any({
 		'type':         json2.Any(3)
 		'name':         'item'
@@ -240,10 +240,10 @@ fn test_application_command_option() {
 		'autocomplete': true
 	})
 	assert ApplicationCommandOption{
-		typ: .channel
-		name: 'channel'
+		typ:           .channel
+		name:          'channel'
 		channel_types: []ChannelType{}
-		description: 'Channel that will used for sending logs'
+		description:   'Channel that will used for sending logs'
 	}.build() == json2.Any({
 		'type':          json2.Any(7)
 		'name':          'channel'
@@ -251,10 +251,10 @@ fn test_application_command_option() {
 		'channel_types': []json2.Any{}
 	})
 	assert ApplicationCommandOption{
-		typ: .channel
-		name: 'channel'
+		typ:           .channel
+		name:          'channel'
 		channel_types: [.guild_text]
-		description: 'Channel that will used for sending logs'
+		description:   'Channel that will used for sending logs'
 	}.build() == json2.Any({
 		'type':          json2.Any(7)
 		'name':          'channel'
@@ -262,45 +262,45 @@ fn test_application_command_option() {
 		'channel_types': [json2.Any(0)]
 	})
 	assert ApplicationCommandOption{
-		typ: .sub_command_group
-		name: 'user'
+		typ:         .sub_command_group
+		name:        'user'
 		description: 'Get or edit permissions for a user'
-		options: [
+		options:     [
 			ApplicationCommandOption{
-				typ: .sub_command
-				name: 'get'
+				typ:         .sub_command
+				name:        'get'
 				description: 'Get permissions for a user'
-				options: [
+				options:     [
 					ApplicationCommandOption{
-						typ: .user
-						name: 'user'
+						typ:         .user
+						name:        'user'
 						description: 'The user to get'
-						required: true
+						required:    true
 					},
 					ApplicationCommandOption{
-						typ: .channel
-						name: 'channel'
+						typ:         .channel
+						name:        'channel'
 						description: 'The channel permissions to get. If omitted, the guild permissions will be returned'
-						required: false
+						required:    false
 					},
 				]
 			},
 			ApplicationCommandOption{
-				typ: .sub_command
-				name: 'edit'
+				typ:         .sub_command
+				name:        'edit'
 				description: 'Edit permissions for a user'
-				options: [
+				options:     [
 					ApplicationCommandOption{
-						typ: .user
-						name: 'user'
+						typ:         .user
+						name:        'user'
 						description: 'The user to edit'
-						required: true
+						required:    true
 					},
 					ApplicationCommandOption{
-						typ: .channel
-						name: 'channel'
+						typ:         .channel
+						name:        'channel'
 						description: 'The channel permissions to edit. If omitted, the guild permissions will be edited'
-						required: false
+						required:    false
 					},
 				]
 			},
@@ -351,45 +351,45 @@ fn test_application_command_option() {
 		]
 	})
 	assert ApplicationCommandOption{
-		typ: .sub_command_group
-		name: 'role'
+		typ:         .sub_command_group
+		name:        'role'
 		description: 'Get or edit permissions for a role'
-		options: [
+		options:     [
 			ApplicationCommandOption{
-				typ: .sub_command
-				name: 'get'
+				typ:         .sub_command
+				name:        'get'
 				description: 'Get permissions for a role'
-				options: [
+				options:     [
 					ApplicationCommandOption{
-						typ: .role
-						name: 'role'
+						typ:         .role
+						name:        'role'
 						description: 'The role to get'
-						required: true
+						required:    true
 					},
 					ApplicationCommandOption{
-						typ: .channel
-						name: 'channel'
+						typ:         .channel
+						name:        'channel'
 						description: 'The channel permissions to get. If omitted, the guild permissions will be returned'
-						required: false
+						required:    false
 					},
 				]
 			},
 			ApplicationCommandOption{
-				typ: .sub_command
-				name: 'edit'
+				typ:         .sub_command
+				name:        'edit'
 				description: 'Edit permissions for a role'
-				options: [
+				options:     [
 					ApplicationCommandOption{
-						typ: .role
-						name: 'role'
+						typ:         .role
+						name:        'role'
 						description: 'The role to edit'
-						required: true
+						required:    true
 					},
 					ApplicationCommandOption{
-						typ: .channel
-						name: 'channel'
+						typ:         .channel
+						name:        'channel'
 						description: 'The channel permissions to edit. If omitted, the guild permissions will be edited'
-						required: false
+						required:    false
 					},
 				]
 			},
@@ -440,12 +440,12 @@ fn test_application_command_option() {
 		]
 	})
 	assert ApplicationCommandOption{
-		typ: .number
-		name: 'n'
+		typ:         .number
+		name:        'n'
 		description: 'Number to factorialize'
-		required: true
-		min_value: 0.0
-		max_value: 170.0
+		required:    true
+		min_value:   0.0
+		max_value:   170.0
 	}.build() == json2.Any({
 		'type':        json2.Any(10)
 		'name':        'n'
@@ -455,12 +455,12 @@ fn test_application_command_option() {
 		'max_value':   170.0
 	})
 	assert ApplicationCommandOption{
-		typ: .string
-		name: 'system-prompt'
+		typ:         .string
+		name:        'system-prompt'
 		description: 'ChatGPT system prompt'
-		required: true
-		min_length: 2
-		max_length: 100
+		required:    true
+		min_length:  2
+		max_length:  100
 	}.build() == json2.Any({
 		'type':        json2.Any(3)
 		'name':        'system-prompt'

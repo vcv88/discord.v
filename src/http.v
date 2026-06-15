@@ -83,60 +83,62 @@ pub fn REST.do_request(rest &REST, method http.Method, route string, options Req
 	}
 	if res.status_code >= 400 {
 		status := res.status()
-		er := json2.raw_decode(res.body)! as map[string]json2.Any
-		code := (er['code'] or { json2.Any(0) }).int()
-		message := er['message'] or { '' } as string
-		errors := er['errors'] or {
-			map[string]json2.Any{}
-		} as map[string]json2.Any
+		er_any := json2.decode[json2.Any](res.body)!
+		er := er_any as map[string]json2.Any
+		code_any := er['code'] or { json2.Any(0) }
+		code := code_any.int()
+		message_any := er['message'] or { json2.Any('') }
+		message := message_any as string
+		errors_any := er['errors'] or { json2.Any(map[string]json2.Any{}) }
+		errors := errors_any as map[string]json2.Any
 		if res.status_code >= 500 {
 			return InternalServerError{
-				code: code
+				code:    code
 				message: message
-				errors: errors
-				status: status
+				errors:  errors
+				status:  status
 			}
 		}
 		match res.status_code {
 			401 {
 				return Unauthorized{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			403 {
 				return Forbidden{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			404 {
 				return NotFound{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			429 {
 				return Ratelimit{
-					code: code
-					message: message
-					errors: errors
-					status: status
+					code:        code
+					message:     message
+					errors:      errors
+					status:      status
 					retry_after: er['retry_after']!.f32()
 				}
 			}
 			else {
 				return RestError{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 		}

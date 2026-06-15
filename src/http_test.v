@@ -82,7 +82,7 @@ fn test_messages() {
 		files: [
 			File{
 				filename: '1.txt'
-				data: 'foo'.bytes()
+				data:     'foo'.bytes()
 			},
 		]
 	) or { panic(err) }
@@ -94,11 +94,11 @@ fn test_messages() {
 		files: [
 			File{
 				filename: '2.txt'
-				data: 'bar'.bytes()
+				data:     'bar'.bytes()
 			},
 			File{
 				filename: '3.txt'
-				data: 'baz'.bytes()
+				data:     'baz'.bytes()
 			},
 		]
 	) or { panic(err) }
@@ -111,67 +111,67 @@ fn test_messages() {
 	assert http.get_text(message4.attachments[1].url) == 'baz'
 	rest.delete_messages(channel_id, [message3.id, message4.id]) or { panic(err) }
 	message5 := rest.create_message(channel_id,
-		content: 'Components test'
+		content:    'Components test'
 		components: [
 			ActionRow{
 				components: [
 					Button{
-						style: .primary
-						label: 'Primary'
+						style:     .primary
+						label:     'Primary'
 						custom_id: 'a'
 					},
 					Button{
-						style: .secondary
-						label: 'Secondary'
+						style:     .secondary
+						label:     'Secondary'
 						custom_id: 'b'
 					},
 					Button{
-						style: .success
-						label: 'Success'
+						style:     .success
+						label:     'Success'
 						custom_id: 'c'
 					},
 					Button{
-						style: .danger
-						label: 'Danger'
+						style:     .danger
+						label:     'Danger'
 						custom_id: 'd'
 					},
 					Button{
 						style: .link
 						label: 'Link'
-						url: 'https://github.com/DarpHome/discord.v'
+						url:   'https://github.com/DarpHome/discord.v'
 					},
 				]
 			},
 			ActionRow{
 				components: [
 					Button{
-						style: .primary
-						label: 'Primary'
+						style:     .primary
+						label:     'Primary'
 						custom_id: 'e'
-						disabled: true
+						disabled:  true
 					},
 					Button{
-						style: .secondary
-						label: 'Secondary'
+						style:     .secondary
+						label:     'Secondary'
 						custom_id: 'f'
-						disabled: true
+						disabled:  true
 					},
 					Button{
-						style: .success
-						label: 'Success'
+						style:     .success
+						label:     'Success'
 						custom_id: 'g'
-						disabled: true
+						disabled:  true
 					},
 					Button{
-						style: .danger
-						label: 'Danger'
+						style:     .danger
+						label:     'Danger'
 						custom_id: 'h'
-						disabled: true
+						disabled:  true
 					},
 					Button{
-						style: .link
-						label: 'Link'
-						url: 'https://github.com/DarpHome/discord.v'
+						style:    .link
+						label:    'Link'
+						url:      'https://github.com/DarpHome/discord.v'
 						disabled: true
 					},
 				]
@@ -180,7 +180,7 @@ fn test_messages() {
 				components: [
 					StringSelect{
 						custom_id: 'i'
-						options: [
+						options:   [
 							SelectOption{
 								label: 'One'
 								value: '1'
@@ -500,7 +500,7 @@ fn test_commands() {
 	application := rest.fetch_my_application() or { panic(err) }
 
 	command := rest.create_global_application_command(application.id,
-		name: 'test'
+		name:        'test'
 		description: 'A test command'
 	) or { panic(err) }
 	assert command.name == 'test'
@@ -526,7 +526,7 @@ fn test_commands() {
 
 	commands2 := rest.bulk_overwrite_global_application_commands(application.id, [
 		CreateApplicationCommandParams{
-			name: 'test_2'
+			name:        'test_2'
 			description: 'A test command'
 		},
 	]) or { panic(err) }

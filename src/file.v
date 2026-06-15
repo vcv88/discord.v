@@ -7,9 +7,9 @@ import time
 
 pub struct File {
 pub:
-	filename     string  @[required]
+	filename     string @[required]
 	content_type string = 'application/octet-stream'
-	data         []u8    @[required]
+	data         []u8 @[required]
 	description  ?string
 }
 
@@ -29,16 +29,16 @@ pub fn build_multipart_with_files(files []File, j json2.Any) (string, string) {
 		'payload_json': [
 			http.FileData{
 				content_type: 'application/json'
-				data: j.json_str()
+				data:         j.json_str()
 			},
 		]
 	}
 	for i, file in files {
 		mp['files[${i}]'] = [
 			http.FileData{
-				filename: file.filename
+				filename:     file.filename
 				content_type: file.content_type
-				data: file.data.bytestr()
+				data:         file.data.bytestr()
 			},
 		]
 	}
@@ -87,22 +87,22 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 	match j {
 		map[string]json2.Any {
 			return Attachment{
-				id: Snowflake.parse(j['id']!)!
-				filename: j['filename']! as string
-				description: if s := j['description'] {
+				id:            Snowflake.parse(j['id']!)!
+				filename:      json_string(j, 'filename')!
+				description:   if s := j['description'] {
 					s as string
 				} else {
 					none
 				}
-				content_type: if s := j['content_type'] {
+				content_type:  if s := j['content_type'] {
 					s as string
 				} else {
 					none
 				}
-				size: j['size']!.int()
-				url: j['url']! as string
-				proxy_url: j['proxy_url']! as string
-				height: if i := j['height'] {
+				size:          j['size']!.int()
+				url:           json_string(j, 'url')!
+				proxy_url:     json_string(j, 'proxy_url')!
+				height:        if i := j['height'] {
 					if i !is json2.Null {
 						i.int()
 					} else {
@@ -111,7 +111,7 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 				} else {
 					none
 				}
-				width: if i := j['width'] {
+				width:         if i := j['width'] {
 					if i !is json2.Null {
 						i.int()
 					} else {
@@ -120,7 +120,7 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 				} else {
 					none
 				}
-				ephemeral: if b := j['ephemeral'] {
+				ephemeral:     if b := j['ephemeral'] {
 					b as bool
 				} else {
 					none
@@ -130,12 +130,12 @@ pub fn Attachment.parse(j json2.Any) !Attachment {
 				} else {
 					none
 				}
-				waveform: if s := j['waveform'] {
+				waveform:      if s := j['waveform'] {
 					base64.decode(s as string)
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:         if i := j['flags'] {
 					unsafe { AttachmentFlags(i.int()) }
 				} else {
 					none

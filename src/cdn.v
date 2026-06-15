@@ -15,7 +15,7 @@ pub:
 @[params]
 pub struct NewCDNParams {
 pub:
-	base string = discord.default_cdn_url
+	base string = default_cdn_url
 }
 
 pub fn new_cdn(params NewCDNParams) CDN {
@@ -171,10 +171,10 @@ pub struct CDNAttachment {
 pub fn CDNAttachment.parse(url string) !CDNAttachment {
 	query := urllib.parse(url)!.query()
 	return CDNAttachment{
-		expires_on: time.unix(strconv.parse_int(query.get('ex') or {
+		expires_on:       time.unix(strconv.parse_int(query.get('ex') or {
 			return error("no 'ex' query param")
 		}, 16, 64)!)
-		issued_at: time.unix(strconv.parse_int(query.get('is') or {
+		issued_at:        time.unix(strconv.parse_int(query.get('is') or {
 			return error("no 'is' query param")
 		}, 16, 64)!)
 		unique_signature: hex.decode(query.get('hm') or { return error("no 'hm' query param") })!

@@ -156,11 +156,11 @@ pub fn (mut ec EventController[T]) wait(params EventWaitParams[T]) EventChannel[
 	id := ec.generate_id()
 	ec.wait_fors[id] = EventWaiter[T]{
 		check: params.check
-		c: InternalChan[T]{}
+		c:     InternalChan[T]{}
 	}
 	return EventChannel[T]{
-		id: id
-		timeout: params.timeout
+		id:         id
+		timeout:    params.timeout
 		controller: unsafe { &mut ec }
 	}
 }

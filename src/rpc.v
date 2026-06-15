@@ -32,7 +32,7 @@ pub fn (mut rpc RPC) recv() !RPCPacket {
 	rpc.conn.read(mut data)!
 	dump(data.bytestr())
 	return RPCPacket{
-		op: int(op)
+		op:   int(op)
 		data: data
 	}
 }
@@ -54,8 +54,8 @@ pub:
 pub fn (mut rpc RPC) recv_json() !RPCJSONPacket {
 	packet := rpc.recv()!
 	return RPCJSONPacket{
-		op: packet.op
-		data: json2.raw_decode(packet.data.bytestr())!
+		op:   packet.op
+		data: json2.decode[json2.Any](packet.data.bytestr())!
 	}
 }
 

@@ -4,21 +4,21 @@ import x.json2
 
 pub enum ComponentType {
 	// Container for other components
-	action_row         = 1
+	action_row = 1
 	// Button object
-	button             = 2
+	button = 2
 	// Select menu for picking from defined text options
-	string_select      = 3
+	string_select = 3
 	// Text input object
-	text_input         = 4
+	text_input = 4
 	// Select menu for users
-	user_select        = 5
+	user_select = 5
 	// Select menu for roles
-	role_select        = 6
+	role_select = 6
 	// Select menu for mentionables (users *and roles*)
 	mentionable_select = 7
 	// Select menu for channels
-	channel_select     = 8
+	channel_select = 8
 }
 
 pub fn (ct ComponentType) build() json2.Any {
@@ -35,7 +35,7 @@ pub interface Component {
 pub struct ComponentEmoji {
 pub:
 	id       ?Snowflake
-	name     string     @[required]
+	name     string @[required]
 	animated bool
 }
 
@@ -56,12 +56,12 @@ pub fn ComponentEmoji.parse(j json2.Any) !ComponentEmoji {
 	match j {
 		map[string]json2.Any {
 			return ComponentEmoji{
-				id: if s := j['id'] {
+				id:       if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				name: j['name']! as string
+				name:     json_string(j, 'name')!
 				animated: if b := j['animated'] {
 					b as bool
 				} else {
@@ -94,7 +94,7 @@ pub fn (ar ActionRow) build() json2.Any {
 
 pub fn ActionRow.internal_parse(j map[string]json2.Any) !ActionRow {
 	return ActionRow{
-		components: maybe_map(j['components']! as []json2.Any, fn (k json2.Any) !Component {
+		components: maybe_map(json_array(j, 'components')!, fn (k json2.Any) !Component {
 			return Component.parse(k)!
 		})!
 	}
@@ -111,7 +111,7 @@ pub fn ActionRow.parse(j json2.Any) !ActionRow {
 	}
 }
 
-pub fn (r []Component) flatten() []Component {
+pub fn (r []Component) flatten() []discord.Component {
 	mut t := []Component{}
 	for u in r {
 		if u is ActionRow {
@@ -145,15 +145,15 @@ pub fn (cs []Component) find[T](f fn (T) bool) ?T {
 
 pub enum ButtonStyle {
 	// blurple
-	primary   = 1
+	primary = 1
 	// grey
 	secondary = 2
 	// green
-	success   = 3
+	success = 3
 	// red
-	danger    = 4
+	danger = 4
 	// grey, navigates to a URL
-	link      = 5
+	link = 5
 }
 
 pub fn (bs ButtonStyle) build() json2.Any {
@@ -215,13 +215,13 @@ pub fn (b Button) build() json2.Any {
 
 pub fn Button.internal_parse(j map[string]json2.Any) !Button {
 	return Button{
-		style: unsafe { ButtonStyle(j['style']!.int()) }
-		label: if s := j['label'] {
+		style:     unsafe { ButtonStyle(j['style']!.int()) }
+		label:     if s := j['label'] {
 			s as string
 		} else {
 			none
 		}
-		emoji: if o := j['emoji'] {
+		emoji:     if o := j['emoji'] {
 			ComponentEmoji.parse(o)!
 		} else {
 			none
@@ -231,12 +231,12 @@ pub fn Button.internal_parse(j map[string]json2.Any) !Button {
 		} else {
 			none
 		}
-		url: if s := j['url'] {
+		url:       if s := j['url'] {
 			s as string
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:  if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -290,19 +290,19 @@ pub fn SelectOption.parse(j json2.Any) !SelectOption {
 	match j {
 		map[string]json2.Any {
 			return SelectOption{
-				label: j['label']! as string
-				value: j['value']! as string
+				label:       json_string(j, 'label')!
+				value:       json_string(j, 'value')!
 				description: if s := j['description'] {
 					s as string
 				} else {
 					none
 				}
-				emoji: if o := j['emoji'] {
+				emoji:       if o := j['emoji'] {
 					ComponentEmoji.parse(o)!
 				} else {
 					none
 				}
-				default: if b := j['default'] {
+				default:     if b := j['default'] {
 					b as bool
 				} else {
 					none
@@ -356,8 +356,8 @@ pub fn (ss StringSelect) build() json2.Any {
 
 pub fn StringSelect.internal_parse(j map[string]json2.Any) !StringSelect {
 	return StringSelect{
-		custom_id: j['custom_id']! as string
-		options: maybe_map(j['options']! as []json2.Any, fn (k json2.Any) !SelectOption {
+		custom_id:   json_string(j, 'custom_id')!
+		options:     maybe_map(json_array(j, 'options')!, fn (k json2.Any) !SelectOption {
 			return SelectOption.parse(k)!
 		})!
 		placeholder: if s := j['placeholder'] {
@@ -365,17 +365,17 @@ pub fn StringSelect.internal_parse(j map[string]json2.Any) !StringSelect {
 		} else {
 			none
 		}
-		min_values: if i := j['min_values'] {
+		min_values:  if i := j['min_values'] {
 			i.int()
 		} else {
 			none
 		}
-		max_values: if i := j['max_values'] {
+		max_values:  if i := j['max_values'] {
 			i.int()
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:    if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -422,9 +422,9 @@ pub fn (dv DefaultValue) build() json2.Any {
 pub fn DefaultValue.parse(j json2.Any) !DefaultValue {
 	match j {
 		map[string]json2.Any {
-			typ := j['type']! as string
+			typ := json_string(j, 'type')!
 			return DefaultValue{
-				id: Snowflake.parse(j['id']!)!
+				id:  Snowflake.parse(j['id']!)!
 				typ: match typ {
 					'user' {
 						.user
@@ -493,8 +493,8 @@ pub fn (us UserSelect) build() json2.Any {
 
 pub fn UserSelect.internal_parse(j map[string]json2.Any) !UserSelect {
 	return UserSelect{
-		custom_id: j['custom_id']! as string
-		placeholder: if s := j['placeholder'] {
+		custom_id:      json_string(j, 'custom_id')!
+		placeholder:    if s := j['placeholder'] {
 			s as string
 		} else {
 			none
@@ -506,17 +506,17 @@ pub fn UserSelect.internal_parse(j map[string]json2.Any) !UserSelect {
 		} else {
 			none
 		}
-		min_values: if i := j['min_values'] {
+		min_values:     if i := j['min_values'] {
 			i.int()
 		} else {
 			none
 		}
-		max_values: if i := j['max_values'] {
+		max_values:     if i := j['max_values'] {
 			i.int()
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:       if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -581,8 +581,8 @@ pub fn (rs RoleSelect) build() json2.Any {
 
 pub fn RoleSelect.internal_parse(j map[string]json2.Any) !RoleSelect {
 	return RoleSelect{
-		custom_id: j['custom_id']! as string
-		placeholder: if s := j['placeholder'] {
+		custom_id:      json_string(j, 'custom_id')!
+		placeholder:    if s := j['placeholder'] {
 			s as string
 		} else {
 			none
@@ -594,17 +594,17 @@ pub fn RoleSelect.internal_parse(j map[string]json2.Any) !RoleSelect {
 		} else {
 			none
 		}
-		min_values: if i := j['min_values'] {
+		min_values:     if i := j['min_values'] {
 			i.int()
 		} else {
 			none
 		}
-		max_values: if i := j['max_values'] {
+		max_values:     if i := j['max_values'] {
 			i.int()
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:       if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -666,8 +666,8 @@ pub fn (ms MentionableSelect) build() json2.Any {
 
 pub fn MentionableSelect.internal_parse(j map[string]json2.Any) !MentionableSelect {
 	return MentionableSelect{
-		custom_id: j['custom_id']! as string
-		placeholder: if s := j['placeholder'] {
+		custom_id:      json_string(j, 'custom_id')!
+		placeholder:    if s := j['placeholder'] {
 			s as string
 		} else {
 			none
@@ -679,17 +679,17 @@ pub fn MentionableSelect.internal_parse(j map[string]json2.Any) !MentionableSele
 		} else {
 			none
 		}
-		min_values: if i := j['min_values'] {
+		min_values:     if i := j['min_values'] {
 			i.int()
 		} else {
 			none
 		}
-		max_values: if i := j['max_values'] {
+		max_values:     if i := j['max_values'] {
 			i.int()
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:       if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -759,13 +759,13 @@ pub fn (cs ChannelSelect) build() json2.Any {
 
 pub fn ChannelSelect.internal_parse(j map[string]json2.Any) !ChannelSelect {
 	return ChannelSelect{
-		custom_id: j['custom_id']! as string
-		channel_types: if a := j['channel_types'] {
+		custom_id:      json_string(j, 'custom_id')!
+		channel_types:  if a := j['channel_types'] {
 			(a as []json2.Any).map(|i| unsafe { ChannelType(i.int()) })
 		} else {
 			none
 		}
-		placeholder: if s := j['placeholder'] {
+		placeholder:    if s := j['placeholder'] {
 			s as string
 		} else {
 			none
@@ -777,17 +777,17 @@ pub fn ChannelSelect.internal_parse(j map[string]json2.Any) !ChannelSelect {
 		} else {
 			none
 		}
-		min_values: if i := j['min_values'] {
+		min_values:     if i := j['min_values'] {
 			i.int()
 		} else {
 			none
 		}
-		max_values: if i := j['max_values'] {
+		max_values:     if i := j['max_values'] {
 			i.int()
 		} else {
 			none
 		}
-		disabled: if b := j['disabled'] {
+		disabled:       if b := j['disabled'] {
 			b as bool
 		} else {
 			none
@@ -808,7 +808,7 @@ pub fn ChannelSelect.parse(j json2.Any) !ChannelSelect {
 
 pub enum TextInputStyle {
 	// Single-line input
-	short     = 1
+	short = 1
 	// Multi-line input
 	paragraph = 2
 }
@@ -868,24 +868,24 @@ pub fn (ti TextInput) build() json2.Any {
 
 pub fn TextInput.internal_parse(j map[string]json2.Any) !TextInput {
 	return TextInput{
-		custom_id: j['custom_id']! as string
-		label: ''
-		min_length: if i := j['min_length'] {
+		custom_id:   json_string(j, 'custom_id')!
+		label:       ''
+		min_length:  if i := j['min_length'] {
 			i.int()
 		} else {
 			none
 		}
-		max_length: if i := j['max_length'] {
+		max_length:  if i := j['max_length'] {
 			i.int()
 		} else {
 			none
 		}
-		required: if b := j['required'] {
+		required:    if b := j['required'] {
 			b as bool
 		} else {
 			none
 		}
-		value: if s := j['value'] {
+		value:       if s := j['value'] {
 			s as string
 		} else {
 			none

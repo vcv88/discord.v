@@ -34,14 +34,14 @@ pub fn ReadyEvent.parse(j json2.Any, base BaseEvent) !ReadyEvent {
 	match j {
 		map[string]json2.Any {
 			return ReadyEvent{
-				BaseEvent: base
-				user: User.parse(j['user']!)!
-				guilds: maybe_map(j['guilds']! as []json2.Any, fn (k json2.Any) !UnavailableGuild {
+				BaseEvent:          base
+				user:               User.parse(j['user']!)!
+				guilds:             maybe_map(json_array(j, 'guilds')!, fn (k json2.Any) !UnavailableGuild {
 					return UnavailableGuild.parse(k)!
 				})!
-				session_id: j['session_id']! as string
-				resume_gateway_url: j['resume_gateway_url']! as string
-				application: PartialApplication.parse(j['application']!)!
+				session_id:         json_string(j, 'session_id')!
+				resume_gateway_url: json_string(j, 'resume_gateway_url')!
+				application:        PartialApplication.parse(j['application']!)!
 			}
 		}
 		else {
@@ -79,7 +79,7 @@ pub:
 
 pub fn ApplicationCommandPermissionsUpdateEvent.parse(j json2.Any, base BaseEvent) !ApplicationCommandPermissionsUpdateEvent {
 	return ApplicationCommandPermissionsUpdateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		permissions: GuildApplicationCommandPermissions.parse(j)!
 	}
 }
@@ -93,7 +93,7 @@ pub:
 pub fn AutoModerationRuleCreateEvent.parse(j json2.Any, base BaseEvent) !AutoModerationRuleCreateEvent {
 	return AutoModerationRuleCreateEvent{
 		BaseEvent: base
-		rule: AutoModerationRule.parse(j)!
+		rule:      AutoModerationRule.parse(j)!
 	}
 }
 
@@ -106,7 +106,7 @@ pub:
 pub fn AutoModerationRuleUpdateEvent.parse(j json2.Any, base BaseEvent) !AutoModerationRuleUpdateEvent {
 	return AutoModerationRuleUpdateEvent{
 		BaseEvent: base
-		rule: AutoModerationRule.parse(j)!
+		rule:      AutoModerationRule.parse(j)!
 	}
 }
 
@@ -119,7 +119,7 @@ pub:
 pub fn AutoModerationRuleDeleteEvent.parse(j json2.Any, base BaseEvent) !AutoModerationRuleDeleteEvent {
 	return AutoModerationRuleDeleteEvent{
 		BaseEvent: base
-		rule: AutoModerationRule.parse(j)!
+		rule:      AutoModerationRule.parse(j)!
 	}
 }
 
@@ -132,7 +132,7 @@ pub:
 pub fn ChannelCreateEvent.parse(j json2.Any, base BaseEvent) !ChannelCreateEvent {
 	return ChannelCreateEvent{
 		BaseEvent: base
-		channel: Channel.parse(j)!
+		channel:   Channel.parse(j)!
 	}
 }
 
@@ -145,7 +145,7 @@ pub:
 pub fn ChannelUpdateEvent.parse(j json2.Any, base BaseEvent) !ChannelUpdateEvent {
 	return ChannelUpdateEvent{
 		BaseEvent: base
-		channel: Channel.parse(j)!
+		channel:   Channel.parse(j)!
 	}
 }
 
@@ -158,7 +158,7 @@ pub:
 pub fn ChannelDeleteEvent.parse(j json2.Any, base BaseEvent) !ChannelDeleteEvent {
 	return ChannelDeleteEvent{
 		BaseEvent: base
-		channel: Channel.parse(j)!
+		channel:   Channel.parse(j)!
 	}
 }
 
@@ -179,9 +179,9 @@ pub fn VoiceChannelStatusUpdateEvent.parse(j json2.Any, base BaseEvent) !VoiceCh
 			status := j['status']!
 			return VoiceChannelStatusUpdateEvent{
 				BaseEvent: base
-				id: Snowflake.parse(j['id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				status: if status !is json2.Null {
+				id:        Snowflake.parse(j['id']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				status:    if status !is json2.Null {
 					status as string
 				} else {
 					none
@@ -225,17 +225,17 @@ pub fn AutoModerationActionExecutionEvent.parse(j json2.Any, base BaseEvent) !Au
 			matched_keyword := j['matched_keyword']!
 			matched_content := j['matched_content']!
 			return AutoModerationActionExecutionEvent{
-				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				action: Action.parse(j['action']!)!
-				rule_id: Snowflake.parse(j['rule_id']!)!
-				rule_trigger_type: unsafe { TriggerType(j['rule_trigger_type']!.int()) }
-				channel_id: if s := j['channel_id'] {
+				BaseEvent:               base
+				guild_id:                Snowflake.parse(j['guild_id']!)!
+				action:                  Action.parse(j['action']!)!
+				rule_id:                 Snowflake.parse(j['rule_id']!)!
+				rule_trigger_type:       unsafe { TriggerType(j['rule_trigger_type']!.int()) }
+				channel_id:              if s := j['channel_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				message_id: if s := j['message_id'] {
+				message_id:              if s := j['message_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -245,13 +245,13 @@ pub fn AutoModerationActionExecutionEvent.parse(j json2.Any, base BaseEvent) !Au
 				} else {
 					none
 				}
-				content: j['content']! as string
-				matched_keyword: if matched_keyword !is json2.Null {
+				content:                 json_string(j, 'content')!
+				matched_keyword:         if matched_keyword !is json2.Null {
 					matched_keyword as string
 				} else {
 					none
 				}
-				matched_content: if matched_content !is json2.Null {
+				matched_content:         if matched_content !is json2.Null {
 					matched_content as string
 				} else {
 					none
@@ -273,7 +273,7 @@ pub:
 pub fn ThreadCreateEvent.parse(j json2.Any, base BaseEvent) !ThreadCreateEvent {
 	return ThreadCreateEvent{
 		BaseEvent: base
-		thread: Channel.parse(j)!
+		thread:    Channel.parse(j)!
 	}
 }
 
@@ -286,7 +286,7 @@ pub:
 pub fn ThreadUpdateEvent.parse(j json2.Any, base BaseEvent) !ThreadUpdateEvent {
 	return ThreadUpdateEvent{
 		BaseEvent: base
-		thread: Channel.parse(j)!
+		thread:    Channel.parse(j)!
 	}
 }
 
@@ -299,7 +299,7 @@ pub:
 pub fn ThreadDeleteEvent.parse(j json2.Any, base BaseEvent) !ThreadDeleteEvent {
 	return ThreadDeleteEvent{
 		BaseEvent: base
-		thread: Channel.parse(j)!
+		thread:    Channel.parse(j)!
 	}
 }
 
@@ -320,8 +320,8 @@ pub fn ThreadListSyncEvent.parse(j json2.Any, base BaseEvent) !ThreadListSyncEve
 	match j {
 		map[string]json2.Any {
 			return ThreadListSyncEvent{
-				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				BaseEvent:   base
+				guild_id:    Snowflake.parse(j['guild_id']!)!
 				channel_ids: if a := j['channel_ids'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
@@ -329,10 +329,10 @@ pub fn ThreadListSyncEvent.parse(j json2.Any, base BaseEvent) !ThreadListSyncEve
 				} else {
 					none
 				}
-				threads: maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+				threads:     maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 					return Channel.parse(k)!
 				})!
-				members: maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !ThreadMember {
+				members:     maybe_map(json_array(j, 'members')!, fn (k json2.Any) !ThreadMember {
 					return ThreadMember.parse(k)!
 				})!
 			}
@@ -352,7 +352,7 @@ pub:
 pub fn ThreadMemberUpdateEvent.parse(j json2.Any, base BaseEvent) !ThreadMemberUpdateEvent {
 	return ThreadMemberUpdateEvent{
 		BaseEvent: base
-		member: ThreadMember2.parse(j)!
+		member:    ThreadMember2.parse(j)!
 	}
 }
 
@@ -371,13 +371,13 @@ pub fn ChannelPinsUpdateEvent.parse(j json2.Any, base BaseEvent) !ChannelPinsUpd
 	match j {
 		map[string]json2.Any {
 			return ChannelPinsUpdateEvent{
-				BaseEvent: base
-				guild_id: if s := j['guild_id'] {
+				BaseEvent:          base
+				guild_id:           if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				channel_id: Snowflake.parse(j['channel_id']!)!
+				channel_id:         Snowflake.parse(j['channel_id']!)!
 				last_pin_timestamp: if s := j['last_pin_timestamp'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
@@ -403,7 +403,7 @@ pub:
 
 pub fn EntitlementCreateEvent.parse(j json2.Any, base BaseEvent) !EntitlementCreateEvent {
 	return EntitlementCreateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		entitlement: Entitlement.parse(j)!
 	}
 }
@@ -416,7 +416,7 @@ pub:
 
 pub fn EntitlementUpdateEvent.parse(j json2.Any, base BaseEvent) !EntitlementUpdateEvent {
 	return EntitlementUpdateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		entitlement: Entitlement.parse(j)!
 	}
 }
@@ -429,7 +429,7 @@ pub:
 
 pub fn EntitlementDeleteEvent.parse(j json2.Any, base BaseEvent) !EntitlementDeleteEvent {
 	return EntitlementDeleteEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		entitlement: Entitlement.parse(j)!
 	}
 }
@@ -443,7 +443,7 @@ pub:
 pub fn GuildCreateEvent.parse(j json2.Any, base BaseEvent) !GuildCreateEvent {
 	return GuildCreateEvent{
 		BaseEvent: base
-		guild: Guild2.parse(j)!
+		guild:     Guild2.parse(j)!
 	}
 }
 
@@ -456,7 +456,7 @@ pub:
 pub fn GuildUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildUpdateEvent {
 	return GuildUpdateEvent{
 		BaseEvent: base
-		guild: Guild.parse(j)!
+		guild:     Guild.parse(j)!
 	}
 }
 
@@ -469,7 +469,7 @@ pub:
 pub fn GuildDeleteEvent.parse(j json2.Any, base BaseEvent) !GuildDeleteEvent {
 	return GuildDeleteEvent{
 		BaseEvent: base
-		guild: UnavailableGuild.parse(j)!
+		guild:     UnavailableGuild.parse(j)!
 	}
 }
 
@@ -483,7 +483,7 @@ pub:
 pub fn GuildAuditLogEntryCreateEvent.parse(j json2.Any, base BaseEvent) !GuildAuditLogEntryCreateEvent {
 	return GuildAuditLogEntryCreateEvent{
 		BaseEvent: base
-		entry: AuditLogEntry.parse(j)!
+		entry:     AuditLogEntry.parse(j)!
 	}
 }
 
@@ -501,8 +501,8 @@ pub fn GuildBanAddEvent.parse(j json2.Any, base BaseEvent) !GuildBanAddEvent {
 		map[string]json2.Any {
 			return GuildBanAddEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				user: User.parse(j['user']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				user:      User.parse(j['user']!)!
 			}
 		}
 		else {
@@ -525,8 +525,8 @@ pub fn GuildBanRemoveEvent.parse(j json2.Any, base BaseEvent) !GuildBanRemoveEve
 		map[string]json2.Any {
 			return GuildBanRemoveEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				user: User.parse(j['user']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				user:      User.parse(j['user']!)!
 			}
 		}
 		else {
@@ -549,8 +549,8 @@ pub fn GuildEmojisUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildEmojisUpd
 		map[string]json2.Any {
 			return GuildEmojisUpdateEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				emojis: maybe_map(j['emojis']! as []json2.Any, fn (k json2.Any) !Emoji {
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				emojis:    maybe_map(json_array(j, 'emojis')!, fn (k json2.Any) !Emoji {
 					return Emoji.parse(k)!
 				})!
 			}
@@ -575,8 +575,8 @@ pub fn GuildStickersUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildSticker
 		map[string]json2.Any {
 			return GuildStickersUpdateEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				stickers: maybe_map(j['stickers']! as []json2.Any, fn (k json2.Any) !Sticker {
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				stickers:  maybe_map(json_array(j, 'stickers')!, fn (k json2.Any) !Sticker {
 					return Sticker.parse(k)!
 				})!
 			}
@@ -599,7 +599,7 @@ pub fn GuildIntegrationsUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildInt
 		map[string]json2.Any {
 			return GuildIntegrationsUpdateEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -617,7 +617,7 @@ pub:
 pub fn GuildMemberAddEvent.parse(j json2.Any, base BaseEvent) !GuildMemberAddEvent {
 	return GuildMemberAddEvent{
 		BaseEvent: base
-		member: GuildMember2.parse(j)!
+		member:    GuildMember2.parse(j)!
 	}
 }
 
@@ -635,8 +635,8 @@ pub fn GuildMemberRemoveEvent.parse(j json2.Any, base BaseEvent) !GuildMemberRem
 		map[string]json2.Any {
 			return GuildMemberRemoveEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				user: User.parse(j['user']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				user:      User.parse(j['user']!)!
 			}
 		}
 		else {
@@ -678,13 +678,13 @@ pub fn GuildMemberUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildMemberUpd
 			avatar := j['avatar']!
 			joined_at := j['joined_at']!
 			return GuildMemberUpdateEvent{
-				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				roles: maybe_map(j['roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				BaseEvent:                    base
+				guild_id:                     Snowflake.parse(j['guild_id']!)!
+				roles:                        maybe_map(json_array(j, 'roles')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				user: User.parse(j['user']!)!
-				nick: if s := j['nick'] {
+				user:                         User.parse(j['user']!)!
+				nick:                         if s := j['nick'] {
 					if s !is json2.Null {
 						some[string](s as string)
 					} else {
@@ -693,17 +693,17 @@ pub fn GuildMemberUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildMemberUpd
 				} else {
 					none
 				}
-				avatar: if avatar !is json2.Null {
+				avatar:                       if avatar !is json2.Null {
 					avatar as string
 				} else {
 					none
 				}
-				joined_at: if joined_at !is json2.Null {
+				joined_at:                    if joined_at !is json2.Null {
 					time.parse_iso8601(joined_at as string)!
 				} else {
 					none
 				}
-				premium_since: if s := j['premium_since'] {
+				premium_since:                if s := j['premium_since'] {
 					if s !is json2.Null {
 						some[time.Time](time.parse_iso8601(s as string)!)
 					} else {
@@ -712,17 +712,17 @@ pub fn GuildMemberUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildMemberUpd
 				} else {
 					none
 				}
-				deaf: if b := j['deaf'] {
+				deaf:                         if b := j['deaf'] {
 					b as bool
 				} else {
 					none
 				}
-				mute: if b := j['mute'] {
+				mute:                         if b := j['mute'] {
 					b as bool
 				} else {
 					none
 				}
-				pending: if b := j['pending'] {
+				pending:                      if b := j['pending'] {
 					b as bool
 				} else {
 					none
@@ -767,28 +767,28 @@ pub fn GuildMembersChunkEvent.parse(j json2.Any, base BaseEvent) !GuildMembersCh
 	match j {
 		map[string]json2.Any {
 			return GuildMembersChunkEvent{
-				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				members: maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !GuildMember {
+				BaseEvent:   base
+				guild_id:    Snowflake.parse(j['guild_id']!)!
+				members:     maybe_map(json_array(j, 'members')!, fn (k json2.Any) !GuildMember {
 					return GuildMember.parse(k)!
 				})!
 				chunk_index: j['chunk_index']!.int()
 				chunk_count: j['chunk_count']!.int()
-				not_found: if a := j['not_found'] {
+				not_found:   if a := j['not_found'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				presences: if a := j['presences'] {
+				presences:   if a := j['presences'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Presence {
 						return Presence.parse(k)!
 					})!
 				} else {
 					none
 				}
-				nonce: if s := j['nonce'] {
+				nonce:       if s := j['nonce'] {
 					s as string
 				} else {
 					none
@@ -813,8 +813,8 @@ pub fn GuildRoleCreateEvent.parse(j json2.Any, base BaseEvent) !GuildRoleCreateE
 		map[string]json2.Any {
 			return GuildRoleCreateEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				role: Role.parse(j['role']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				role:      Role.parse(j['role']!)!
 			}
 		}
 		else {
@@ -835,8 +835,8 @@ pub fn GuildRoleUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildRoleUpdateE
 		map[string]json2.Any {
 			return GuildRoleUpdateEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				role: Role.parse(j['role']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				role:      Role.parse(j['role']!)!
 			}
 		}
 		else {
@@ -857,8 +857,8 @@ pub fn GuildRoleDeleteEvent.parse(j json2.Any, base BaseEvent) !GuildRoleDeleteE
 		map[string]json2.Any {
 			return GuildRoleDeleteEvent{
 				BaseEvent: base
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				role_id: Snowflake.parse(j['role_id']!)!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				role_id:   Snowflake.parse(j['role_id']!)!
 			}
 		}
 		else {
@@ -876,7 +876,7 @@ pub:
 pub fn GuildScheduledEventCreateEvent.parse(j json2.Any, base BaseEvent) !GuildScheduledEventCreateEvent {
 	return GuildScheduledEventCreateEvent{
 		BaseEvent: base
-		event: GuildScheduledEvent.parse(j)!
+		event:     GuildScheduledEvent.parse(j)!
 	}
 }
 
@@ -889,7 +889,7 @@ pub:
 pub fn GuildScheduledEventUpdateEvent.parse(j json2.Any, base BaseEvent) !GuildScheduledEventUpdateEvent {
 	return GuildScheduledEventUpdateEvent{
 		BaseEvent: base
-		event: GuildScheduledEvent.parse(j)!
+		event:     GuildScheduledEvent.parse(j)!
 	}
 }
 
@@ -902,7 +902,7 @@ pub:
 pub fn GuildScheduledEventDeleteEvent.parse(j json2.Any, base BaseEvent) !GuildScheduledEventDeleteEvent {
 	return GuildScheduledEventDeleteEvent{
 		BaseEvent: base
-		event: GuildScheduledEvent.parse(j)!
+		event:     GuildScheduledEvent.parse(j)!
 	}
 }
 
@@ -921,10 +921,10 @@ pub fn GuildScheduledEventUserAddEvent.parse(j json2.Any, base BaseEvent) !Guild
 	match j {
 		map[string]json2.Any {
 			return GuildScheduledEventUserAddEvent{
-				BaseEvent: base
+				BaseEvent:                base
 				guild_scheduled_event_id: Snowflake.parse(j['guild_scheduled_event_id']!)!
-				user_id: Snowflake.parse(j['user_id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				user_id:                  Snowflake.parse(j['user_id']!)!
+				guild_id:                 Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -948,10 +948,10 @@ pub fn GuildScheduledEventUserRemoveEvent.parse(j json2.Any, base BaseEvent) !Gu
 	match j {
 		map[string]json2.Any {
 			return GuildScheduledEventUserRemoveEvent{
-				BaseEvent: base
+				BaseEvent:                base
 				guild_scheduled_event_id: Snowflake.parse(j['guild_scheduled_event_id']!)!
-				user_id: Snowflake.parse(j['user_id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				user_id:                  Snowflake.parse(j['user_id']!)!
+				guild_id:                 Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -968,7 +968,7 @@ pub:
 
 pub fn IntegrationCreateEvent.parse(j json2.Any, base BaseEvent) !IntegrationCreateEvent {
 	return IntegrationCreateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		integration: Integration2.parse(j)!
 	}
 }
@@ -981,7 +981,7 @@ pub:
 
 pub fn IntegrationUpdateEvent.parse(j json2.Any, base BaseEvent) !IntegrationUpdateEvent {
 	return IntegrationUpdateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		integration: Integration2.parse(j)!
 	}
 }
@@ -1001,9 +1001,9 @@ pub fn IntegrationDeleteEvent.parse(j json2.Any, base BaseEvent) !IntegrationDel
 	match j {
 		map[string]json2.Any {
 			return IntegrationDeleteEvent{
-				BaseEvent: base
-				id: Snowflake.parse(j['id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				BaseEvent:      base
+				id:             Snowflake.parse(j['id']!)!
+				guild_id:       Snowflake.parse(j['guild_id']!)!
 				application_id: if s := j['application_id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -1050,28 +1050,28 @@ pub fn InviteCreateEvent.parse(j json2.Any, base BaseEvent) !InviteCreateEvent {
 	match j {
 		map[string]json2.Any {
 			return InviteCreateEvent{
-				BaseEvent: base
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				code: j['code']! as string
-				created_at: time.parse_iso8601(j['created_at']! as string)!
-				guild_id: if s := j['guild_id'] {
+				BaseEvent:          base
+				channel_id:         Snowflake.parse(j['channel_id']!)!
+				code:               json_string(j, 'code')!
+				created_at:         time.parse_iso8601(json_string(j, 'created_at')!)!
+				guild_id:           if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				inviter: if o := j['inviter'] {
+				inviter:            if o := j['inviter'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				max_age: j['max_age']!.int() * time.second
-				max_uses: j['max_uses']!.int()
-				target_type: if i := j['target_type'] {
+				max_age:            j['max_age']!.int() * time.second
+				max_uses:           j['max_uses']!.int()
+				target_type:        if i := j['target_type'] {
 					unsafe { InviteTargetType(i.int()) }
 				} else {
 					none
 				}
-				target_user: if o := j['target_user'] {
+				target_user:        if o := j['target_user'] {
 					User.parse(o)!
 				} else {
 					none
@@ -1081,7 +1081,7 @@ pub fn InviteCreateEvent.parse(j json2.Any, base BaseEvent) !InviteCreateEvent {
 				} else {
 					none
 				}
-				temporary: j['temporary']! as bool
+				temporary:          json_bool(j, 'temporary')!
 			}
 		}
 		else {
@@ -1123,14 +1123,14 @@ pub fn InviteDeleteEvent.parse(j json2.Any, base BaseEvent) !InviteDeleteEvent {
 	match j {
 		map[string]json2.Any {
 			return InviteDeleteEvent{
-				BaseEvent: base
+				BaseEvent:  base
 				channel_id: Snowflake.parse(j['channel_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				code: j['code']! as string
+				code:       json_string(j, 'code')!
 			}
 		}
 		else {
@@ -1148,7 +1148,7 @@ pub:
 pub fn MessageCreateEvent.parse(j json2.Any, base BaseEvent) !MessageCreateEvent {
 	return MessageCreateEvent{
 		BaseEvent: base
-		message: Message2.parse(j)!
+		message:   Message2.parse(j)!
 	}
 }
 
@@ -1161,7 +1161,7 @@ pub:
 pub fn MessageUpdateEvent.parse(j json2.Any, base BaseEvent) !MessageUpdateEvent {
 	return MessageUpdateEvent{
 		BaseEvent: base
-		message: Message2.parse(j)!
+		message:   Message2.parse(j)!
 	}
 }
 
@@ -1180,10 +1180,10 @@ pub fn MessageDeleteEvent.parse(j json2.Any, base BaseEvent) !MessageDeleteEvent
 	match j {
 		map[string]json2.Any {
 			return MessageDeleteEvent{
-				BaseEvent: base
-				id: Snowflake.parse(j['id']!)!
+				BaseEvent:  base
+				id:         Snowflake.parse(j['id']!)!
 				channel_id: Snowflake.parse(j['channel_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -1211,12 +1211,12 @@ pub fn MessageDeleteBulkEvent.parse(j json2.Any, base BaseEvent) !MessageDeleteB
 	match j {
 		map[string]json2.Any {
 			return MessageDeleteBulkEvent{
-				BaseEvent: base
-				ids: maybe_map(j['ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				BaseEvent:  base
+				ids:        maybe_map(json_array(j, 'ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
 				channel_id: Snowflake.parse(j['channel_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -1252,21 +1252,21 @@ pub fn MessageReactionAddEvent.parse(j json2.Any, base BaseEvent) !MessageReacti
 	match j {
 		map[string]json2.Any {
 			return MessageReactionAddEvent{
-				BaseEvent: base
-				user_id: Snowflake.parse(j['user_id']!)!
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				message_id: Snowflake.parse(j['message_id']!)!
-				guild_id: if s := j['guild_id'] {
+				BaseEvent:         base
+				user_id:           Snowflake.parse(j['user_id']!)!
+				channel_id:        Snowflake.parse(j['channel_id']!)!
+				message_id:        Snowflake.parse(j['message_id']!)!
+				guild_id:          if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				member: if o := j['member'] {
+				member:            if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
 				}
-				emoji: PartialEmoji.parse(j['emoji']!)!
+				emoji:             PartialEmoji.parse(j['emoji']!)!
 				message_author_id: if s := j['message_author_id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -1299,16 +1299,16 @@ pub fn MessageReactionRemoveEvent.parse(j json2.Any, base BaseEvent) !MessageRea
 	match j {
 		map[string]json2.Any {
 			return MessageReactionRemoveEvent{
-				BaseEvent: base
-				user_id: Snowflake.parse(j['user_id']!)!
+				BaseEvent:  base
+				user_id:    Snowflake.parse(j['user_id']!)!
 				channel_id: Snowflake.parse(j['channel_id']!)!
 				message_id: Snowflake.parse(j['message_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				emoji: PartialEmoji.parse(j['emoji']!)!
+				emoji:      PartialEmoji.parse(j['emoji']!)!
 			}
 		}
 		else {
@@ -1332,10 +1332,10 @@ pub fn MessageReactionRemoveAllEvent.parse(j json2.Any, base BaseEvent) !Message
 	match j {
 		map[string]json2.Any {
 			return MessageReactionRemoveAllEvent{
-				BaseEvent: base
+				BaseEvent:  base
 				channel_id: Snowflake.parse(j['channel_id']!)!
 				message_id: Snowflake.parse(j['message_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -1365,15 +1365,15 @@ pub fn MessageReactionRemoveEmojiEvent.parse(j json2.Any, base BaseEvent) !Messa
 	match j {
 		map[string]json2.Any {
 			return MessageReactionRemoveEmojiEvent{
-				BaseEvent: base
+				BaseEvent:  base
 				channel_id: Snowflake.parse(j['channel_id']!)!
 				message_id: Snowflake.parse(j['message_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				emoji: PartialEmoji.parse(j['emoji']!)!
+				emoji:      PartialEmoji.parse(j['emoji']!)!
 			}
 		}
 		else {
@@ -1391,7 +1391,7 @@ pub:
 pub fn PresenceUpdateEvent.parse(j json2.Any, base BaseEvent) !PresenceUpdateEvent {
 	return PresenceUpdateEvent{
 		BaseEvent: base
-		presence: Presence.parse(j)!
+		presence:  Presence.parse(j)!
 	}
 }
 
@@ -1414,16 +1414,16 @@ pub fn TypingStartEvent.parse(j json2.Any, base BaseEvent) !TypingStartEvent {
 	match j {
 		map[string]json2.Any {
 			return TypingStartEvent{
-				BaseEvent: base
+				BaseEvent:  base
 				channel_id: Snowflake.parse(j['channel_id']!)!
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				user_id: Snowflake.parse(j['user_id']!)!
-				timestamp: time.unix(j['timestamp']!.i64())
-				member: if o := j['member'] {
+				user_id:    Snowflake.parse(j['user_id']!)!
+				timestamp:  time.unix(j['timestamp']!.i64())
+				member:     if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
@@ -1445,7 +1445,7 @@ pub:
 pub fn UserUpdateEvent.parse(j json2.Any, base BaseEvent) !UserUpdateEvent {
 	return UserUpdateEvent{
 		BaseEvent: base
-		user: User.parse(j)!
+		user:      User.parse(j)!
 	}
 }
 
@@ -1458,7 +1458,7 @@ pub:
 pub fn VoiceStateUpdateEvent.parse(j json2.Any, base BaseEvent) !VoiceStateUpdateEvent {
 	return VoiceStateUpdateEvent{
 		BaseEvent: base
-		state: VoiceState.parse(j)!
+		state:     VoiceState.parse(j)!
 	}
 }
 
@@ -1479,9 +1479,9 @@ pub fn VoiceServerUpdateEvent.parse(j json2.Any, base BaseEvent) !VoiceServerUpd
 			endpoint := j['endpoint']!
 			return VoiceServerUpdateEvent{
 				BaseEvent: base
-				token: j['token']! as string
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				endpoint: if endpoint !is json2.Null {
+				token:     json_string(j, 'token')!
+				guild_id:  Snowflake.parse(j['guild_id']!)!
+				endpoint:  if endpoint !is json2.Null {
 					endpoint as string
 				} else {
 					none
@@ -1507,9 +1507,9 @@ pub fn WebhooksUpdateEvent.parse(j json2.Any, base BaseEvent) !WebhooksUpdateEve
 	match j {
 		map[string]json2.Any {
 			return WebhooksUpdateEvent{
-				BaseEvent: base
+				BaseEvent:  base
 				channel_id: Snowflake.parse(j['channel_id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				guild_id:   Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -1526,7 +1526,7 @@ pub:
 
 pub fn InteractionCreateEvent.parse(j json2.Any, base BaseEvent) !InteractionCreateEvent {
 	return InteractionCreateEvent{
-		BaseEvent: base
+		BaseEvent:   base
 		interaction: Interaction.parse(j)!
 	}
 }
@@ -1540,7 +1540,7 @@ pub:
 pub fn StageInstanceCreateEvent.parse(j json2.Any, base BaseEvent) !StageInstanceCreateEvent {
 	return StageInstanceCreateEvent{
 		BaseEvent: base
-		instance: StageInstance.parse(j)!
+		instance:  StageInstance.parse(j)!
 	}
 }
 
@@ -1553,7 +1553,7 @@ pub:
 pub fn StageInstanceUpdateEvent.parse(j json2.Any, base BaseEvent) !StageInstanceUpdateEvent {
 	return StageInstanceUpdateEvent{
 		BaseEvent: base
-		instance: StageInstance.parse(j)!
+		instance:  StageInstance.parse(j)!
 	}
 }
 
@@ -1566,7 +1566,7 @@ pub:
 pub fn StageInstanceDeleteEvent.parse(j json2.Any, base BaseEvent) !StageInstanceDeleteEvent {
 	return StageInstanceDeleteEvent{
 		BaseEvent: base
-		instance: StageInstance.parse(j)!
+		instance:  StageInstance.parse(j)!
 	}
 }
 
@@ -1654,8 +1654,7 @@ fn event_process_resumed(mut gc GatewayClient, data json2.Any, options EmitOptio
 }
 
 fn event_process_application_command_permissions_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_application_command_permissions_update.emit(ApplicationCommandPermissionsUpdateEvent.parse(data,
-		BaseEvent{
+	gc.events.on_application_command_permissions_update.emit(ApplicationCommandPermissionsUpdateEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -1689,8 +1688,7 @@ fn event_process_auto_moderation_rule_delete(mut gc GatewayClient, data json2.An
 }
 
 fn event_process_auto_moderation_action_execution(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_auto_moderation_action_execution.emit(AutoModerationActionExecutionEvent.parse(data,
-		BaseEvent{
+	gc.events.on_auto_moderation_action_execution.emit(AutoModerationActionExecutionEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -1722,8 +1720,7 @@ fn event_process_channel_delete(mut gc GatewayClient, data json2.Any, options Em
 }
 
 fn event_process_voice_channel_status_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_voice_channel_status_update.emit(VoiceChannelStatusUpdateEvent.parse(data,
-		BaseEvent{
+	gc.events.on_voice_channel_status_update.emit(VoiceChannelStatusUpdateEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -1734,8 +1731,7 @@ fn event_process_thread_create(mut gc GatewayClient, data json2.Any, options Emi
 	})!
 	gc.events.on_thread_create.emit(event, options)
 	cache_add2(mut gc.cache.threads, gc.cache.threads_max_size1, gc.cache.threads_max_size2,
-		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id,
-		event.thread)
+		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id, event.thread)
 }
 
 fn event_process_thread_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1744,8 +1740,7 @@ fn event_process_thread_update(mut gc GatewayClient, data json2.Any, options Emi
 	})!
 	gc.events.on_thread_update.emit(event, options)
 	cache_add2(mut gc.cache.threads, gc.cache.threads_max_size1, gc.cache.threads_max_size2,
-		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id,
-		event.thread)
+		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id, event.thread)
 }
 
 fn event_process_thread_delete(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1754,8 +1749,7 @@ fn event_process_thread_delete(mut gc GatewayClient, data json2.Any, options Emi
 	})!
 	gc.events.on_thread_delete.emit(event, options)
 	cache_add2(mut gc.cache.threads, gc.cache.threads_max_size1, gc.cache.threads_max_size2,
-		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id,
-		event.thread)
+		gc.cache.threads_check, event.thread.guild_id or { return }, event.thread.id, event.thread)
 }
 
 fn event_process_thread_list_sync(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1781,9 +1775,10 @@ fn event_process_entitlement_create(mut gc GatewayClient, data json2.Any, option
 		creator: gc
 	})!
 	gc.events.on_entitlement_create.emit(event, options)
-	cache_add2(mut gc.cache.entitlements, gc.cache.entitlements_max_size1, gc.cache.entitlements_max_size2,
-		gc.cache.entitlements_check, event.entitlement.get_owner() or { return }, event.entitlement.id,
-		event.entitlement)
+	cache_add2(mut gc.cache.entitlements, gc.cache.entitlements_max_size1,
+		gc.cache.entitlements_max_size2, gc.cache.entitlements_check, event.entitlement.get_owner() or {
+		return
+	}, event.entitlement.id, event.entitlement)
 }
 
 fn event_process_entitlement_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1791,9 +1786,10 @@ fn event_process_entitlement_update(mut gc GatewayClient, data json2.Any, option
 		creator: gc
 	})!
 	gc.events.on_entitlement_update.emit(event, options)
-	cache_add2(mut gc.cache.entitlements, gc.cache.entitlements_max_size1, gc.cache.entitlements_max_size2,
-		gc.cache.entitlements_check, event.entitlement.get_owner() or { return }, event.entitlement.id,
-		event.entitlement)
+	cache_add2(mut gc.cache.entitlements, gc.cache.entitlements_max_size1,
+		gc.cache.entitlements_max_size2, gc.cache.entitlements_check, event.entitlement.get_owner() or {
+		return
+	}, event.entitlement.id, event.entitlement)
 }
 
 fn event_process_entitlement_delete(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1834,8 +1830,9 @@ fn event_process_guild_create(mut gc GatewayClient, data json2.Any, options Emit
 			gc.cache.stickers_check, event.guild.id, sticker.id, sticker)
 	}
 	for voice_state in event.guild.voice_states {
-		cache_add2(mut gc.cache.voice_states, gc.cache.voice_states_max_size1, gc.cache.voice_states_max_size2,
-			gc.cache.voice_states_check, event.guild.id, voice_state.user_id, voice_state)
+		cache_add2(mut gc.cache.voice_states, gc.cache.voice_states_max_size1,
+			gc.cache.voice_states_max_size2, gc.cache.voice_states_check, event.guild.id,
+			voice_state.user_id, voice_state)
 	}
 	for member in event.guild.users {
 		cache_add2(mut gc.cache.members, gc.cache.members_max_size1, gc.cache.members_max_size2,
@@ -1850,21 +1847,22 @@ fn event_process_guild_create(mut gc GatewayClient, data json2.Any, options Emit
 			gc.cache.threads_check, event.guild.id, thread_.id, thread_)
 	}
 	for presence in event.guild.presences {
-		cache_add2(mut gc.cache.presences, gc.cache.presences_max_size1, gc.cache.presences_max_size2,
-			gc.cache.presences_check, event.guild.id, presence.user.id, presence)
+		cache_add2(mut gc.cache.presences, gc.cache.presences_max_size1,
+			gc.cache.presences_max_size2, gc.cache.presences_check, event.guild.id,
+			presence.user.id, presence)
 	}
 	for stage_instance in event.guild.stage_instances {
-		cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1, gc.cache.stage_instances_max_size2,
-			gc.cache.stage_instances_check, stage_instance.guild_id, stage_instance.channel_id,
-			stage_instance)
+		cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1,
+			gc.cache.stage_instances_max_size2, gc.cache.stage_instances_check,
+			stage_instance.guild_id, stage_instance.channel_id, stage_instance)
 	}
 	for guild_scheduled_event in event.guild.guild_scheduled_events {
 		cache_add2(mut gc.cache.guild_scheduled_events, gc.cache.guild_scheduled_events_max_size1,
 			gc.cache.guild_scheduled_events_max_size2, gc.cache.guild_scheduled_events_check,
 			event.guild.id, guild_scheduled_event.id, guild_scheduled_event)
 	}
-	cache_add1(mut gc.cache.guilds, gc.cache.guilds_max_size, gc.cache.guilds_check, event.guild.id,
-		event.guild.Guild)
+	cache_add1(mut gc.cache.guilds, gc.cache.guilds_max_size, gc.cache.guilds_check,
+		event.guild.id, event.guild.Guild)
 }
 
 fn event_process_guild_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1884,8 +1882,8 @@ fn event_process_guild_update(mut gc GatewayClient, data json2.Any, options Emit
 		cache_add2(mut gc.cache.stickers, gc.cache.stickers_max_size1, gc.cache.stickers_max_size2,
 			gc.cache.stickers_check, event.guild.id, sticker.id, sticker)
 	}
-	cache_add1(mut gc.cache.guilds, gc.cache.guilds_max_size, gc.cache.guilds_check, event.guild.id,
-		event.guild)
+	cache_add1(mut gc.cache.guilds, gc.cache.guilds_max_size, gc.cache.guilds_check,
+		event.guild.id, event.guild)
 }
 
 fn event_process_guild_delete(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -1905,8 +1903,7 @@ fn event_process_guild_delete(mut gc GatewayClient, data json2.Any, options Emit
 }
 
 fn event_process_guild_audit_log_entry_create(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_guild_audit_log_entry_create.emit(GuildAuditLogEntryCreateEvent.parse(data,
-		BaseEvent{
+	gc.events.on_guild_audit_log_entry_create.emit(GuildAuditLogEntryCreateEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -1952,8 +1949,7 @@ fn event_process_guild_stickers_update(mut gc GatewayClient, data json2.Any, opt
 }
 
 fn event_process_guild_integrations_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_guild_integrations_update.emit(GuildIntegrationsUpdateEvent.parse(data,
-		BaseEvent{
+	gc.events.on_guild_integrations_update.emit(GuildIntegrationsUpdateEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -2073,15 +2069,13 @@ fn event_process_guild_scheduled_event_delete(mut gc GatewayClient, data json2.A
 }
 
 fn event_process_guild_scheduled_event_user_add(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_guild_scheduled_event_user_add.emit(GuildScheduledEventUserAddEvent.parse(data,
-		BaseEvent{
+	gc.events.on_guild_scheduled_event_user_add.emit(GuildScheduledEventUserAddEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
 
 fn event_process_guild_scheduled_event_user_remove(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_guild_scheduled_event_user_remove.emit(GuildScheduledEventUserRemoveEvent.parse(data,
-		BaseEvent{
+	gc.events.on_guild_scheduled_event_user_remove.emit(GuildScheduledEventUserRemoveEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -2163,15 +2157,13 @@ fn event_process_message_reaction_remove(mut gc GatewayClient, data json2.Any, o
 }
 
 fn event_process_message_reaction_remove_all(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_message_reaction_remove_all.emit(MessageReactionRemoveAllEvent.parse(data,
-		BaseEvent{
+	gc.events.on_message_reaction_remove_all.emit(MessageReactionRemoveAllEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
 
 fn event_process_message_reaction_remove_emoji(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
-	gc.events.on_message_reaction_remove_emoji.emit(MessageReactionRemoveEmojiEvent.parse(data,
-		BaseEvent{
+	gc.events.on_message_reaction_remove_emoji.emit(MessageReactionRemoveEmojiEvent.parse(data, BaseEvent{
 		creator: gc
 	})!, options)
 }
@@ -2208,9 +2200,10 @@ fn event_process_voice_state_update(mut gc GatewayClient, data json2.Any, option
 		creator: gc
 	})!
 	gc.events.on_voice_state_update.emit(event, options)
-	cache_add2(mut gc.cache.voice_states, gc.cache.voice_states_max_size1, gc.cache.voice_states_max_size2,
-		gc.cache.voice_states_check, event.state.guild_id or { return }, event.state.user_id,
-		event.state)
+	cache_add2(mut gc.cache.voice_states, gc.cache.voice_states_max_size1,
+		gc.cache.voice_states_max_size2, gc.cache.voice_states_check, event.state.guild_id or {
+		return
+	}, event.state.user_id, event.state)
 }
 
 fn event_process_voice_server_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -2236,8 +2229,9 @@ fn event_process_stage_instance_create(mut gc GatewayClient, data json2.Any, opt
 		creator: gc
 	})!
 	gc.events.on_stage_instance_create.emit(event, options)
-	cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1, gc.cache.stage_instances_max_size2,
-		gc.cache.stage_instances_check, event.instance.guild_id, event.instance.id, event.instance)
+	cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1,
+		gc.cache.stage_instances_max_size2, gc.cache.stage_instances_check,
+		event.instance.guild_id, event.instance.id, event.instance)
 }
 
 fn event_process_stage_instance_update(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -2245,8 +2239,9 @@ fn event_process_stage_instance_update(mut gc GatewayClient, data json2.Any, opt
 		creator: gc
 	})!
 	gc.events.on_stage_instance_update.emit(event, options)
-	cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1, gc.cache.stage_instances_max_size2,
-		gc.cache.stage_instances_check, event.instance.guild_id, event.instance.id, event.instance)
+	cache_add2(mut gc.cache.stage_instances, gc.cache.stage_instances_max_size1,
+		gc.cache.stage_instances_max_size2, gc.cache.stage_instances_check,
+		event.instance.guild_id, event.instance.id, event.instance)
 }
 
 fn event_process_stage_instance_delete(mut gc GatewayClient, data json2.Any, options EmitOptions) ! {
@@ -2321,7 +2316,7 @@ const events_table = EventsTable({
 })
 
 pub fn (mut c GatewayClient) process_dispatch(event DispatchEvent) !bool {
-	f := discord.events_table[event.name] or { return false }
+	f := events_table[event.name] or { return false }
 	if c.settings.has(.dont_spawn_events) {
 		f(mut c, event.data, error_handler: c.error_logger())!
 	} else {

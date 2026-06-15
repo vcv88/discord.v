@@ -29,11 +29,11 @@ pub fn StageInstance.parse(j json2.Any) !StageInstance {
 	match j {
 		map[string]json2.Any {
 			return StageInstance{
-				id: Snowflake.parse(j['id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				topic: j['topic']! as string
-				privacy_level: unsafe { PrivacyLevel(j['privacy_level']!.int()) }
+				id:                       Snowflake.parse(j['id']!)!
+				guild_id:                 Snowflake.parse(j['guild_id']!)!
+				channel_id:               Snowflake.parse(j['channel_id']!)!
+				topic:                    json_string(j, 'topic')!
+				privacy_level:            unsafe { PrivacyLevel(j['privacy_level']!.int()) }
 				guild_scheduled_event_id: if s := j['guild_scheduled_event_id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -83,15 +83,16 @@ pub fn (params CreateStageInstanceParams) build() json2.Any {
 // Creates a new Stage instance associated to a Stage channel. Returns that [Stage instance](#StageInstance). Fires a Stage Instance Create Gateway event.
 // Requires the user to be a moderator of the Stage channel.
 pub fn (rest &REST) create_stage_instance(params CreateStageInstanceParams) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.post, '/stage-instances',
-		json: params.build()
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.post, '/stage-instances',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Gets the stage instance associated with the Stage channel, if it exists.
 pub fn (rest &REST) fetch_stage_instance(channel_id Snowflake) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.get, '/stage-instances/${urllib.path_escape(channel_id.str())}')!.body)!)!
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.get,
+		'/stage-instances/${urllib.path_escape(channel_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -118,8 +119,9 @@ pub fn (params EditStageInstanceParams) build() json2.Any {
 // Updates fields of an existing Stage instance. Returns the updated [Stage instance](#StageInstance). Fires a Stage Instance Update Gateway event.
 // Requires the user to be a moderator of the Stage channel.
 pub fn (rest &REST) edit_stage_instance(channel_id Snowflake, params EditStageInstanceParams) !StageInstance {
-	return StageInstance.parse(json2.raw_decode(rest.request(.patch, '/stage-instances/${urllib.path_escape(channel_id.str())}',
-		json: params.build()
+	return StageInstance.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/stage-instances/${urllib.path_escape(channel_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }

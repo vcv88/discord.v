@@ -67,7 +67,7 @@ fn test_button() {
 		'style': 2
 	})
 	assert Button{
-		style: .primary
+		style:    .primary
 		disabled: true
 	}.build() == json2.Any({
 		'type':     json2.Any(2)
@@ -75,9 +75,9 @@ fn test_button() {
 		'disabled': true
 	})
 	assert Button{
-		style: .secondary
+		style:     .secondary
 		custom_id: 'test1'
-		disabled: false
+		disabled:  false
 	}.build() == json2.Any({
 		'type':      json2.Any(2)
 		'style':     2
@@ -99,7 +99,7 @@ fn test_button() {
 	assert Button{
 		style: .danger
 		emoji: ComponentEmoji{
-			id: 1148381548144500837
+			id:   1148381548144500837
 			name: 'dh_pl_logo_v'
 		}
 	}.build() == json2.Any({
@@ -113,10 +113,10 @@ fn test_button() {
 	})
 	assert Button{
 		style: .link
-		url: 'https://github.com'
+		url:   'https://github.com'
 		emoji: ComponentEmoji{
-			id: 1148326591517167709
-			name: 'dh_aclyde_v1_ol'
+			id:       1148326591517167709
+			name:     'dh_aclyde_v1_ol'
 			animated: true
 		}
 	}.build() == json2.Any({

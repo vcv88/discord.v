@@ -8,9 +8,9 @@ import x.json2
 // If no object is noted, there won't be a `changes` array in the entry, though other fields like the `target_id` still exist and many have fields in the options array.
 pub enum AuditLogEvent {
 	// Server settings were updated
-	guild_update                                = 1
+	guild_update = 1
 	// Channel was created
-	channel_create                              = 10
+	channel_create = 10
 	// Channel settings were updated
 	channel_update
 	// Channel was deleted
@@ -22,7 +22,7 @@ pub enum AuditLogEvent {
 	// Permission overwrite was deleted from a channel
 	channel_overwrite_delete
 	// Member was removed from server
-	member_kick                                 = 20
+	member_kick = 20
 	// Members were pruned from server
 	member_prune
 	// Member was banned from server
@@ -40,13 +40,13 @@ pub enum AuditLogEvent {
 	// Bot user was added to server
 	bot_add
 	// Role was created
-	role_create                                 = 30
+	role_create = 30
 	// Role was edited
 	role_update
 	// Role was deleted
 	role_delete
 	// Server invite was created
-	invite_create                               = 40
+	invite_create = 40
 	// Server invite was updated
 	invite_update
 	// Server invite was deleted
@@ -64,7 +64,7 @@ pub enum AuditLogEvent {
 	// Emoji was deleted
 	emoji_delete
 	// Single message was deleted
-	message_delete                              = 72
+	message_delete = 72
 	// Multiple messages were deleted
 	message_bulk_delete
 	// Message was pinned to a channel
@@ -72,7 +72,7 @@ pub enum AuditLogEvent {
 	// Message was unpinned from a channel
 	message_unpin
 	// App was added to server
-	integration_create                          = 80
+	integration_create = 80
 	// App was updated (as an example, its scopes were updated)
 	integration_update
 	// App was removed from server
@@ -84,27 +84,27 @@ pub enum AuditLogEvent {
 	// Stage instance was deleted (stage channel no longer live)
 	stage_instance_delete
 	// Sticker was created
-	sticker_create                              = 90
+	sticker_create = 90
 	// Sticker details were updated
 	sticker_update
 	// Sticker was deleted
 	sticker_delete
 	// Event was created
-	guild_scheduled_event_create                = 100
+	guild_scheduled_event_create = 100
 	// Event was updated
 	guild_scheduled_event_update
 	// Event was cancelled
 	guild_scheduled_event_delete
 	// Thread was created in a channel
-	thread_create                               = 110
+	thread_create = 110
 	// Thread was updated
 	thread_update
 	// Thread was deleted
 	thread_delete
 	// Permissions were updated for a command
-	application_command_permission_update       = 121
+	application_command_permission_update = 121
 	// Auto Moderation rule was created
-	auto_moderation_rule_create                 = 140
+	auto_moderation_rule_create = 140
 	// Auto Moderation rule was updated
 	auto_moderation_rule_update
 	// Auto Moderation rule was deleted
@@ -116,22 +116,22 @@ pub enum AuditLogEvent {
 	// Member was timed out by Auto Moderation
 	auto_moderation_user_communication_disabled
 	// Creator monetization request was created
-	creator_monetization_request_created        = 150
+	creator_monetization_request_created = 150
 	// Creator monetization terms were accepted
-	creator_monetization_terms_accepted         = 151
-	
+	creator_monetization_terms_accepted = 151
+
 	// Guild Onboarding Question was created
-	onboarding_question_create                  = 163
+	onboarding_question_create = 163
 	// Guild Onboarding Question was updated
 	onboarding_question_update
 	// Guild Onboarding was updated
-	onboarding_update                           = 167
+	onboarding_update = 167
 	// Guild Server Guide was created
-	server_guide_create                         = 190
+	server_guide_create = 190
 	// Guild Server Guide was updated
 	server_guide_update
-  // A voice channel status was updated by a user
-	voice_channel_status_update                 = 192
+	// A voice channel status was updated by a user
+	voice_channel_status_update = 192
 	// A voice channel status was deleted by a user
 	voice_channel_status_delete
 }
@@ -160,7 +160,7 @@ pub fn AuditLogChange.parse(j json2.Any) !AuditLogChange {
 				} else {
 					none
 				}
-				key: j['key']! as string
+				key:       json_string(j, 'key')!
 			}
 		}
 		else {
@@ -203,12 +203,12 @@ pub fn AuditEntryInfo.parse(j json2.Any) !AuditEntryInfo {
 	match j {
 		map[string]json2.Any {
 			return AuditEntryInfo{
-				application_id: if s := j['application_id'] {
+				application_id:                    if s := j['application_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				auto_moderation_rule_name: if s := j['auto_moderation_rule_name'] {
+				auto_moderation_rule_name:         if s := j['auto_moderation_rule_name'] {
 					s as string
 				} else {
 					none
@@ -218,52 +218,52 @@ pub fn AuditEntryInfo.parse(j json2.Any) !AuditEntryInfo {
 				} else {
 					none
 				}
-				channel_id: if s := j['channel_id'] {
+				channel_id:                        if s := j['channel_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				count: if s := j['count'] {
+				count:                             if s := j['count'] {
 					s as string
 				} else {
 					none
 				}
-				delete_member_days: if s := j['delete_member_days'] {
+				delete_member_days:                if s := j['delete_member_days'] {
 					s as string
 				} else {
 					none
 				}
-				id: if s := j['id'] {
+				id:                                if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				members_removed: if s := j['members_removed'] {
+				members_removed:                   if s := j['members_removed'] {
 					s as string
 				} else {
 					none
 				}
-				message_id: if s := j['message_id'] {
+				message_id:                        if s := j['message_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				role_name: if s := j['role_name'] {
+				role_name:                         if s := j['role_name'] {
 					s as string
 				} else {
 					none
 				}
-				typ: if s := j['type'] {
+				typ:                               if s := j['type'] {
 					s as string
 				} else {
 					none
 				}
-				integration_type: if s := j['integration_type'] {
+				integration_type:                  if s := j['integration_type'] {
 					s as string
 				} else {
 					none
 				}
-				status: if s := j['status'] {
+				status:                            if s := j['status'] {
 					s as string
 				} else {
 					none
@@ -303,31 +303,31 @@ pub fn AuditLogEntry.parse(j json2.Any) !AuditLogEntry {
 			target_id := j['target_id']!
 			user_id := j['user_id']!
 			return AuditLogEntry{
-				target_id: if target_id !is json2.Null {
+				target_id:   if target_id !is json2.Null {
 					target_id as string
 				} else {
 					none
 				}
-				changes: if a := j['changes'] {
+				changes:     if a := j['changes'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !AuditLogChange {
 						return AuditLogChange.parse(k)!
 					})!
 				} else {
 					none
 				}
-				user_id: if user_id !is json2.Null {
+				user_id:     if user_id !is json2.Null {
 					Snowflake.parse(user_id)!
 				} else {
 					none
 				}
-				id: Snowflake.parse(j['id']!)!
+				id:          Snowflake.parse(j['id']!)!
 				action_type: unsafe { AuditLogEvent(j['action_type']!.int()) }
-				options: if o := j['options'] {
+				options:     if o := j['options'] {
 					AuditEntryInfo.parse(o)!
 				} else {
 					none
 				}
-				reason: if s := j['reason'] {
+				reason:      if s := j['reason'] {
 					s as string
 				} else {
 					none
@@ -366,31 +366,28 @@ pub fn AuditLog.parse(j json2.Any) !AuditLog {
 	match j {
 		map[string]json2.Any {
 			return AuditLog{
-				application_commands: maybe_map(j['application_commands']! as []json2.Any,
-					fn (k json2.Any) !ApplicationCommand {
+				application_commands:   maybe_map(json_array(j, 'application_commands')!, fn (k json2.Any) !ApplicationCommand {
 					return ApplicationCommand.parse(k)!
 				})!
-				audit_log_entries: maybe_map(j['audit_log_entries']! as []json2.Any, fn (k json2.Any) !AuditLogEntry {
+				audit_log_entries:      maybe_map(json_array(j, 'audit_log_entries')!, fn (k json2.Any) !AuditLogEntry {
 					return AuditLogEntry.parse(k)!
 				})!
-				auto_moderation_rules: maybe_map(j['auto_moderation_rules']! as []json2.Any,
-					fn (k json2.Any) !AutoModerationRule {
+				auto_moderation_rules:  maybe_map(json_array(j, 'auto_moderation_rules')!, fn (k json2.Any) !AutoModerationRule {
 					return AutoModerationRule.parse(k)!
 				})!
-				guild_scheduled_events: maybe_map(j['guild_scheduled_events']! as []json2.Any,
-					fn (k json2.Any) !GuildScheduledEvent {
+				guild_scheduled_events: maybe_map(json_array(j, 'guild_scheduled_events')!, fn (k json2.Any) !GuildScheduledEvent {
 					return GuildScheduledEvent.parse(k)!
 				})!
-				integrations: maybe_map(j['integrations']! as []json2.Any, fn (k json2.Any) !PartialIntegration {
+				integrations:           maybe_map(json_array(j, 'integrations')!, fn (k json2.Any) !PartialIntegration {
 					return PartialIntegration.parse(k)!
 				})!
-				threads: maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+				threads:                maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 					return Channel.parse(k)!
 				})!
-				users: maybe_map(j['users']! as []json2.Any, fn (k json2.Any) !User {
+				users:                  maybe_map(json_array(j, 'users')!, fn (k json2.Any) !User {
 					return User.parse(k)!
 				})!
-				webhooks: maybe_map(j['webhooks']! as []json2.Any, fn (k json2.Any) !Webhook {
+				webhooks:               maybe_map(json_array(j, 'webhooks')!, fn (k json2.Any) !Webhook {
 					return Webhook.parse(k)!
 				})!
 			}
@@ -440,7 +437,8 @@ pub fn (params FetchGuildAuditLogParams) build_query_values() urllib.Values {
 // Returns an [audit log](#AuditLog) object for the guild. Requires the `.view_audit_log` permission.
 // The returned list of audit log entries is ordered based on whether you use `before` or `after`. When using `before`, the list is ordered by the audit log entry ID descending (newer entries first). If `after` is used, the list is reversed and appears in ascending order (older entries first). Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order by ID, the opposite can be achieved using `after: 0` (showing oldest entries).
 pub fn (rest &REST) fetch_guild_audit_log(guild_id Snowflake, params FetchGuildAuditLogParams) !AuditLog {
-	return AuditLog.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/audit-logs',
+	return AuditLog.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/audit-logs',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }

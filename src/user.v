@@ -67,7 +67,7 @@ pub fn AvatarDecorationData.parse(j json2.Any) !AvatarDecorationData {
 	match j {
 		map[string]json2.Any {
 			return AvatarDecorationData{
-				asset: j['asset']! as string
+				asset:  json_string(j, 'asset')!
 				sku_id: Snowflake.parse(j['sku_id']!)!
 			}
 		}
@@ -121,35 +121,35 @@ pub fn User.parse(j json2.Any) !User {
 			global_name := j['global_name']!
 			avatar := j['avatar']!
 			return User{
-				id: Snowflake.parse(j['id']!)!
-				username: j['username']! as string
-				discriminator: j['discriminator']! as string
-				global_name: if global_name !is json2.Null {
+				id:                     Snowflake.parse(j['id']!)!
+				username:               json_string(j, 'username')!
+				discriminator:          json_string(j, 'discriminator')!
+				global_name:            if global_name !is json2.Null {
 					global_name as string
 				} else {
 					none
 				}
-				avatar: if avatar !is json2.Null {
+				avatar:                 if avatar !is json2.Null {
 					avatar as string
 				} else {
 					none
 				}
-				bot: if b := j['bot'] {
+				bot:                    if b := j['bot'] {
 					b as bool
 				} else {
 					none
 				}
-				system: if b := j['system'] {
+				system:                 if b := j['system'] {
 					b as bool
 				} else {
 					none
 				}
-				mfa_enabled: if b := j['mfa_enabled'] {
+				mfa_enabled:            if b := j['mfa_enabled'] {
 					b as bool
 				} else {
 					none
 				}
-				banner: if s := j['banner'] {
+				banner:                 if s := j['banner'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -158,7 +158,7 @@ pub fn User.parse(j json2.Any) !User {
 				} else {
 					none
 				}
-				accent_color: if i := j['accent_color'] {
+				accent_color:           if i := j['accent_color'] {
 					if i !is json2.Null {
 						i.int()
 					} else {
@@ -167,17 +167,17 @@ pub fn User.parse(j json2.Any) !User {
 				} else {
 					none
 				}
-				locale: if s := j['locale'] {
+				locale:                 if s := j['locale'] {
 					s as string
 				} else {
 					none
 				}
-				verified: if b := j['verified'] {
+				verified:               if b := j['verified'] {
 					b as bool
 				} else {
 					none
 				}
-				email: if s := j['email'] {
+				email:                  if s := j['email'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -186,17 +186,17 @@ pub fn User.parse(j json2.Any) !User {
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                  if i := j['flags'] {
 					unsafe { UserFlags(i.int()) }
 				} else {
 					none
 				}
-				premium_type: if i := j['premium_type'] {
+				premium_type:           if i := j['premium_type'] {
 					unsafe { PremiumType(i.int()) }
 				} else {
 					none
 				}
-				public_flags: if i := j['public_flags'] {
+				public_flags:           if i := j['public_flags'] {
 					unsafe { UserFlags(i.int()) }
 				} else {
 					none
@@ -220,12 +220,13 @@ pub fn User.parse(j json2.Any) !User {
 
 // Returns the user object of the requester's account. For OAuth2, this requires the `identify` scope, which will return the object without an email, and optionally the `email` scope, which returns the object _with_ an email.
 pub fn (rest &REST) fetch_my_user() !User {
-	return User.parse(json2.raw_decode(rest.request(.get, '/users/@me')!.body)!)!
+	return User.parse(json2.decode[json2.Any](rest.request(.get, '/users/@me')!.body)!)!
 }
 
 // Returns a [user](#User) object for a given user ID.
 pub fn (rest &REST) fetch_user(user_id Snowflake) !User {
-	return User.parse(json2.raw_decode(rest.request(.get, '/users/${urllib.path_escape(user_id.str())}')!.body)!)!
+	return User.parse(json2.decode[json2.Any](rest.request(.get,
+		'/users/${urllib.path_escape(user_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -263,12 +264,15 @@ pub fn (params EditMyUserParams) build() json2.Any {
 
 // Modify the requester's user account settings. Returns a user object on success. Fires a User Update Gateway event.
 pub fn (rest &REST) edit_my_user(params EditMyUserParams) !User {
-	return User.parse(json2.raw_decode(rest.request(.patch, '/users/@me', json: params.build())!.body)!)!
+	return User.parse(json2.decode[json2.Any](rest.request(.patch, '/users/@me',
+		json: params.build()
+	)!.body)!)!
 }
 
 // Returns a [guild member](#GuildMember) object for the current user. Requires the `guilds.members.read` OAuth2 scope.
 pub fn (rest &REST) fetch_my_guild_member(guild_id Snowflake) !GuildMember {
-	return GuildMember.parse(rest.request(.get, '/users/@me/guilds/${urllib.path_escape(guild_id.str())}/member')!.body)!
+	return GuildMember.parse(rest.request(.get,
+		'/users/@me/guilds/${urllib.path_escape(guild_id.str())}/member')!.body)!
 }
 
 // Leave a guild. Fires a Guild Delete Gateway event and a Guild Member Remove Gateway event.
@@ -279,7 +283,7 @@ pub fn (rest &REST) leave_guild(guild_id Snowflake) ! {
 // Create a new DM channel with a user. Returns a [DM channel](#Channel) object (if one already exists, it will be returned instead).
 // > You should not use this endpoint to DM everyone in a server about something. DMs should generally be initiated by a user action. If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
 pub fn (rest &REST) create_dm(recipient_id Snowflake) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.post, '/users/@me/channels',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/users/@me/channels',
 		json: {
 			'recipient_id': recipient_id.build()
 		}
@@ -298,8 +302,7 @@ pub mut:
 pub fn (params CreateGroupDMParams) build() json2.Any {
 	return {
 		'access_tokens': json2.Any(params.access_tokens.map(|t| json2.Any(t)))
-		'nicks':         maps.to_map[Snowflake, string, string, json2.Any](params.nicks,
-			fn (k Snowflake, v string) (string, json2.Any) {
+		'nicks':         maps.to_map[Snowflake, string, string, json2.Any](params.nicks, fn (k Snowflake, v string) (string, json2.Any) {
 			return k.str(), json2.Any(v)
 		})
 	}
@@ -307,7 +310,7 @@ pub fn (params CreateGroupDMParams) build() json2.Any {
 
 // Create a new group DM channel with multiple users. Returns a [DM channel](#Channel) object. This endpoint was intended to be used with the now-deprecated GameBridge SDK. Fires a Channel Create Gateway event.
 pub fn (rest &REST) create_group_dm(params CreateGroupDMParams) !Channel {
-	return Channel.parse(json2.raw_decode(rest.request(.post, '/users/@me/channels',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/users/@me/channels',
 		json: params.build()
 	)!.body)!)!
 }
@@ -354,18 +357,18 @@ pub fn PartialUser.parse(j json2.Any) !PartialUser {
 	match j {
 		map[string]json2.Any {
 			return PartialUser{
-				id: Snowflake.parse(j['id']!)!
-				username: if s := j['username'] {
+				id:                     Snowflake.parse(j['id']!)!
+				username:               if s := j['username'] {
 					s as string
 				} else {
 					none
 				}
-				discriminator: if s := j['discriminator'] {
+				discriminator:          if s := j['discriminator'] {
 					s as string
 				} else {
 					none
 				}
-				avatar: if s := j['avatar'] {
+				avatar:                 if s := j['avatar'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -374,22 +377,22 @@ pub fn PartialUser.parse(j json2.Any) !PartialUser {
 				} else {
 					none
 				}
-				bot: if b := j['bot'] {
+				bot:                    if b := j['bot'] {
 					b as bool
 				} else {
 					none
 				}
-				system: if b := j['system'] {
+				system:                 if b := j['system'] {
 					b as bool
 				} else {
 					none
 				}
-				mfa_enabled: if b := j['mfa_enabled'] {
+				mfa_enabled:            if b := j['mfa_enabled'] {
 					b as bool
 				} else {
 					none
 				}
-				banner: if s := j['banner'] {
+				banner:                 if s := j['banner'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -398,7 +401,7 @@ pub fn PartialUser.parse(j json2.Any) !PartialUser {
 				} else {
 					none
 				}
-				accent_color: if i := j['accent_color'] {
+				accent_color:           if i := j['accent_color'] {
 					if i !is json2.Null {
 						i.int()
 					} else {
@@ -407,17 +410,17 @@ pub fn PartialUser.parse(j json2.Any) !PartialUser {
 				} else {
 					none
 				}
-				locale: if s := j['locale'] {
+				locale:                 if s := j['locale'] {
 					s as string
 				} else {
 					none
 				}
-				verified: if b := j['verified'] {
+				verified:               if b := j['verified'] {
 					b as bool
 				} else {
 					none
 				}
-				email: if s := j['email'] {
+				email:                  if s := j['email'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -426,17 +429,17 @@ pub fn PartialUser.parse(j json2.Any) !PartialUser {
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                  if i := j['flags'] {
 					unsafe { UserFlags(i.int()) }
 				} else {
 					none
 				}
-				premium_type: if i := j['premium_type'] {
+				premium_type:           if i := j['premium_type'] {
 					unsafe { PremiumType(i.int()) }
 				} else {
 					none
 				}
-				public_flags: if i := j['public_flags'] {
+				public_flags:           if i := j['public_flags'] {
 					unsafe { UserFlags(i.int()) }
 				} else {
 					none
@@ -496,26 +499,26 @@ pub fn Connection.parse(j json2.Any) !Connection {
 	match j {
 		map[string]json2.Any {
 			return Connection{
-				id: j['id']! as string
-				name: j['name']! as string
-				typ: ConnectionService(j['type']! as string)
-				revoked: if b := j['revoked'] {
+				id:            json_string(j, 'id')!
+				name:          json_string(j, 'name')!
+				typ:           ConnectionService(json_string(j, 'type')!)
+				revoked:       if b := j['revoked'] {
 					b as bool
 				} else {
 					none
 				}
-				integrations: if a := j['integrations'] {
+				integrations:  if a := j['integrations'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !PartialIntegration {
 						return PartialIntegration.parse(k)!
 					})!
 				} else {
 					none
 				}
-				verified: j['verified']! as bool
-				friend_sync: j['friend_sync']! as bool
-				show_activity: j['show_activity']! as bool
-				two_way_link: j['two_way_link']! as bool
-				visibility: unsafe { Visibility(j['visibility']!.int()) }
+				verified:      json_bool(j, 'verified')!
+				friend_sync:   json_bool(j, 'friend_sync')!
+				show_activity: json_bool(j, 'show_activity')!
+				two_way_link:  json_bool(j, 'two_way_link')!
+				visibility:    unsafe { Visibility(j['visibility']!.int()) }
 			}
 		}
 		else {
@@ -526,8 +529,10 @@ pub fn Connection.parse(j json2.Any) !Connection {
 
 // Returns a list of [connection](#Connection) objects. Requires the `connections` OAuth2 scope.
 pub fn (rest &REST) fetch_my_connections() ![]Connection {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/users/@me/connections')!.body)! as []json2.Any,
-		fn (j json2.Any) !Connection {
+	res := rest.request(.get, '/users/@me/connections')!
+	decoded := json2.decode[json2.Any](res.body)!
+	connections := decoded as []json2.Any
+	return maybe_map(connections, fn (j json2.Any) !Connection {
 		return Connection.parse(j)!
 	})!
 }
@@ -548,7 +553,7 @@ pub fn ApplicationRoleConnection.parse(j json2.Any) !ApplicationRoleConnection {
 			platform_name := j['platform_name']!
 			platform_username := j['platform_username']!
 			return ApplicationRoleConnection{
-				platform_name: if platform_name !is json2.Null {
+				platform_name:     if platform_name !is json2.Null {
 					platform_name as string
 				} else {
 					none
@@ -558,8 +563,8 @@ pub fn ApplicationRoleConnection.parse(j json2.Any) !ApplicationRoleConnection {
 				} else {
 					none
 				}
-				metadata: maps.to_map[string, json2.Any, string, string](j['metadata']! as map[string]json2.Any,
-					fn (k string, v json2.Any) (string, string) {
+				metadata:          maps.to_map[string, json2.Any, string, string](json_map(j,
+					'metadata')!, fn (k string, v json2.Any) (string, string) {
 					return k, v as string
 				})
 			}
@@ -572,7 +577,8 @@ pub fn ApplicationRoleConnection.parse(j json2.Any) !ApplicationRoleConnection {
 
 // Returns the [application role connection](#ApplicationRoleConnection) for the user. Requires an OAuth2 access token with `role_connections.write` scope for the application specified in the path.
 pub fn (rest &REST) fetch_my_application_role_connection(application_id Snowflake) !ApplicationRoleConnection {
-	return ApplicationRoleConnection.parse(json2.raw_decode(rest.request(.get, '/users/@me/applications/${urllib.path_escape(application_id.str())}/role-connection')!.body)!)!
+	return ApplicationRoleConnection.parse(json2.decode[json2.Any](rest.request(.get,
+		'/users/@me/applications/${urllib.path_escape(application_id.str())}/role-connection')!.body)!)!
 }
 
 @[params]
@@ -604,7 +610,8 @@ pub fn (params UpdateMyApplicationRoleConnectionParams) build() json2.Any {
 
 // Updates and returns the [application role connection](#ApplicationRoleConnection) for the user. Requires an OAuth2 access token with `role_connections.write` scope for the application specified in the path.
 pub fn (rest &REST) update_my_application_role_connection(application_id Snowflake, params UpdateMyApplicationRoleConnectionParams) !ApplicationRoleConnection {
-	return ApplicationRoleConnection.parse(json2.raw_decode(rest.request(.put, '/users/@me/applications/${urllib.path_escape(application_id.str())}/role-connection',
+	return ApplicationRoleConnection.parse(json2.decode[json2.Any](rest.request(.put,
+		'/users/@me/applications/${urllib.path_escape(application_id.str())}/role-connection',
 		json: params.build()
 	)!.body)!)!
 }

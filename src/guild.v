@@ -62,24 +62,24 @@ pub fn RoleTags.parse(j json2.Any) !RoleTags {
 	match j {
 		map[string]json2.Any {
 			return RoleTags{
-				bot_id: if s := j['bot_id'] {
+				bot_id:                  if s := j['bot_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				integration_id: if s := j['integration_id'] {
+				integration_id:          if s := j['integration_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				premium_subscriber: 'premium_subscriber' in j
+				premium_subscriber:      'premium_subscriber' in j
 				subscription_listing_id: if s := j['subscription_listing_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				available_for_purchase: 'available_for_purchase' in j
-				guild_connections: 'guild_connections' in j
+				available_for_purchase:  'available_for_purchase' in j
+				guild_connections:       'guild_connections' in j
 			}
 		}
 		else {
@@ -137,11 +137,11 @@ pub fn Role.parse(j json2.Any) !Role {
 	match j {
 		map[string]json2.Any {
 			return Role{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				color: j['color']!.int()
-				hoist: j['hoist']! as bool
-				icon: if s := j['icon'] {
+				id:            Snowflake.parse(j['id']!)!
+				name:          json_string(j, 'name')!
+				color:         j['color']!.int()
+				hoist:         json_bool(j, 'hoist')!
+				icon:          if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -159,16 +159,16 @@ pub fn Role.parse(j json2.Any) !Role {
 				} else {
 					none
 				}
-				position: j['position']!.int()
-				permissions: Permissions.parse(j['permissions']!)!
-				managed: j['managed']! as bool
-				mentionable: j['mentionable']! as bool
-				tags: if o := j['tags'] {
+				position:      j['position']!.int()
+				permissions:   Permissions.parse(j['permissions']!)!
+				managed:       json_bool(j, 'managed')!
+				mentionable:   json_bool(j, 'mentionable')!
+				tags:          if o := j['tags'] {
 					RoleTags.parse(o)!
 				} else {
 					none
 				}
-				flags: unsafe { RoleFlags(j['flags']!.int()) }
+				flags:         unsafe { RoleFlags(j['flags']!.int()) }
 			}
 		}
 		else {
@@ -229,14 +229,14 @@ pub fn WelcomeChannel.parse(j json2.Any) !WelcomeChannel {
 			emoji_id := j['emoji_id']!
 			emoji_name := j['emoji_name']!
 			return WelcomeChannel{
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				description: j['description']! as string
-				emoji_id: if emoji_id !is json2.Null {
+				channel_id:  Snowflake.parse(j['channel_id']!)!
+				description: json_string(j, 'description')!
+				emoji_id:    if emoji_id !is json2.Null {
 					Snowflake.parse(emoji_id)!
 				} else {
 					none
 				}
-				emoji_name: if emoji_name !is json2.Null {
+				emoji_name:  if emoji_name !is json2.Null {
 					emoji_name as string
 				} else {
 					none
@@ -279,12 +279,12 @@ pub fn WelcomeScreen.parse(j json2.Any) !WelcomeScreen {
 		map[string]json2.Any {
 			description := j['description']!
 			return WelcomeScreen{
-				description: if description !is json2.Null {
+				description:      if description !is json2.Null {
 					description as string
 				} else {
 					none
 				}
-				welcome_channels: maybe_map(j['welcome_channels']! as []json2.Any, fn (k json2.Any) !WelcomeChannel {
+				welcome_channels: maybe_map(json_array(j, 'welcome_channels')!, fn (k json2.Any) !WelcomeChannel {
 					return WelcomeChannel.parse(k)!
 				})!
 			}
@@ -333,13 +333,13 @@ pub fn PartialGuild.parse(j json2.Any) !PartialGuild {
 	match j {
 		map[string]json2.Any {
 			return PartialGuild{
-				id: if s := j['id'] {
+				id:                            if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
 					0
 				}
-				name: j['name']! as string
-				icon: if s := j['icon'] {
+				name:                          json_string(j, 'name')!
+				icon:                          if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -348,7 +348,7 @@ pub fn PartialGuild.parse(j json2.Any) !PartialGuild {
 				} else {
 					none
 				}
-				icon_hash: if s := j['icon_hash'] {
+				icon_hash:                     if s := j['icon_hash'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -357,17 +357,17 @@ pub fn PartialGuild.parse(j json2.Any) !PartialGuild {
 				} else {
 					none
 				}
-				owner: if b := j['owner'] {
+				owner:                         if b := j['owner'] {
 					b as bool
 				} else {
 					none
 				}
-				permissions: if s := j['permissions'] {
+				permissions:                   if s := j['permissions'] {
 					Permissions.parse(s)!
 				} else {
 					none
 				}
-				verification_level: if i := j['verification_level'] {
+				verification_level:            if i := j['verification_level'] {
 					unsafe { VerificationLevel(i.int()) }
 				} else {
 					none
@@ -377,39 +377,39 @@ pub fn PartialGuild.parse(j json2.Any) !PartialGuild {
 				} else {
 					none
 				}
-				explicit_content_filter: if i := j['explicit_content_filter'] {
+				explicit_content_filter:       if i := j['explicit_content_filter'] {
 					unsafe { ExplicitContentFilterLevel(i.int()) }
 				} else {
 					none
 				}
-				roles: if a := j['roles'] {
+				roles:                         if a := j['roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Role {
 						return Role.parse(k)!
 					})!
 				} else {
 					none
 				}
-				features: if a := j['features'] {
+				features:                      if a := j['features'] {
 					(a as []json2.Any).map(|s| GuildFeature(s as string))
 				} else {
 					none
 				}
-				system_channel_id: if s := j['system_channel_id'] {
+				system_channel_id:             if s := j['system_channel_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				system_channel_flags: if i := j['system_channel_flags'] {
+				system_channel_flags:          if i := j['system_channel_flags'] {
 					unsafe { SystemChannelFlags(i.int()) }
 				} else {
 					none
 				}
-				approximate_member_count: if i := j['approximate_member_count'] {
+				approximate_member_count:      if i := j['approximate_member_count'] {
 					i.int()
 				} else {
 					none
 				}
-				approximate_presence_count: if i := j['approximate_presence_count'] {
+				approximate_presence_count:    if i := j['approximate_presence_count'] {
 					i.int()
 				} else {
 					none
@@ -453,7 +453,7 @@ pub fn (params FetchMyGuildsParams) build_query_values() urllib.Values {
 }
 
 pub fn (rest &REST) fetch_my_guilds(params FetchMyGuildsParams) ![]PartialGuild {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/users/@me/guilds',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/users/@me/guilds',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !PartialGuild {
 		return PartialGuild.parse(j)!
@@ -470,8 +470,8 @@ pub fn UnavailableGuild.parse(j json2.Any) !UnavailableGuild {
 	match j {
 		map[string]json2.Any {
 			return UnavailableGuild{
-				id: Snowflake.parse(j['id']!)!
-				unavailable: j['unavailable']! as bool
+				id:          Snowflake.parse(j['id']!)!
+				unavailable: json_bool(j, 'unavailable')!
 			}
 		}
 		else {
@@ -498,7 +498,7 @@ pub fn IncidentsData.parse(j json2.Any) !IncidentsData {
 				} else {
 					none
 				}
-				dms_disabled_until: if dms_disabled_until !is json2.Null {
+				dms_disabled_until:     if dms_disabled_until !is json2.Null {
 					time.parse_iso8601(dms_disabled_until as string)!
 				} else {
 					none
@@ -639,14 +639,14 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 	safety_alerts_channel_id := j['safety_alerts_channel_id']!
 	incidents_data := j['incidents_data']!
 	return Guild{
-		id: Snowflake.parse(j['id']!)!
-		name: j['name']! as string
-		icon: if icon !is json2.Null {
+		id:                            Snowflake.parse(j['id']!)!
+		name:                          json_string(j, 'name')!
+		icon:                          if icon !is json2.Null {
 			icon as string
 		} else {
 			none
 		}
-		icon_hash: if s := j['icon_hash'] {
+		icon_hash:                     if s := j['icon_hash'] {
 			if s !is json2.Null {
 				s as string
 			} else {
@@ -655,29 +655,29 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		splash: if splash !is json2.Null {
+		splash:                        if splash !is json2.Null {
 			splash as string
 		} else {
 			none
 		}
-		discovery_splash: if discovery_splash !is json2.Null {
+		discovery_splash:              if discovery_splash !is json2.Null {
 			discovery_splash as string
 		} else {
 			none
 		}
-		owner_id: Snowflake.parse(j['owner_id']!)!
-		afk_channel_id: if afk_channel_id !is json2.Null {
+		owner_id:                      Snowflake.parse(j['owner_id']!)!
+		afk_channel_id:                if afk_channel_id !is json2.Null {
 			Snowflake.parse(afk_channel_id)!
 		} else {
 			none
 		}
-		afk_timeout: j['afk_timeout']!.int() * time.second
-		widget_enabled: if b := j['widget_enabled'] {
+		afk_timeout:                   j['afk_timeout']!.int() * time.second
+		widget_enabled:                if b := j['widget_enabled'] {
 			b as bool
 		} else {
 			none
 		}
-		widget_channel_id: if s := j['widget_channel_id'] {
+		widget_channel_id:             if s := j['widget_channel_id'] {
 			if s !is json2.Null {
 				Snowflake.parse(s)!
 			} else {
@@ -686,34 +686,34 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		verification_level: unsafe { VerificationLevel(j['verification_level']!.int()) }
+		verification_level:            unsafe { VerificationLevel(j['verification_level']!.int()) }
 		default_message_notifications: unsafe { MessageNotificationsLevel(j['default_message_notifications']!.int()) }
-		explicit_content_filter: unsafe { ExplicitContentFilterLevel(j['explicit_content_filter']!.int()) }
-		roles: maybe_map(j['roles']! as []json2.Any, fn (k json2.Any) !Role {
+		explicit_content_filter:       unsafe { ExplicitContentFilterLevel(j['explicit_content_filter']!.int()) }
+		roles:                         maybe_map(json_array(j, 'roles')!, fn (k json2.Any) !Role {
 			return Role.parse(k)!
 		})!
-		emojis: maybe_map(j['emojis']! as []json2.Any, fn (k json2.Any) !Emoji {
+		emojis:                        maybe_map(json_array(j, 'emojis')!, fn (k json2.Any) !Emoji {
 			return Emoji.parse(k)!
 		})!
-		features: (j['features']! as []json2.Any).map(|s| GuildFeature(s as string))
-		mfa_level: unsafe { MFALevel(j['mfa_level']!.int()) }
-		application_id: if application_id !is json2.Null {
+		features:                      (json_array(j, 'features')!).map(|s| GuildFeature(s as string))
+		mfa_level:                     unsafe { MFALevel(j['mfa_level']!.int()) }
+		application_id:                if application_id !is json2.Null {
 			Snowflake.parse(application_id)!
 		} else {
 			none
 		}
-		system_channel_id: if system_channel_id !is json2.Null {
+		system_channel_id:             if system_channel_id !is json2.Null {
 			Snowflake.parse(system_channel_id)!
 		} else {
 			none
 		}
-		system_channel_flags: unsafe { SystemChannelFlags(j['system_channel_flags']!.int()) }
-		rules_channel_id: if rules_channel_id !is json2.Null {
+		system_channel_flags:          unsafe { SystemChannelFlags(j['system_channel_flags']!.int()) }
+		rules_channel_id:              if rules_channel_id !is json2.Null {
 			Snowflake.parse(rules_channel_id)!
 		} else {
 			none
 		}
-		max_presences: if i := j['max_presences'] {
+		max_presences:                 if i := j['max_presences'] {
 			if i !is json2.Null {
 				i.int()
 			} else {
@@ -722,7 +722,7 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		max_members: if i := j['max_members'] {
+		max_members:                   if i := j['max_members'] {
 			if i !is json2.Null {
 				i.int()
 			} else {
@@ -731,34 +731,34 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		vanity_url_code: if vanity_url_code !is json2.Null {
+		vanity_url_code:               if vanity_url_code !is json2.Null {
 			vanity_url_code as string
 		} else {
 			none
 		}
-		description: if description !is json2.Null {
+		description:                   if description !is json2.Null {
 			description as string
 		} else {
 			none
 		}
-		banner: if banner !is json2.Null {
+		banner:                        if banner !is json2.Null {
 			banner as string
 		} else {
 			none
 		}
-		premium_tier: unsafe { PremiumTier(j['premium_tier']!.int()) }
-		premium_subscription_count: if i := j['premium_subscription_count'] {
+		premium_tier:                  unsafe { PremiumTier(j['premium_tier']!.int()) }
+		premium_subscription_count:    if i := j['premium_subscription_count'] {
 			i.int()
 		} else {
 			none
 		}
-		preferred_locale: j['preferred_locale']! as string
-		public_updates_channel_id: if public_updates_channel_id !is json2.Null {
+		preferred_locale:              json_string(j, 'preferred_locale')!
+		public_updates_channel_id:     if public_updates_channel_id !is json2.Null {
 			Snowflake.parse(public_updates_channel_id)!
 		} else {
 			none
 		}
-		max_video_channel_users: if i := j['max_video_channel_users'] {
+		max_video_channel_users:       if i := j['max_video_channel_users'] {
 			i.int()
 		} else {
 			none
@@ -768,32 +768,32 @@ pub fn Guild.internal_parse(j map[string]json2.Any) !Guild {
 		} else {
 			none
 		}
-		approximate_member_count: if i := j['approximate_member_count'] {
+		approximate_member_count:      if i := j['approximate_member_count'] {
 			i.int()
 		} else {
 			none
 		}
-		approximate_presence_count: if i := j['approximate_presence_count'] {
+		approximate_presence_count:    if i := j['approximate_presence_count'] {
 			i.int()
 		} else {
 			none
 		}
-		welcome_screen: if o := j['welcome_screen'] {
+		welcome_screen:                if o := j['welcome_screen'] {
 			WelcomeScreen.parse(o)!
 		} else {
 			none
 		}
-		nsfw_level: unsafe { NSFWLevel(j['nsfw_level']!.int()) }
-		stickers: maybe_map((j['stickers'] or { []json2.Any{} }) as []json2.Any, fn (k json2.Any) !Sticker {
+		nsfw_level:                    unsafe { NSFWLevel(j['nsfw_level']!.int()) }
+		stickers:                      maybe_map(json_array(j, 'stickers') or { []json2.Any{} }, fn (k json2.Any) !Sticker {
 			return Sticker.parse(k)!
 		})!
-		premium_progress_bar_enabled: j['premium_progress_bar_enabled']! as bool
-		safety_alerts_channel_id: if safety_alerts_channel_id !is json2.Null {
+		premium_progress_bar_enabled:  json_bool(j, 'premium_progress_bar_enabled')!
+		safety_alerts_channel_id:      if safety_alerts_channel_id !is json2.Null {
 			Snowflake.parse(safety_alerts_channel_id)!
 		} else {
 			none
 		}
-		incidents_data: if incidents_data !is json2.Null {
+		incidents_data:                if incidents_data !is json2.Null {
 			IncidentsData.parse(incidents_data)!
 		} else {
 			none
@@ -839,29 +839,28 @@ pub:
 
 pub fn Guild2.internal_parse(j map[string]json2.Any) !Guild2 {
 	return Guild2{
-		Guild: Guild.internal_parse(j)!
-		large: j['large']! as bool
-		member_count: j['member_count']!.int()
-		voice_states: maybe_map(j['voice_states']! as []json2.Any, fn (k json2.Any) !VoiceState {
+		Guild:                  Guild.internal_parse(j)!
+		large:                  json_bool(j, 'large')!
+		member_count:           j['member_count']!.int()
+		voice_states:           maybe_map(json_array(j, 'voice_states')!, fn (k json2.Any) !VoiceState {
 			return VoiceState.parse(k)!
 		})!
-		users: maybe_map(j['users']! as []json2.Any, fn (k json2.Any) !GuildMember {
+		users:                  maybe_map(json_array(j, 'users')!, fn (k json2.Any) !GuildMember {
 			return GuildMember.parse(k)!
 		})!
-		channels: maybe_map(j['channels']! as []json2.Any, fn (k json2.Any) !Channel {
+		channels:               maybe_map(json_array(j, 'channels')!, fn (k json2.Any) !Channel {
 			return Channel.parse(k)!
 		})!
-		threads: maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+		threads:                maybe_map(json_array(j, 'threads')!, fn (k json2.Any) !Channel {
 			return Channel.parse(k)!
 		})!
-		presences: maybe_map(j['presences']! as []json2.Any, fn (k json2.Any) !Presence {
+		presences:              maybe_map(json_array(j, 'presences')!, fn (k json2.Any) !Presence {
 			return Presence.parse(k)!
 		})!
-		stage_instances: maybe_map(j['stage_instances']! as []json2.Any, fn (k json2.Any) !StageInstance {
+		stage_instances:        maybe_map(json_array(j, 'stage_instances')!, fn (k json2.Any) !StageInstance {
 			return StageInstance.parse(k)!
 		})!
-		guild_scheduled_events: maybe_map(j['guild_scheduled_events']! as []json2.Any,
-			fn (k json2.Any) !GuildScheduledEvent {
+		guild_scheduled_events: maybe_map(json_array(j, 'guild_scheduled_events')!, fn (k json2.Any) !GuildScheduledEvent {
 			return GuildScheduledEvent.parse(k)!
 		})!
 	}
@@ -923,12 +922,12 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 	match j {
 		map[string]json2.Any {
 			return GuildMember{
-				user: if o := j['user'] {
+				user:                         if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				nick: if s := j['nick'] {
+				nick:                         if s := j['nick'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -937,7 +936,7 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 				} else {
 					none
 				}
-				avatar: if s := j['avatar'] {
+				avatar:                       if s := j['avatar'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -946,11 +945,11 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 				} else {
 					none
 				}
-				roles: maybe_map(j['roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				roles:                        maybe_map(json_array(j, 'roles')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				joined_at: time.parse_iso8601(j['joined_at']! as string)!
-				premium_since: if s := j['premium_since'] {
+				joined_at:                    time.parse_iso8601(json_string(j, 'joined_at')!)!
+				premium_since:                if s := j['premium_since'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -959,15 +958,15 @@ pub fn GuildMember.parse(j json2.Any) !GuildMember {
 				} else {
 					none
 				}
-				deaf: j['deaf']! as bool
-				mute: j['mute']! as bool
-				flags: unsafe { GuildMemberFlags(j['flags']!.int()) }
-				pending: if b := j['pending'] {
+				deaf:                         json_bool(j, 'deaf')!
+				mute:                         json_bool(j, 'mute')!
+				flags:                        unsafe { GuildMemberFlags(j['flags']!.int()) }
+				pending:                      if b := j['pending'] {
 					b as bool
 				} else {
 					none
 				}
-				permissions: if s := j['permissions'] {
+				permissions:                  if s := j['permissions'] {
 					Permissions.parse(s)!
 				} else {
 					none
@@ -1001,7 +1000,7 @@ pub fn GuildMember2.parse(j json2.Any) !GuildMember2 {
 		map[string]json2.Any {
 			return GuildMember2{
 				GuildMember: GuildMember.parse(j)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				guild_id:    Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -1030,12 +1029,12 @@ pub fn PartialGuildMember.parse(j json2.Any) !PartialGuildMember {
 	match j {
 		map[string]json2.Any {
 			return PartialGuildMember{
-				user: if o := j['user'] {
+				user:                         if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				nick: if s := j['nick'] {
+				nick:                         if s := j['nick'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -1044,7 +1043,7 @@ pub fn PartialGuildMember.parse(j json2.Any) !PartialGuildMember {
 				} else {
 					none
 				}
-				avatar: if s := j['avatar'] {
+				avatar:                       if s := j['avatar'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -1053,19 +1052,19 @@ pub fn PartialGuildMember.parse(j json2.Any) !PartialGuildMember {
 				} else {
 					none
 				}
-				roles: if a := j['roles'] {
+				roles:                        if a := j['roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				joined_at: if s := j['joined_at'] {
+				joined_at:                    if s := j['joined_at'] {
 					time.parse_iso8601(s as string)!
 				} else {
 					none
 				}
-				premium_since: if s := j['premium_since'] {
+				premium_since:                if s := j['premium_since'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -1074,27 +1073,27 @@ pub fn PartialGuildMember.parse(j json2.Any) !PartialGuildMember {
 				} else {
 					none
 				}
-				deaf: if b := j['deaf'] {
+				deaf:                         if b := j['deaf'] {
 					b as bool
 				} else {
 					none
 				}
-				mute: if b := j['mute'] {
+				mute:                         if b := j['mute'] {
 					b as bool
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                        if i := j['flags'] {
 					unsafe { GuildMemberFlags(i.int()) }
 				} else {
 					none
 				}
-				pending: if b := j['pending'] {
+				pending:                      if b := j['pending'] {
 					b as bool
 				} else {
 					none
 				}
-				permissions: if s := j['permissions'] {
+				permissions:                  if s := j['permissions'] {
 					Permissions.parse(s)!
 				} else {
 					none
@@ -1119,7 +1118,7 @@ pub fn PartialGuildMember.parse(j json2.Any) !PartialGuildMember {
 @[params]
 pub struct CreateGuildParams {
 pub mut:
-	name                          string                      @[required]
+	name                          string @[required]
 	icon                          ?Image
 	verification_level            ?VerificationLevel
 	default_message_notifications ?MessageNotificationsLevel
@@ -1170,11 +1169,12 @@ pub fn (params CreateGuildParams) build() json2.Any {
 }
 
 pub fn (rest &REST) create_guild(params CreateGuildParams) !Guild {
-	return Guild.parse(json2.raw_decode(rest.request(.post, '/guilds', json: params.build())!.body)!)!
+	return Guild.parse(json2.decode[json2.Any](rest.request(.post, '/guilds', json: params.build())!.body)!)!
 }
 
 pub fn (rest &REST) fetch_guild(guild_id Snowflake) !Guild {
-	return Guild.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}')!.body)!)!
+	return Guild.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}')!.body)!)!
 }
 
 pub struct GuildPreview {
@@ -1211,35 +1211,35 @@ pub fn GuildPreview.parse(j json2.Any) !GuildPreview {
 			discovery_splash := j['discovery_splash']!
 			description := j['description']!
 			return GuildPreview{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				icon: if icon !is json2.Null {
+				id:                         Snowflake.parse(j['id']!)!
+				name:                       json_string(j, 'name')!
+				icon:                       if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				splash: if splash !is json2.Null {
+				splash:                     if splash !is json2.Null {
 					splash as string
 				} else {
 					none
 				}
-				discovery_splash: if discovery_splash !is json2.Null {
+				discovery_splash:           if discovery_splash !is json2.Null {
 					discovery_splash as string
 				} else {
 					none
 				}
-				emojis: maybe_map(j['emojis']! as []json2.Any, fn (k json2.Any) !Emoji {
+				emojis:                     maybe_map(json_array(j, 'emojis')!, fn (k json2.Any) !Emoji {
 					return Emoji.parse(k)!
 				})!
-				features: (j['features']! as []json2.Any).map(|f| GuildFeature(f as string))
-				approximate_member_count: j['approximate_member_count']!.int()
+				features:                   (json_array(j, 'features')!).map(|f| GuildFeature(f as string))
+				approximate_member_count:   j['approximate_member_count']!.int()
 				approximate_presence_count: j['approximate_presence_count']!.int()
-				description: if description !is json2.Null {
+				description:                if description !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				stickers: maybe_map(j['stickers']! as []json2.Any, fn (k json2.Any) !Sticker {
+				stickers:                   maybe_map(json_array(j, 'stickers')!, fn (k json2.Any) !Sticker {
 					return Sticker.parse(k)!
 				})!
 			}
@@ -1251,7 +1251,8 @@ pub fn GuildPreview.parse(j json2.Any) !GuildPreview {
 }
 
 pub fn (rest &REST) fetch_guild_preview(guild_id Snowflake) !GuildPreview {
-	return GuildPreview.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/preview')!.body)!)!
+	return GuildPreview.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/preview')!.body)!)!
 }
 
 @[params]
@@ -1427,8 +1428,9 @@ pub fn (params EditGuildParams) build() json2.Any {
 // Modify a guild's settings. Requires the `.manage_guild` permission. Returns the updated [guild](#Guild) object on success. Fires a Guild Update Gateway event.
 // > ! Attempting to add or remove the COMMUNITY guild feature requires the ADMINISTRATOR permission.
 pub fn (rest &REST) edit_guild(guild_id Snowflake, params EditGuildParams) !Guild {
-	return Guild.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}',
-		json: params.build()
+	return Guild.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1440,8 +1442,8 @@ pub fn (rest &REST) delete_guild(guild_id Snowflake) ! {
 
 // Returns a list of guild channel objects. Does not include threads.
 pub fn (rest &REST) fetch_guild_channels(guild_id Snowflake) ![]Channel {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/channels')!.body)! as []json2.Any,
-		fn (j json2.Any) !Channel {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/channels')!.body)! as []json2.Any, fn (j json2.Any) !Channel {
 		return Channel.parse(j)!
 	})!
 }
@@ -1491,7 +1493,8 @@ pub fn (rest &REST) edit_guild_channel_positions(guild_id Snowflake, params []Ed
 
 // Returns a guild member object for the specified user.
 pub fn (rest &REST) fetch_guild_member(guild_id Snowflake, user_id Snowflake) !GuildMember {
-	return GuildMember.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}')!.body)!)!
+	return GuildMember.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -1517,7 +1520,8 @@ pub fn (params ListGuildMembersParams) build_query_values() urllib.Values {
 // Returns a list of guild member objects that are members of the guild.
 // > ! This endpoint is restricted according to whether the `.guild_members` [Privileged Intent](#Intents) is enabled for your application.
 pub fn (rest &REST) fetch_guild_members(guild_id Snowflake, params ListGuildMembersParams) ![]GuildMember {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/members',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !GuildMember {
 		return GuildMember.parse(j)!
@@ -1561,13 +1565,14 @@ pub fn (params AddGuildMemberParams) build() json2.Any {
 // Adds a user to the guild, provided you have a valid oauth2 access token for the user with the `guilds.join` scope. Returns a 201 Created with the guild member as the body, or 204 No Content if the user is already a member of the guild. Fires a Guild Member Add Gateway event.
 // For guilds with Membership Screening enabled, this endpoint will default to adding new members as pending in the guild member object. Members that are pending will have to complete membership screening before they become full members that can talk.
 pub fn (rest &REST) add_guild_member(guild_id Snowflake, user_id Snowflake, params AddGuildMemberParams) !GuildMember {
-	res := rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
+	res := rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
 		json: params.build()
 	)!
 	if res.status() == .no_content {
 		return error_with_code('Member is already present in guild', 204)
 	}
-	return GuildMember.parse(json2.raw_decode(res.body)!)!
+	return GuildMember.parse(json2.decode[json2.Any](res.body)!)!
 }
 
 @[params]
@@ -1639,8 +1644,9 @@ pub fn (params EditGuildMemberParams) build() json2.Any {
 
 // Modify attributes of a guild member. Returns a 200 OK with the guild member as the body. Fires a Guild Member Update Gateway event. If the channel_id is set to null, this will force the target user to be disconnected from voice.
 pub fn (rest &REST) edit_guild_member(guild_id Snowflake, user_id Snowflake, params EditGuildMemberParams) !GuildMember {
-	return GuildMember.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
-		json: params.build()
+	return GuildMember.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1667,29 +1673,33 @@ pub fn (params EditCurrentMemberParams) build() json2.Any {
 
 // Modifies the current member in a guild. Returns a 200 with the updated member object on success. Fires a Guild Member Update Gateway event.
 pub fn (rest &REST) edit_my_guild_member(guild_id Snowflake, params EditCurrentMemberParams) !GuildMember {
-	return GuildMember.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/members/@me',
-		json: params.build()
+	return GuildMember.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/@me',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Adds a role to a guild member. Requires the `.manage_roles` permission. Returns a 204 empty response on success. Fires a Guild Member Update Gateway event.
 pub fn (rest &REST) add_guild_member_role(guild_id Snowflake, user_id Snowflake, role_id Snowflake, params ReasonParam) ! {
-	rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}/roles/${urllib.path_escape(role_id.str())}',
+	rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}/roles/${urllib.path_escape(role_id.str())}',
 		reason: params.reason
 	)!
 }
 
 // Removes a role from a guild member. Requires the `.manage_roles` permission. Returns a 204 empty response on success. Fires a Guild Member Update Gateway event.
 pub fn (rest &REST) remove_guild_member_role(guild_id Snowflake, user_id Snowflake, role_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}/roles/${urllib.path_escape(role_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}/roles/${urllib.path_escape(role_id.str())}',
 		reason: params.reason
 	)!
 }
 
 // Remove a member from a guild. Requires `.kick_members` permission. Returns a 204 empty response on success. Fires a Guild Member Remove Gateway event.
 pub fn (rest &REST) remove_guild_member(guild_id Snowflake, user_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/members/${urllib.path_escape(user_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -1712,7 +1722,7 @@ pub fn Ban.parse(j json2.Any) !Ban {
 				} else {
 					none
 				}
-				user: User.parse(j['user']!)!
+				user:   User.parse(j['user']!)!
 			}
 		}
 		else {
@@ -1748,7 +1758,8 @@ pub fn (params FetchGuildBansParams) build_query_values() urllib.Values {
 
 // Returns a list of ban objects for the users banned from this guild. Requires the `.ban_members` permission.
 pub fn (rest &REST) fetch_guild_bans(guild_id Snowflake, params FetchGuildBansParams) ![]Ban {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/bans',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/bans',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !Ban {
 		return Ban.parse(j)!
@@ -1757,7 +1768,8 @@ pub fn (rest &REST) fetch_guild_bans(guild_id Snowflake, params FetchGuildBansPa
 
 // Returns a ban object for the given user or a 404 not found if the ban cannot be found. Requires the `.ban_members` permission.
 pub fn (rest &REST) fetch_guild_ban(guild_id Snowflake, user_id Snowflake) !Ban {
-	return Ban.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}')!.body)!)!
+	return Ban.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -1778,8 +1790,9 @@ pub fn (params CreateGuildBanParams) build() json2.Any {
 
 // Create a guild ban, and optionally delete previous messages sent by the banned user. Requires the `.ban_members` permission. Returns a 204 empty response on success. Fires a Guild Ban Add Gateway event.
 pub fn (rest &REST) create_guild_ban(guild_id Snowflake, user_id Snowflake, params CreateGuildBanParams) ! {
-	rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}',
-		json: params.build()
+	rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!
 }
@@ -1847,23 +1860,25 @@ pub fn (params BulkGuildBanParams) build() json2.Any {
 
 // Ban up to 200 users from a guild, and optionally delete previous messages sent by the banned users. Requires both the `.ban_members` and `.manage_guild` permissions. Returns 200 response on success, including a field `banned_users` with the IDs of the banned users and `failed_users` with all that were not be banned. The list of `failed_users` will also include all users that were already banned.
 pub fn (rest &REST) bulk_guild_ban(guild_id Snowflake, params BulkGuildBanParams) !BulkBanResponse {
-	return BulkBanResponse.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/bulk-ban',
-		json: params.build()
+	return BulkBanResponse.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/bulk-ban',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Remove the ban for a user. Requires the `.ban_members` permissions. Returns a 204 empty response on success. Fires a Guild Ban Remove Gateway event.
 pub fn (rest &REST) remove_guild_ban(guild_id Snowflake, user_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/bans/${urllib.path_escape(user_id.str())}',
 		reason: params.reason
 	)!
 }
 
 // Returns a list of role objects for the guild.
 pub fn (rest &REST) fetch_guild_roles(guild_id Snowflake) ![]Role {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/roles')!.body)! as []json2.Any,
-		fn (j json2.Any) !Role {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/roles')!.body)! as []json2.Any, fn (j json2.Any) !Role {
 		return Role.parse(j)!
 	})!
 }
@@ -1925,8 +1940,9 @@ pub fn (params CreateGuildRoleParams) build() json2.Any {
 
 // Create a new role for the guild. Requires the `.manage_roles` permission. Returns the new [role](#Role) object on success. Fires a Guild Role Create Gateway event. All JSON params are optional.
 pub fn (rest &REST) create_guild_role(guild_id Snowflake, params CreateGuildRoleParams) !Role {
-	return Role.parse(json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/roles',
-		json: params.build()
+	return Role.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/roles',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1955,8 +1971,9 @@ pub fn (params EditGuildRolePositionsParams) build() json2.Any {
 
 // Modify the positions of a set of role objects for the guild. Requires the `.manage_roles` permission. Returns a list of all of the guild's role objects on success. Fires multiple Guild Role Update Gateway events.
 pub fn (rest &REST) edit_guild_role_positions(guild_id Snowflake, params []EditGuildRolePositionsParams, params2 ReasonParam) ![]Role {
-	return maybe_map(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape((guild_id.str()))}/roles',
-		json: params.map(|p| p.build())
+	return maybe_map(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape((guild_id.str()))}/roles',
+		json:   params.map(|p| p.build())
 		reason: params2.reason
 	)!.body)! as []json2.Any, fn (j json2.Any) !Role {
 		return Role.parse(j)!
@@ -2031,8 +2048,9 @@ pub fn (params EditGuildRoleParams) build() json2.Any {
 
 // Modify a guild role. Requires the `.manage_roles` permission. Returns the updated role on success. Fires a Guild Role Update Gateway event.
 pub fn (rest &REST) edit_guild_role(guild_id Snowflake, role_id Snowflake, params EditGuildRoleParams) !Role {
-	return Role.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/roles/${urllib.path_escape(role_id.str())}',
-		json: params.build()
+	return Role.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/roles/${urllib.path_escape(role_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -2040,7 +2058,8 @@ pub fn (rest &REST) edit_guild_role(guild_id Snowflake, role_id Snowflake, param
 // Modify a guild's MFA level. Requires guild ownership. Returns the updated level on success. Fires a Guild Update Gateway event.
 pub fn (rest &REST) edit_guild_mfa_level(guild_id Snowflake, level MFALevel, params ReasonParam) !MFALevel {
 	return unsafe {
-		MFALevel((json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/mfa',
+		MFALevel((json2.decode[json2.Any](rest.request(.patch,
+			'/guilds/${urllib.path_escape(guild_id.str())}/mfa',
 			json: {
 				'level': json2.Any(int(level))
 			}
@@ -2050,7 +2069,8 @@ pub fn (rest &REST) edit_guild_mfa_level(guild_id Snowflake, level MFALevel, par
 
 // Delete a guild role. Requires the `.manage_roles` permission. Returns a 204 empty response on success. Fires a Guild Role Delete Gateway event.
 pub fn (rest &REST) delete_guild_role(guild_id Snowflake, role_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/roles/${urllib.path_escape(role_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/roles/${urllib.path_escape(role_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -2076,7 +2096,8 @@ pub fn (params FetchGuildPruneCountParams) build_values() urllib.Values {
 // Returns an object with one pruned key indicating the number of members that would be removed in a prune operation. Requires the `.kick_members` permission.
 // By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the include_roles parameter. Any inactive user that has a subset of the provided role(s) will be counted in the prune and users with additional roles will not.
 pub fn (rest &REST) fetch_guild_prune_count(guild_id Snowflake, params FetchGuildPruneCountParams) !int {
-	return (json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/prune')!.body)! as map[string]json2.Any)['pruned']!.int()
+	return (json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/prune')!.body)! as map[string]json2.Any)['pruned']!.int()
 }
 
 @[params]
@@ -2108,8 +2129,9 @@ pub fn (params BeginGuildPruneParams) build() json2.Any {
 
 // Begin a prune operation. Requires the `.kick_members` permission. Returns an object with one pruned key indicating the number of members that were removed in the prune operation. For large guilds it's recommended to set the compute_prune_count option to false, forcing pruned to null. Fires multiple Guild Member Remove Gateway events.
 pub fn (rest &REST) begin_guild_prune(guild_id Snowflake, params BeginGuildPruneParams) !int {
-	i := (json2.raw_decode(rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/prune',
-		json: params.build()
+	i := (json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/prune',
+		json:   params.build()
 		reason: params.reason
 	)!.body)! as map[string]json2.Any)['pruned']!
 	return if i !is json2.Null {
@@ -2121,16 +2143,16 @@ pub fn (rest &REST) begin_guild_prune(guild_id Snowflake, params BeginGuildPrune
 
 // Returns a list of [voice region](#VoiceRegion) objects for the guild. Unlike the similar /voice route, this returns VIP servers when the guild is VIP-enabled.
 pub fn (rest &REST) fetch_guild_voice_regions(guild_id Snowflake) ![]VoiceRegion {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/regions')!.body)! as []json2.Any,
-		fn (j json2.Any) !VoiceRegion {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/regions')!.body)! as []json2.Any, fn (j json2.Any) !VoiceRegion {
 		return VoiceRegion.parse(j)!
 	})!
 }
 
 // Returns a list of [invite](#Invite) objects (with [invite metadata](#InviteMetadata)) for the guild. Requires the `.manage_guild` permission.
 pub fn (rest &REST) fetch_guild_invites(guild_id Snowflake) ![]InviteMetadata {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/invites')!.body)! as []json2.Any,
-		fn (j json2.Any) !InviteMetadata {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/invites')!.body)! as []json2.Any, fn (j json2.Any) !InviteMetadata {
 		return InviteMetadata.parse(j)!
 	})!
 }
@@ -2152,8 +2174,8 @@ pub fn IntegrationAccount.parse(j json2.Any) !IntegrationAccount {
 	match j {
 		map[string]json2.Any {
 			return IntegrationAccount{
-				id: j['id']! as string
-				name: j['name']! as string
+				id:   json_string(j, 'id')!
+				name: json_string(j, 'name')!
 			}
 		}
 		else {
@@ -2181,15 +2203,15 @@ pub fn IntegrationApplication.parse(j json2.Any) !IntegrationApplication {
 		map[string]json2.Any {
 			icon := j['icon']!
 			return IntegrationApplication{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				icon: if icon !is json2.Null {
+				id:          Snowflake.parse(j['id']!)!
+				name:        json_string(j, 'name')!
+				icon:        if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				description: j['description']! as string
-				bot: if o := j['bot'] {
+				description: json_string(j, 'description')!
+				bot:         if o := j['bot'] {
 					User.parse(o)!
 				} else {
 					none
@@ -2242,26 +2264,26 @@ pub fn Integration.parse(j json2.Any) !Integration {
 	match j {
 		map[string]json2.Any {
 			return Integration{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				typ: j['type']! as string
-				enabled: j['enabled']! as bool
-				syncing: if b := j['syncing'] {
+				id:                  Snowflake.parse(j['id']!)!
+				name:                json_string(j, 'name')!
+				typ:                 json_string(j, 'type')!
+				enabled:             json_bool(j, 'enabled')!
+				syncing:             if b := j['syncing'] {
 					b as bool
 				} else {
 					none
 				}
-				role_id: if s := j['role_id'] {
+				role_id:             if s := j['role_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				enable_emoticons: if b := j['enable_emoticons'] {
+				enable_emoticons:    if b := j['enable_emoticons'] {
 					b as bool
 				} else {
 					none
 				}
-				expire_behavior: if i := j['expire_behavior'] {
+				expire_behavior:     if i := j['expire_behavior'] {
 					unsafe { IntegrationExpireBehavior(i.int()) }
 				} else {
 					none
@@ -2271,33 +2293,33 @@ pub fn Integration.parse(j json2.Any) !Integration {
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:                if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				account: IntegrationAccount.parse(j['account']!)!
-				synced_at: if s := j['synced_at'] {
+				account:             IntegrationAccount.parse(j['account']!)!
+				synced_at:           if s := j['synced_at'] {
 					time.parse_iso8601(s as string)!
 				} else {
 					none
 				}
-				subscriber_count: if i := j['subscriber_count'] {
+				subscriber_count:    if i := j['subscriber_count'] {
 					i.int()
 				} else {
 					none
 				}
-				revoked: if b := j['revoked'] {
+				revoked:             if b := j['revoked'] {
 					b as bool
 				} else {
 					none
 				}
-				application: if o := j['application'] {
+				application:         if o := j['application'] {
 					IntegrationApplication.parse(o)!
 				} else {
 					none
 				}
-				scopes: if a := j['scopes'] {
+				scopes:              if a := j['scopes'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
@@ -2350,38 +2372,38 @@ pub fn PartialIntegration.parse(j json2.Any) !PartialIntegration {
 	match j {
 		map[string]json2.Any {
 			return PartialIntegration{
-				id: Snowflake.parse(j['id']!)!
-				name: if s := j['name'] {
+				id:                  Snowflake.parse(j['id']!)!
+				name:                if s := j['name'] {
 					s as string
 				} else {
 					none
 				}
-				typ: if s := j['type'] {
+				typ:                 if s := j['type'] {
 					s as string
 				} else {
 					none
 				}
-				enabled: if b := j['enabled'] {
+				enabled:             if b := j['enabled'] {
 					b as bool
 				} else {
 					none
 				}
-				syncing: if b := j['syncing'] {
+				syncing:             if b := j['syncing'] {
 					b as bool
 				} else {
 					none
 				}
-				role_id: if s := j['role_id'] {
+				role_id:             if s := j['role_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				enable_emoticons: if b := j['enable_emoticons'] {
+				enable_emoticons:    if b := j['enable_emoticons'] {
 					b as bool
 				} else {
 					none
 				}
-				expire_behavior: if i := j['expire_behavior'] {
+				expire_behavior:     if i := j['expire_behavior'] {
 					unsafe { IntegrationExpireBehavior(i.int()) }
 				} else {
 					none
@@ -2391,33 +2413,33 @@ pub fn PartialIntegration.parse(j json2.Any) !PartialIntegration {
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:                if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				account: IntegrationAccount.parse(j['account']!)!
-				synced_at: if s := j['synced_at'] {
+				account:             IntegrationAccount.parse(j['account']!)!
+				synced_at:           if s := j['synced_at'] {
 					time.parse_iso8601(s as string)!
 				} else {
 					none
 				}
-				subscriber_count: if i := j['subscriber_count'] {
+				subscriber_count:    if i := j['subscriber_count'] {
 					i.int()
 				} else {
 					none
 				}
-				revoked: if b := j['revoked'] {
+				revoked:             if b := j['revoked'] {
 					b as bool
 				} else {
 					none
 				}
-				application: if o := j['application'] {
+				application:         if o := j['application'] {
 					IntegrationApplication.parse(o)!
 				} else {
 					none
 				}
-				scopes: if a := j['scopes'] {
+				scopes:              if a := j['scopes'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
@@ -2442,7 +2464,7 @@ pub fn Integration2.parse(j json2.Any) !Integration2 {
 		map[string]json2.Any {
 			return Integration2{
 				Integration: Integration.parse(j)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				guild_id:    Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -2454,15 +2476,16 @@ pub fn Integration2.parse(j json2.Any) !Integration2 {
 // Returns a list of [integration](#Integration) objects for the guild. Requires the `.manage_guild` permission.
 // > i This endpoint returns a maximum of 50 integrations. If a guild has more integrations, they cannot be accessed.
 pub fn (rest &REST) fetch_guild_integrations(guild_id Snowflake) ![]Integration {
-	return maybe_map(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/integrations')!.body)! as []json2.Any,
-		fn (j json2.Any) !Integration {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/integrations')!.body)! as []json2.Any, fn (j json2.Any) !Integration {
 		return Integration.parse(j)!
 	})!
 }
 
 // Delete the attached integration object for the guild. Deletes any associated webhooks and kicks the associated bot if there is one. Requires the `.manage_guild` permission. Returns a 204 empty response on success. Fires Guild Integrations Update and Integration Delete Gateway events.
 pub fn (rest &REST) delete_guild_integration(guild_id Snowflake, integration_id Snowflake) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/integrations/${urllib.path_escape(integration_id.str())}')!
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/integrations/${urllib.path_escape(integration_id.str())}')!
 }
 
 pub struct GuildWidgetSettings {
@@ -2478,7 +2501,7 @@ pub fn GuildWidgetSettings.parse(j json2.Any) !GuildWidgetSettings {
 		map[string]json2.Any {
 			channel_id := j['channel_id']!
 			return GuildWidgetSettings{
-				enabled: j['enabled']! as bool
+				enabled:    json_bool(j, 'enabled')!
 				channel_id: if channel_id !is json2.Null {
 					Snowflake.parse(channel_id)!
 				} else {
@@ -2494,7 +2517,8 @@ pub fn GuildWidgetSettings.parse(j json2.Any) !GuildWidgetSettings {
 
 // Returns a guild widget settings object. Requires the `.manage_guild` permission.
 pub fn (rest &REST) fetch_guild_widget_settings(guild_id Snowflake) !GuildWidgetSettings {
-	return GuildWidgetSettings.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/widget')!.body)!)!
+	return GuildWidgetSettings.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/widget')!.body)!)!
 }
 
 @[params]
@@ -2524,8 +2548,9 @@ pub fn (params EditGuildWidgetParams) build() json2.Any {
 
 // Modify a guild widget settings object for the guild. All attributes may be passed in with JSON and modified. Requires the `.manage_guild` permission. Returns the updated guild widget settings object. Fires a Guild Update Gateway event.
 pub fn (rest &REST) edit_guild_widget_settings(guild_id Snowflake, params EditGuildWidgetParams) !GuildWidgetSettings {
-	return GuildWidgetSettings.parse(json2.raw_decode(rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/widget',
-		json: params.build()
+	return GuildWidgetSettings.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/widget',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -2551,17 +2576,17 @@ pub fn GuildWidget.parse(j json2.Any) !GuildWidget {
 		map[string]json2.Any {
 			instant_invite := j['instant_invite']!
 			return GuildWidget{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
+				id:             Snowflake.parse(j['id']!)!
+				name:           json_string(j, 'name')!
 				instant_invite: if instant_invite !is json2.Null {
 					instant_invite as string
 				} else {
 					none
 				}
-				channels: maybe_map(j['channels']! as []json2.Any, fn (k json2.Any) !PartialChannel {
+				channels:       maybe_map(json_array(j, 'channels')!, fn (k json2.Any) !PartialChannel {
 					return PartialChannel.parse(k)!
 				})!
-				members: maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !PartialUser {
+				members:        maybe_map(json_array(j, 'members')!, fn (k json2.Any) !PartialUser {
 					return PartialUser.parse(k)!
 				})!
 				presence_count: j['presence_count']!.int()
@@ -2575,7 +2600,8 @@ pub fn GuildWidget.parse(j json2.Any) !GuildWidget {
 
 // Returns the widget for the guild. Fires an Invite Create Gateway event when an invite channel is defined and a new Invite is generated.
 pub fn (rest &REST) fetch_guild_widget(guild_id Snowflake) !GuildWidget {
-	return GuildWidget.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/widget.json')!.body)!)!
+	return GuildWidget.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/widget.json')!.body)!)!
 }
 
 pub struct GuildVanityUrl {
@@ -2605,12 +2631,14 @@ pub fn GuildVanityUrl.parse(j json2.Any) !GuildVanityUrl {
 
 // Returns a partial invite object for guilds with that feature enabled. Requires the `.manage_guild` permission. `code` will be none if a vanity url for the guild is not set.
 pub fn (rest &REST) fetch_guild_vanity_url(guild_id Snowflake) !GuildVanityUrl {
-	return GuildVanityUrl.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/vanity-url')!.body)!)!
+	return GuildVanityUrl.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/vanity-url')!.body)!)!
 }
 
 // Returns the Welcome Screen object for the guild. If the welcome screen is not enabled, the `.manage_guild` permission is required.
 pub fn (rest &REST) fetch_guild_welcome_screen(guild_id Snowflake) !WelcomeScreen {
-	return WelcomeScreen.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/welcome-screen')!.body)!)!
+	return WelcomeScreen.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/welcome-screen')!.body)!)!
 }
 
 @[params]
@@ -2669,24 +2697,24 @@ pub fn PromptOption.parse(j json2.Any) !PromptOption {
 	match j {
 		map[string]json2.Any {
 			return PromptOption{
-				id: Snowflake.parse(j['id']!)!
-				channel_ids: maybe_map(j['channel_ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				id:             Snowflake.parse(j['id']!)!
+				channel_ids:    maybe_map(json_array(j, 'channel_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				role_ids: maybe_map(j['role_ids']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				role_ids:       maybe_map(json_array(j, 'role_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				emoji: if o := j['emoji'] {
+				emoji:          if o := j['emoji'] {
 					Emoji.parse(o)!
 				} else {
 					none
 				}
-				emoji_id: if s := j['emoji_id'] {
+				emoji_id:       if s := j['emoji_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				emoji_name: if s := j['emoji_name'] {
+				emoji_name:     if s := j['emoji_name'] {
 					s as string
 				} else {
 					none
@@ -2696,8 +2724,8 @@ pub fn PromptOption.parse(j json2.Any) !PromptOption {
 				} else {
 					none
 				}
-				title: j['title']! as string
-				description: j['description']! as string
+				title:          json_string(j, 'title')!
+				description:    json_string(j, 'description')!
 			}
 		}
 		else {
@@ -2752,15 +2780,15 @@ pub fn OnboardingPrompt.parse(j json2.Any) !OnboardingPrompt {
 	match j {
 		map[string]json2.Any {
 			return OnboardingPrompt{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { PromptType(j['type']!.int()) }
-				options: maybe_map(j['options']! as []json2.Any, fn (k json2.Any) !PromptOption {
+				id:            Snowflake.parse(j['id']!)!
+				typ:           unsafe { PromptType(j['type']!.int()) }
+				options:       maybe_map(json_array(j, 'options')!, fn (k json2.Any) !PromptOption {
 					return PromptOption.parse(k)!
 				})!
-				title: j['title']! as string
-				single_select: j['single_select']! as bool
-				required: j['required']! as bool
-				in_onboarding: j['in_onboarding']! as bool
+				title:         json_string(j, 'title')!
+				single_select: json_bool(j, 'single_select')!
+				required:      json_bool(j, 'required')!
+				in_onboarding: json_bool(j, 'in_onboarding')!
 			}
 		}
 		else {
@@ -2806,16 +2834,15 @@ pub fn GuildOnboarding.parse(j json2.Any) !GuildOnboarding {
 	match j {
 		map[string]json2.Any {
 			return GuildOnboarding{
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				prompts: maybe_map(j['prompts']! as []json2.Any, fn (k json2.Any) !OnboardingPrompt {
+				guild_id:            Snowflake.parse(j['guild_id']!)!
+				prompts:             maybe_map(json_array(j, 'prompts')!, fn (k json2.Any) !OnboardingPrompt {
 					return OnboardingPrompt.parse(k)!
 				})!
-				default_channel_ids: maybe_map(j['default_channel_ids']! as []json2.Any,
-					fn (k json2.Any) !Snowflake {
+				default_channel_ids: maybe_map(json_array(j, 'default_channel_ids')!, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				enabled: j['enabled']! as bool
-				mode: unsafe { OnboardingMode(j['mode']!.int()) }
+				enabled:             json_bool(j, 'enabled')!
+				mode:                unsafe { OnboardingMode(j['mode']!.int()) }
 			}
 		}
 		else {
@@ -2826,7 +2853,8 @@ pub fn GuildOnboarding.parse(j json2.Any) !GuildOnboarding {
 
 // Returns the Onboarding object for the guild.
 pub fn (rest &REST) fetch_guild_onboarding(guild_id Snowflake) !GuildOnboarding {
-	return GuildOnboarding.parse(json2.raw_decode(rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/onboarding')!.body)!)!
+	return GuildOnboarding.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/onboarding')!.body)!)!
 }
 
 @[params]
@@ -2863,8 +2891,9 @@ pub fn (params EditGuildOnboardingParams) build() json2.Any {
 // Modifies the onboarding configuration of the guild. Returns a 200 with the Onboarding object for the guild. Requires the `.manage_guild` and `.manage_roles` permissions.
 // > i Onboarding enforces constraints when enabled. These constraints are that there must be at least 7 Default Channels and at least 5 of them must allow sending messages to the @everyone role. The mode field modifies what is considered when enforcing these constraints.
 pub fn (rest &REST) edit_guild_onboarding(guild_id Snowflake, params EditGuildOnboardingParams) !GuildOnboarding {
-	return GuildOnboarding.parse(json2.raw_decode(rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/onboarding',
-		json: params.build()
+	return GuildOnboarding.parse(json2.decode[json2.Any](rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/onboarding',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -2941,7 +2970,8 @@ pub fn (params EditUserVoiceStateParams) build() json2.Any {
 // - When unsuppressed, non-bot users will have their `request_to_speak_timestamp` set to the current time. Bot users will not.
 // - When suppressed, the user will have their `request_to_speak_timestamp` removed.
 pub fn (rest &REST) edit_user_voice_state(guild_id Snowflake, user_id Snowflake, params EditUserVoiceStateParams) ! {
-	rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/voice-states/${urllib.path_escape(user_id.str())}',
+	rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/voice-states/${urllib.path_escape(user_id.str())}',
 		json: params.build()
 	)!
 }
@@ -2976,7 +3006,8 @@ pub fn (params EditGuildIncidentActionsParams) build() json2.Any {
 
 // Modifies the incident actions of the guild. Returns a 200 with the [Incidents Data](#IncidentsData) object for the guild. Requires the `.manage_guild` permission.
 pub fn (rest &REST) edit_guild_incident_actions(guild_id Snowflake, params EditGuildIncidentActionsParams) !IncidentsData {
-	return IncidentsData.parse(json2.raw_decode(rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/incident-actions',
+	return IncidentsData.parse(json2.decode[json2.Any](rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/incident-actions',
 		json: params.build()
 	)!.body)!)!
 }

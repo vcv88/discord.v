@@ -120,7 +120,7 @@ pub fn (cc CurlClient) perform(req http.Request) !http.Response {
 		body: body.str()
 		// header
 		status_code: status_code
-		status_msg: unsafe { http.Status(status_code).str() }
+		status_msg:  unsafe { http.Status(status_code).str() }
 	}
 }
 
