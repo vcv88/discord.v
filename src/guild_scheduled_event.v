@@ -92,14 +92,14 @@ pub fn GuildScheduledEvent.parse(j json2.Any) !GuildScheduledEvent {
 			scheduled_end_time := j['scheduled_end_time']!
 			entity_metadata := j['entity_metadata']!
 			return GuildScheduledEvent{
-				id: Snowflake.parse(j['id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				channel_id: if channel_id !is json2.Null {
+				id:                   Snowflake.parse(j['id']!)!
+				guild_id:             Snowflake.parse(j['guild_id']!)!
+				channel_id:           if channel_id !is json2.Null {
 					Snowflake.parse(channel_id)!
 				} else {
 					none
 				}
-				creator_id: if s := j['creator_id'] {
+				creator_id:           if s := j['creator_id'] {
 					if s !is json2.Null {
 						Snowflake.parse(s)!
 					} else {
@@ -108,8 +108,8 @@ pub fn GuildScheduledEvent.parse(j json2.Any) !GuildScheduledEvent {
 				} else {
 					none
 				}
-				name: j['name']! as string
-				description: if s := j['description'] {
+				name:                 j['name']! as string
+				description:          if s := j['description'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -119,30 +119,30 @@ pub fn GuildScheduledEvent.parse(j json2.Any) !GuildScheduledEvent {
 					none
 				}
 				scheduled_start_time: time.parse_iso8601(j['scheduled_start_time']! as string)!
-				scheduled_end_time: if scheduled_end_time !is json2.Null {
+				scheduled_end_time:   if scheduled_end_time !is json2.Null {
 					time.parse_iso8601(scheduled_end_time as string)!
 				} else {
 					none
 				}
-				privacy_level: unsafe { GuildScheduledEventPrivacyLevel(j['privacy_level']!.int()) }
-				status: unsafe { GuildScheduledEventStatus(j['status']!.int()) }
-				entity_type: unsafe { GuildScheduledEventEntityType(j['entity_type']!.int()) }
-				entity_metadata: if entity_metadata !is json2.Null {
+				privacy_level:        unsafe { GuildScheduledEventPrivacyLevel(j['privacy_level']!.int()) }
+				status:               unsafe { GuildScheduledEventStatus(j['status']!.int()) }
+				entity_type:          unsafe { GuildScheduledEventEntityType(j['entity_type']!.int()) }
+				entity_metadata:      if entity_metadata !is json2.Null {
 					GuildScheduledEventEntityMetadata.parse(entity_metadata)!
 				} else {
 					none
 				}
-				creator: if o := j['creator'] {
+				creator:              if o := j['creator'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				user_count: if i := j['user_count'] {
+				user_count:           if i := j['user_count'] {
 					i.int()
 				} else {
 					none
 				}
-				image: if s := j['image'] {
+				image:                if s := j['image'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -176,7 +176,8 @@ pub fn (params FetchScheduledEventsParams) build_query_values() urllib.Values {
 
 // Returns a list of [guild scheduled event](#GuildScheduledEvent) objects for the given guild.
 pub fn (rest &REST) list_scheduled_events_for_guild(guild_id Snowflake, params FetchScheduledEventsParams) ![]GuildScheduledEvent {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (k json2.Any) !GuildScheduledEvent {
 		return GuildScheduledEvent.parse(k)!
@@ -235,15 +236,17 @@ pub fn (params CreateGuildScheduledEventParams) build() json2.Any {
 // Create a guild scheduled event in the guild. Returns a [guild scheduled event](#GuildScheduledEvent) object on success. Fires a Guild Scheduled Event Create Gateway event.
 // > i A guild can have a maximum of 100 events with `.scheduled` or `.active` status at any time.
 pub fn (rest &REST) create_guild_scheduled_event(guild_id Snowflake, params CreateGuildScheduledEventParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
-		json: params.build()
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Get a guild scheduled event. Returns a guild scheduled event object on success.
 pub fn (rest &REST) fetch_guild_scheduled_event(guild_id Snowflake, guild_scheduled_event_id Snowflake, params FetchScheduledEventsParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -328,15 +331,17 @@ pub fn (params EditGuildScheduledEventParams) build() json2.Any {
 // > i To start or end an event, use this function to modify the event's status field.
 // > i This endpoint silently discards `entity_metadata` for non-`.external` events.
 pub fn (rest &REST) edit_guild_scheduled_event(guild_id Snowflake, guild_scheduled_event_id Snowflake, params EditGuildScheduledEventParams) !GuildScheduledEvent {
-	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
-		json: params.build()
+	return GuildScheduledEvent.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Delete a guild scheduled event. Returns a 204 on success. Fires a Guild Scheduled Event Delete Gateway event.
 pub fn (rest &REST) delete_guild_scheduled_event(guild_id Snowflake, guild_scheduled_event_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/${urllib.path_escape(guild_scheduled_event_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -356,8 +361,8 @@ pub fn GuildScheduledEventUser.parse(j json2.Any) !GuildScheduledEventUser {
 		map[string]json2.Any {
 			return GuildScheduledEventUser{
 				guild_scheduled_event_id: Snowflake.parse(j['guild_scheduled_event_id']!)!
-				user: User.parse(j['user']!)!
-				member: if o := j['member'] {
+				user:                     User.parse(j['user']!)!
+				member:                   if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
@@ -402,7 +407,8 @@ pub fn (params FetchGuildScheduledEventUsersParams) build_query_values() urllib.
 
 // Get a list of guild scheduled event users subscribed to a guild scheduled event. Returns a list of [guild scheduled event user](#GuildScheduledEventUser) objects on success. Guild member data, if it exists, is included if the `with_member` parameter is set.
 pub fn (rest &REST) fetch_guild_scheduled_event_users(guild_id Snowflake, guild_scheduled_event_id Snowflake, params FetchGuildScheduledEventUsersParams) ![]GuildScheduledEventUser {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/users',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/scheduled-events/users',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (k json2.Any) !GuildScheduledEventUser {
 		return GuildScheduledEventUser.parse(k)!

@@ -20,7 +20,7 @@ pub fn PartialEmoji.parse(j json2.Any) !PartialEmoji {
 	match j {
 		map[string]json2.Any {
 			return PartialEmoji{
-				id: if s := j['id'] {
+				id:             if s := j['id'] {
 					if s !is json2.Null {
 						Snowflake.parse(s)!
 					} else {
@@ -29,15 +29,15 @@ pub fn PartialEmoji.parse(j json2.Any) !PartialEmoji {
 				} else {
 					none
 				}
-				name: j['name']! as string
-				roles: if a := j['roles'] {
+				name:           j['name']! as string
+				roles:          if a := j['roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:           if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
@@ -47,17 +47,17 @@ pub fn PartialEmoji.parse(j json2.Any) !PartialEmoji {
 				} else {
 					none
 				}
-				managed: if b := j['managed'] {
+				managed:        if b := j['managed'] {
 					b as bool
 				} else {
 					none
 				}
-				animated: if b := j['animated'] {
+				animated:       if b := j['animated'] {
 					b as bool
 				} else {
 					none
 				}
-				available: if b := j['available'] {
+				available:      if b := j['available'] {
 					b as bool
 				} else {
 					none
@@ -88,24 +88,24 @@ pub fn Emoji.parse(j json2.Any) !Emoji {
 			id := j['id']!
 			name := j['name']!
 			return Emoji{
-				id: if id !is json2.Null {
+				id:             if id !is json2.Null {
 					Snowflake.parse(id)!
 				} else {
 					none
 				}
-				name: if name !is json2.Null {
+				name:           if name !is json2.Null {
 					name as string
 				} else {
 					none
 				}
-				roles: if a := j['roles'] {
+				roles:          if a := j['roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:           if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
@@ -115,17 +115,17 @@ pub fn Emoji.parse(j json2.Any) !Emoji {
 				} else {
 					none
 				}
-				managed: if b := j['managed'] {
+				managed:        if b := j['managed'] {
 					b as bool
 				} else {
 					none
 				}
-				animated: if b := j['animated'] {
+				animated:       if b := j['animated'] {
 					b as bool
 				} else {
 					none
 				}
-				available: if b := j['available'] {
+				available:      if b := j['available'] {
 					b as bool
 				} else {
 					none
@@ -150,7 +150,7 @@ pub fn ReactionCountDetails.parse(j json2.Any) !ReactionCountDetails {
 	match j {
 		map[string]json2.Any {
 			return ReactionCountDetails{
-				burst: j['burst']!.int()
+				burst:  j['burst']!.int()
 				normal: j['normal']!.int()
 			}
 		}
@@ -180,12 +180,12 @@ pub fn Reaction.parse(j json2.Any) !Reaction {
 	match j {
 		map[string]json2.Any {
 			return Reaction{
-				count: j['count']!.int()
+				count:         j['count']!.int()
 				count_details: ReactionCountDetails.parse(j['count_details']!)!
-				me: j['me']! as bool
-				me_burst: j['me_burst']! as bool
-				emoji: PartialEmoji.parse(j['emoji']!)!
-				burst_colors: maybe_map(j['burst_colors']! as []json2.Any, fn (k json2.Any) !int {
+				me:            j['me']! as bool
+				me_burst:      j['me_burst']! as bool
+				emoji:         PartialEmoji.parse(j['emoji']!)!
+				burst_colors:  maybe_map(j['burst_colors']! as []json2.Any, fn (k json2.Any) !int {
 					return int(strconv.parse_uint((k as string)[1..], 16, 24)!)
 				})!
 			}
@@ -198,15 +198,16 @@ pub fn Reaction.parse(j json2.Any) !Reaction {
 
 // Returns a list of [emoji](#Emoji) objects for the given guild. Includes user fields if the bot has the `.create_guild_expressions` or `.manage_guild_expressions` permission.
 pub fn (rest &REST) list_guild_emojis(guild_id Snowflake) ![]Emoji {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/emojis')!.body)! as []json2.Any,
-		fn (j json2.Any) !Emoji {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/emojis')!.body)! as []json2.Any, fn (j json2.Any) !Emoji {
 		return Emoji.parse(j)!
 	})!
 }
 
 // Returns an [emoji](#Emoji) object for the given guild and emoji IDs. Includes the user field if the bot has the `.manage_guild_expressions` permission, or if the bot created the emoji and has the the `.create_guild_expressions` permission.
 pub fn (rest &REST) fetch_guild_emoji(guild_id Snowflake, emoji_id Snowflake) !Emoji {
-	return Emoji.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}')!.body)!)!
+	return Emoji.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -234,8 +235,9 @@ pub fn (params CreateGuildEmojiParams) build() json2.Any {
 
 // Create a new emoji for the guild. Requires the `.create_guild_expressions` permission. Returns the new [emoji](#Emoji) object on success. Fires a Guild Emojis Update Gateway event.
 pub fn (rest &REST) create_guild_emoji(guild_id Snowflake, params CreateGuildEmojiParams) !Emoji {
-	return Emoji.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/emojis',
-		json: params.build()
+	return Emoji.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/emojis',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -267,15 +269,17 @@ pub fn (params EditGuildEmojiParams) build() json2.Any {
 
 // Modify the given emoji. For emojis created by the current user, requires either the `.create_guild_expressions` or `.manage_guild_expressions` permission. For other emojis, requires the `.manage_guild_expressions` permission. Returns the updated [emoji](#Emoji) object on success. Fires a Guild Emojis Update Gateway event.
 pub fn (rest &REST) edit_guild_emoji(guild_id Snowflake, emoji_id Snowflake, params EditGuildEmojiParams) !Emoji {
-	return Emoji.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}',
-		json: params.build()
+	return Emoji.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Delete the given emoji. For emojis created by the current user, requires either the `.create_guild_expressions` or `.manage_guild_expressions` permission. For other emojis, requires the `.manage_guild_expressions` permission. Returns 204 No Content on success. Fires a Guild Emojis Update Gateway event.
 pub fn (rest &REST) delete_guild_emoji(guild_id Snowflake, emoji_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/emojis/${urllib.path_escape(emoji_id.str())}',
 		reason: params.reason
 	)!
 }

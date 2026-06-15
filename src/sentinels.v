@@ -33,7 +33,7 @@ pub fn null[T]() NullOr[T] {
 pub fn some[T](val T) NullOr[T] {
 	return NullOr[T]{
 		is_null: true
-		val: val
+		val:     val
 	}
 }
 
@@ -51,11 +51,11 @@ pub fn (no NullOr[T]) value[T]() T {
 // is_sentinel reports whether `target` is sentinel
 pub fn is_sentinel[T](target T) bool {
 	$if T is Snowflake {
-		return target == discord.sentinel_snowflake
+		return target == sentinel_snowflake
 	} $else $if T is []Snowflake {
-		return target.data == discord.sentinel_snowflakes.data
+		return target.data == sentinel_snowflakes.data
 	} $else $if T is Permissions {
-		return target == discord.sentinel_permissions
+		return target == sentinel_permissions
 	} $else $if T is Image {
 		return target is NoneFile
 	} $else $if T is JpegImage || T is PngImage || T is ApngImage || T is GifImage {
@@ -63,17 +63,17 @@ pub fn is_sentinel[T](target T) bool {
 	} $else $if T is NoneFile {
 		return true
 	} $else $if T is int {
-		return target == discord.sentinel_int
+		return target == sentinel_int
 	} $else $if T is time.Time {
-		return target == discord.sentinel_time
+		return target == sentinel_time
 	} $else $if T is string {
-		return target.str == discord.sentinel_string.str
+		return target.str == sentinel_string.str
 	} $else $if T is f32 || T is f64 {
 		return math.is_nan(f64(target))
 	} $else $if T is NullOr {
 		return target.is_null()
 	} $else $if T is time.Duration {
-		return target == discord.sentinel_duration
+		return target == sentinel_duration
 	} $else {
 		$compile_error('Unknown type')
 	}

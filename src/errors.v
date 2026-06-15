@@ -25,11 +25,17 @@ fn flatten_error_dict(d map[string]json2.Any, key string) map[string]string {
 		match v {
 			map[string]json2.Any {
 				if '_errors' in v {
-					errors := v['_errors'] or { return items } as []json2.Any
+					errors_any := v['_errors'] or { return items }
+					errors := errors_any as []json2.Any
 					items[new_key] = arrays.map_indexed(errors, fn (_ int, er json2.Any) string {
 						return match er {
-							map[string]json2.Any { (er['message'] or { '' }) as string }
-							else { panic('error was not dict') }
+							map[string]json2.Any {
+								message := er['message'] or { json2.Any('') }
+								message as string
+							}
+							else {
+								panic('error was not dict')
+							}
 						}
 					}).join(' ')
 				} else {

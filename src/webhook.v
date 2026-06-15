@@ -6,7 +6,7 @@ import x.json2
 
 pub enum WebhookType {
 	// Incoming Webhooks can post messages to channels with a generated token
-	incoming         = 1
+	incoming = 1
 	// Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels
 	channel_follower
 	// Application webhooks are webhooks used with Interactions
@@ -49,9 +49,9 @@ pub fn Webhook.parse(j json2.Any) !Webhook {
 			avatar := j['avatar']!
 			application_id := j['application_id']!
 			return Webhook{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { WebhookType(j['type']!.int()) }
-				guild_id: if s := j['guild_id'] {
+				id:             Snowflake.parse(j['id']!)!
+				typ:            unsafe { WebhookType(j['type']!.int()) }
+				guild_id:       if s := j['guild_id'] {
 					if s !is json2.Null {
 						Snowflake.parse(s)!
 					} else {
@@ -60,27 +60,27 @@ pub fn Webhook.parse(j json2.Any) !Webhook {
 				} else {
 					none
 				}
-				channel_id: if channel_id !is json2.Null {
+				channel_id:     if channel_id !is json2.Null {
 					Snowflake.parse(channel_id)!
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:           if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				name: if name !is json2.Null {
+				name:           if name !is json2.Null {
 					name as string
 				} else {
 					none
 				}
-				avatar: if avatar !is json2.Null {
+				avatar:         if avatar !is json2.Null {
 					avatar as string
 				} else {
 					none
 				}
-				token: if s := j['token'] {
+				token:          if s := j['token'] {
 					s as string
 				} else {
 					none
@@ -90,7 +90,7 @@ pub fn Webhook.parse(j json2.Any) !Webhook {
 				} else {
 					none
 				}
-				source_guild: if o := j['source_guild'] {
+				source_guild:   if o := j['source_guild'] {
 					PartialGuild.parse(o)!
 				} else {
 					none
@@ -100,7 +100,7 @@ pub fn Webhook.parse(j json2.Any) !Webhook {
 				} else {
 					none
 				}
-				url: if s := j['url'] {
+				url:            if s := j['url'] {
 					s as string
 				} else {
 					none
@@ -142,36 +142,39 @@ pub fn (params CreateWebhookParams) build() json2.Any {
 // - It does not contain the substrings `clyde` or `discord` (case-insensitive)
 // - It follows the nickname guidelines in the [Usernames and Nicknames](https://discord.com/developers/docs/resources/user#usernames-and-nicknames) documentation, with an exception that webhook names can be up to 80 characters
 pub fn (rest &REST) create_webhook(channel_id Snowflake, params CreateWebhookParams) !Webhook {
-	return Webhook.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/webhooks',
-		json: params.build()
+	return Webhook.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/webhooks',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Returns a list of channel [webhook](#Webhook) objects. Requires the `.manage_webhooks` permission.
 pub fn (rest &REST) fetch_channel_webhooks(channel_id Snowflake) ![]Webhook {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/webhooks')!.body)! as []json2.Any,
-		fn (k json2.Any) !Webhook {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/webhooks')!.body)! as []json2.Any, fn (k json2.Any) !Webhook {
 		return Webhook.parse(k)!
 	})
 }
 
 // Returns a list of guild [webhook](#Webhook) objects. Requires the `.manage_webhooks` permission.
 pub fn (rest &REST) fetch_guild_webhooks(guild_id Snowflake) ![]Webhook {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/webhooks')!.body)! as []json2.Any,
-		fn (k json2.Any) !Webhook {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/webhooks')!.body)! as []json2.Any, fn (k json2.Any) !Webhook {
 		return Webhook.parse(k)!
 	})
 }
 
 // Returns the new [webhook](#Webhook) object for the given id.
 pub fn (rest &REST) fetch_webhook(webhook_id Snowflake) !Webhook {
-	return Webhook.parse(json2.decode[json2.Any](rest.request(.get, '/webhooks/${urllib.path_escape(webhook_id.str())}')!.body)!)!
+	return Webhook.parse(json2.decode[json2.Any](rest.request(.get,
+		'/webhooks/${urllib.path_escape(webhook_id.str())}')!.body)!)!
 }
 
 // Same as above, except this call does not require authentication and returns no user in the webhook object.
 pub fn (rest &REST) fetch_webhook_with_token(webhook_id Snowflake, webhook_token string) !Webhook {
-	return Webhook.parse(json2.decode[json2.Any](rest.request(.get, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+	return Webhook.parse(json2.decode[json2.Any](rest.request(.get,
+		'/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 		authenticate: false
 	)!.body)!)!
 }
@@ -208,17 +211,19 @@ pub fn (params EditWebhookParams) build() json2.Any {
 
 // Modify a webhook. Requires the `.manage_webhooks` permission. Returns the updated [webhook](#Webhook) object on success. Fires a Webhooks Update Gateway event.
 pub fn (rest &REST) edit_webhook(webhook_id Snowflake, params EditWebhookParams) !Webhook {
-	return Webhook.parse(json2.decode[json2.Any](rest.request(.patch, '/webhooks/${urllib.path_escape(webhook_id.str())}',
-		json: params.build()
+	return Webhook.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/webhooks/${urllib.path_escape(webhook_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Same as above, except this call does not require authentication, does not accept a `channel_id` parameter in the body, and does not return a user in the webhook object.
 pub fn REST.edit_webhook_with_token(webhook_id Snowflake, webhook_token string, params EditWebhookParams) !Webhook {
-	return Webhook.parse(json2.decode[json2.Any](REST.do_request(unsafe { nil }, .patch, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
-		json: params.build()
-		reason: params.reason
+	return Webhook.parse(json2.decode[json2.Any](REST.do_request(unsafe { nil }, .patch,
+		'/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+		json:         params.build()
+		reason:       params.reason
 		authenticate: false
 	)!.body)!)!
 }
@@ -243,8 +248,9 @@ pub fn (rest &REST) delete_webhook(webhook_id Snowflake, params ReasonParam) ! {
 
 // Same as above, except this call does not require authentication.
 pub fn REST.delete_webhook_with_token(webhook_id Snowflake, webhook_token string, params ReasonParam) ! {
-	REST.do_request(unsafe { nil }, .delete, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
-		reason: params.reason
+	REST.do_request(unsafe { nil }, .delete,
+		'/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+		reason:       params.reason
 		authenticate: false
 	)!
 }
@@ -350,19 +356,21 @@ pub fn (params ExecuteWebhookParams) build_query_values() urllib.Values {
 pub fn REST.execute_webhook(webhook_id Snowflake, webhook_token string, params ExecuteWebhookParams) !&Message {
 	response := if files := params.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		REST.do_request(unsafe { nil }, .post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
-			query_params: params.build_query_values()
+		REST.do_request(unsafe { nil }, .post,
+			'/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+			query_params:   params.build_query_values()
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
-			authenticate: false
-			body: body
+			authenticate:   false
+			body:           body
 		)!
 	} else {
-		REST.do_request(unsafe { nil }, .post, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
+		REST.do_request(unsafe { nil }, .post,
+			'/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}',
 			query_params: params.build_query_values()
 			authenticate: false
-			json: params.build()
+			json:         params.build()
 		)!
 	}
 	if response.status() != .no_content {
@@ -471,19 +479,19 @@ pub fn (rest &REST) edit_webhook_message(webhook_id Snowflake, webhook_token str
 
 		rest.request(.patch, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}/messages/${unwrap_optional_id(message_id,
 			'@original')}',
-			query_params: params.build_query_values()
-			authenticate: false
+			query_params:   params.build_query_values()
+			authenticate:   false
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
-			body: body
+			body:           body
 		)!.body
 	} else {
 		rest.request(.patch, '/webhooks/${urllib.path_escape(webhook_id.str())}/${urllib.path_escape(webhook_token)}/messages/${unwrap_optional_id(message_id,
 			'@original')}',
 			query_params: params.build_query_values()
 			authenticate: false
-			json: params.build()
+			json:         params.build()
 		)!.body
 	})!)!
 }

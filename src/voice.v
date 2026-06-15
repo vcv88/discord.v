@@ -40,34 +40,34 @@ pub fn VoiceState.parse(j json2.Any) !VoiceState {
 			channel_id := j['channel_id']!
 			request_to_speak_timestamp := j['request_to_speak_timestamp']!
 			return VoiceState{
-				guild_id: if s := j['guild_id'] {
+				guild_id:                   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				channel_id: if channel_id !is json2.Null {
+				channel_id:                 if channel_id !is json2.Null {
 					Snowflake.parse(channel_id)!
 				} else {
 					none
 				}
-				user_id: Snowflake.parse(j['user_id']!)!
-				member: if o := j['member'] {
+				user_id:                    Snowflake.parse(j['user_id']!)!
+				member:                     if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
 				}
-				session_id: j['session_id']! as string
-				deaf: j['deaf']! as bool
-				mute: j['mute']! as bool
-				self_deaf: j['self_deaf']! as bool
-				self_mute: j['self_mute']! as bool
-				self_stream: if b := j['self_stream'] {
+				session_id:                 j['session_id']! as string
+				deaf:                       j['deaf']! as bool
+				mute:                       j['mute']! as bool
+				self_deaf:                  j['self_deaf']! as bool
+				self_mute:                  j['self_mute']! as bool
+				self_stream:                if b := j['self_stream'] {
 					b as bool
 				} else {
 					none
 				}
-				self_video: j['self_video']! as bool
-				suppress: j['suppress']! as bool
+				self_video:                 j['self_video']! as bool
+				suppress:                   j['suppress']! as bool
 				request_to_speak_timestamp: if request_to_speak_timestamp !is json2.Null {
 					time.parse_iso8601(request_to_speak_timestamp as string)!
 				} else {
@@ -99,11 +99,11 @@ pub fn VoiceRegion.parse(j json2.Any) !VoiceRegion {
 	match j {
 		map[string]json2.Any {
 			return VoiceRegion{
-				id: j['id']! as string
-				name: j['name']! as string
-				optimal: j['optimal']! as bool
+				id:         j['id']! as string
+				name:       j['name']! as string
+				optimal:    j['optimal']! as bool
 				deprecated: j['deprecated']! as bool
-				custom: j['custom']! as bool
+				custom:     j['custom']! as bool
 			}
 		}
 		else {
@@ -114,8 +114,7 @@ pub fn VoiceRegion.parse(j json2.Any) !VoiceRegion {
 
 // Returns an array of voice region objects that can be used when setting a voice or stage channel's `rtc_region`.
 pub fn (rest &REST) list_voice_regions() ![]VoiceRegion {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/voice/regions')!.body)! as []json2.Any,
-		fn (j json2.Any) !VoiceRegion {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/voice/regions')!.body)! as []json2.Any, fn (j json2.Any) !VoiceRegion {
 		return VoiceRegion.parse(j)!
 	})!
 }

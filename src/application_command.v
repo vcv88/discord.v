@@ -16,7 +16,7 @@ pub enum ApplicationCommandType {
 // pub type LocaleMapping = map[Locale]string
 
 pub enum ApplicationCommandOptionType {
-	sub_command       = 1
+	sub_command = 1
 	sub_command_group
 	string
 	// Any integer between -2^53 and 2^53
@@ -50,13 +50,13 @@ pub fn ApplicationCommandOptionChoice.parse(j json2.Any) !ApplicationCommandOpti
 		map[string]json2.Any {
 			value := j['value']!
 			return ApplicationCommandOptionChoice{
-				name: j['name']! as string
+				name:               j['name']! as string
 				name_localizations: if m := j['name_localizations'] {
 					parse_locales(m as map[string]json2.Any)
 				} else {
 					none
 				}
-				value: match value {
+				value:              match value {
 					string {
 						ApplicationCommandOptionChoiceValue(value)
 					}
@@ -152,9 +152,9 @@ pub fn ApplicationCommandOption.parse(j json2.Any) !ApplicationCommandOption {
 	match j {
 		map[string]json2.Any {
 			return ApplicationCommandOption{
-				typ: unsafe { ApplicationCommandOptionType(j['type']!.int()) }
-				name: j['name']! as string
-				name_localizations: if m := j['name_localizations'] {
+				typ:                       unsafe { ApplicationCommandOptionType(j['type']!.int()) }
+				name:                      j['name']! as string
+				name_localizations:        if m := j['name_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
 					} else {
@@ -163,11 +163,10 @@ pub fn ApplicationCommandOption.parse(j json2.Any) !ApplicationCommandOption {
 				} else {
 					none
 				}
-				description: j['description']! as string
+				description:               j['description']! as string
 				description_localizations: if m := j['description_localizations'] {
 					if m !is json2.Null {
-						maps.to_map[string, json2.Any, Locale, string](m as map[string]json2.Any,
-							fn (k string, v json2.Any) (Locale, string) {
+						maps.to_map[string, json2.Any, Locale, string](m as map[string]json2.Any, fn (k string, v json2.Any) (Locale, string) {
 							return k, v as string
 						})
 					} else {
@@ -176,51 +175,51 @@ pub fn ApplicationCommandOption.parse(j json2.Any) !ApplicationCommandOption {
 				} else {
 					none
 				}
-				required: if b := j['required'] {
+				required:                  if b := j['required'] {
 					b as bool
 				} else {
 					none
 				}
-				choices: if a := j['choices'] {
+				choices:                   if a := j['choices'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ApplicationCommandOptionChoice {
 						return ApplicationCommandOptionChoice.parse(k)!
 					})!
 				} else {
 					none
 				}
-				options: if a := j['options'] {
+				options:                   if a := j['options'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ApplicationCommandOption {
 						return ApplicationCommandOption.parse(k)!
 					})!
 				} else {
 					none
 				}
-				channel_types: if a := j['channel_types'] {
+				channel_types:             if a := j['channel_types'] {
 					(a as []json2.Any).map(|i| unsafe { ChannelType(i.int()) })
 				} else {
 					none
 				}
-				min_value: if v := j['min_value'] {
+				min_value:                 if v := j['min_value'] {
 					Number.parse(v)!
 				} else {
 					none
 				}
-				max_value: if v := j['max_value'] {
+				max_value:                 if v := j['max_value'] {
 					Number.parse(v)!
 				} else {
 					none
 				}
-				min_length: if i := j['min_length'] {
+				min_length:                if i := j['min_length'] {
 					i.int()
 				} else {
 					none
 				}
-				max_length: if i := j['max_length'] {
+				max_length:                if i := j['max_length'] {
 					i.int()
 				} else {
 					none
 				}
-				autocomplete: if b := j['autocomplete'] {
+				autocomplete:              if b := j['autocomplete'] {
 					b as bool
 				} else {
 					none
@@ -308,16 +307,16 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 		map[string]json2.Any {
 			default_member_permissions := j['default_member_permissions']!
 			return ApplicationCommand{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { ApplicationCommandType(j['type']!.int()) }
-				application_id: Snowflake.parse(j['application_id']!)!
-				guild_id: if s := j['guild_id'] {
+				id:                         Snowflake.parse(j['id']!)!
+				typ:                        unsafe { ApplicationCommandType(j['type']!.int()) }
+				application_id:             Snowflake.parse(j['application_id']!)!
+				guild_id:                   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				name: j['name']! as string
-				name_localizations: if m := j['name_localizations'] {
+				name:                       j['name']! as string
+				name_localizations:         if m := j['name_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
 					} else {
@@ -326,8 +325,8 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 				} else {
 					none
 				}
-				description: j['description']! as string
-				description_localizations: if m := j['description_localizations'] {
+				description:                j['description']! as string
+				description_localizations:  if m := j['description_localizations'] {
 					if m !is json2.Null {
 						parse_locales(m as map[string]json2.Any)
 					} else {
@@ -336,7 +335,7 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 				} else {
 					none
 				}
-				options: if a := j['options'] {
+				options:                    if a := j['options'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ApplicationCommandOption {
 						return ApplicationCommandOption.parse(k)!
 					})!
@@ -348,12 +347,12 @@ pub fn ApplicationCommand.parse(j json2.Any) !ApplicationCommand {
 				} else {
 					none
 				}
-				dm_permission: if b := j['dm_permission'] {
+				dm_permission:              if b := j['dm_permission'] {
 					b as bool
 				} else {
 					none
 				}
-				nsfw: if b := j['nsfw'] {
+				nsfw:                       if b := j['nsfw'] {
 					b as bool
 				} else {
 					none
@@ -382,7 +381,8 @@ pub fn (params FetchGlobalApplicationCommandsParams) build_query_values() urllib
 
 // Fetch all of the global commands for your application. Returns an array of application command objects.
 pub fn (rest &REST) fetch_global_application_commands(application_id Snowflake, params FetchGlobalApplicationCommandsParams) ![]ApplicationCommand {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/commands',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/applications/${urllib.path_escape(application_id.str())}/commands',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !ApplicationCommand {
 		return ApplicationCommand.parse(j)!
@@ -445,14 +445,16 @@ pub fn (params CreateApplicationCommandParams) build() json2.Any {
 
 // Create a new global command. Returns 201 if a command with the same name does not already exist, or a 200 if it does (in which case the previous command will be overwritten). Both responses include an application command object.
 pub fn (rest &REST) create_global_application_command(application_id Snowflake, params CreateApplicationCommandParams) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.post, '/applications/${urllib.path_escape(application_id.str())}/commands',
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.post,
+		'/applications/${urllib.path_escape(application_id.str())}/commands',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Fetch a global command for your application. Returns an application command object.
 pub fn (rest &REST) fetch_global_application_command(application_id Snowflake, command_id Snowflake) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}')!.body)!)!
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.get,
+		'/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -511,19 +513,22 @@ pub fn (params EditApplicationCommandParams) build() json2.Any {
 
 // Edit a global command. Returns application command object. All fields are optional, but any fields provided will entirely overwrite the existing values of those fields.
 pub fn (rest &REST) edit_global_application_command(application_id Snowflake, command_id Snowflake, params EditApplicationCommandParams) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.patch, '/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}',
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Deletes a global command. Returns 204 No Content on success.
 pub fn (rest &REST) delete_global_application_command(application_id Snowflake, command_id Snowflake) ! {
-	rest.request(.delete, '/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}')!
+	rest.request(.delete,
+		'/applications/${urllib.path_escape(application_id.str())}/commands/${urllib.path_escape(command_id.str())}')!
 }
 
 // Takes a list of application commands, overwriting the existing global command list for this application. Returns 200 and a list of application command objects. Commands that do not already exist will count toward daily application command create limits.
 pub fn (rest &REST) bulk_overwrite_global_application_commands(application_id Snowflake, commands []CreateApplicationCommandParams) ![]ApplicationCommand {
-	return maybe_map(json2.decode[json2.Any](rest.request(.put, '/applications/${urllib.path_escape(application_id.str())}/commands',
+	return maybe_map(json2.decode[json2.Any](rest.request(.put,
+		'/applications/${urllib.path_escape(application_id.str())}/commands',
 		json: commands.map(|c| c.build())
 	)!.body)! as []json2.Any, fn (j json2.Any) !ApplicationCommand {
 		return ApplicationCommand.parse(j)!
@@ -532,31 +537,36 @@ pub fn (rest &REST) bulk_overwrite_global_application_commands(application_id Sn
 
 // Create a new guild command. New guild commands will be available in the guild immediately. Returns 201 if a command with the same name does not already exist, or a 200 if it does (in which case the previous command will be overwritten). Both responses include an application command object.
 pub fn (rest &REST) create_guild_application_command(application_id Snowflake, guild_id Snowflake, params CreateApplicationCommandParams) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.post, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands',
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.post,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Fetch a guild command for your application. Returns an application command object.
 pub fn (rest &REST) fetch_guild_application_command(application_id Snowflake, guild_id Snowflake, command_id Snowflake) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}')!.body)!)!
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.get,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}')!.body)!)!
 }
 
 // Edit a guild command. Updates for guild commands will be available immediately. Returns application command object. All fields are optional, but any fields provided will entirely overwrite the existing values of those fields.
 pub fn (rest &REST) edit_guild_application_command(application_id Snowflake, guild_id Snowflake, command_id Snowflake, params EditApplicationCommandParams) !ApplicationCommand {
-	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.patch, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}',
+	return ApplicationCommand.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Delete a guild command. Returns 204 No Content on success.
 pub fn (rest &REST) delete_guild_application_command(application_id Snowflake, guild_id Snowflake, command_id Snowflake) ! {
-	rest.request(.delete, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}')!
+	rest.request(.delete,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/${urllib.path_escape(command_id.str())}')!
 }
 
 // Takes a list of application commands, overwriting the existing command list for this application for the targeted guild. Returns 200 and a list of application command objects.
 pub fn (rest &REST) bulk_overwrite_guild_application_commands(application_id Snowflake, guild_id Snowflake, commands []CreateApplicationCommandParams) ![]ApplicationCommand {
-	return maybe_map(json2.decode[json2.Any](rest.request(.put, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands',
+	return maybe_map(json2.decode[json2.Any](rest.request(.put,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands',
 		json: commands.map(|c| c.build())
 	)!.body)! as []json2.Any, fn (j json2.Any) !ApplicationCommand {
 		return ApplicationCommand.parse(j)!
@@ -565,7 +575,7 @@ pub fn (rest &REST) bulk_overwrite_guild_application_commands(application_id Sno
 
 // Application Command Permission Type
 pub enum ApplicationCommandPermissionType {
-	role    = 1
+	role = 1
 	user
 	channel
 }
@@ -592,8 +602,8 @@ pub fn ApplicationCommandPermission.parse(j json2.Any) !ApplicationCommandPermis
 	match j {
 		map[string]json2.Any {
 			return ApplicationCommandPermission{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { ApplicationCommandPermissionType(j['type']!.int()) }
+				id:         Snowflake.parse(j['id']!)!
+				typ:        unsafe { ApplicationCommandPermissionType(j['type']!.int()) }
 				permission: j['permission']! as bool
 			}
 		}
@@ -619,10 +629,10 @@ pub fn GuildApplicationCommandPermissions.parse(j json2.Any) !GuildApplicationCo
 	match j {
 		map[string]json2.Any {
 			return GuildApplicationCommandPermissions{
-				id: Snowflake.parse(j['id']!)!
+				id:             Snowflake.parse(j['id']!)!
 				application_id: Snowflake.parse(j['application_id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				permissions: maybe_map(j['permissions']! as []json2.Any, fn (k json2.Any) !ApplicationCommandPermission {
+				guild_id:       Snowflake.parse(j['guild_id']!)!
+				permissions:    maybe_map(j['permissions']! as []json2.Any, fn (k json2.Any) !ApplicationCommandPermission {
 					return ApplicationCommandPermission.parse(k)!
 				})!
 			}
@@ -635,8 +645,8 @@ pub fn GuildApplicationCommandPermissions.parse(j json2.Any) !GuildApplicationCo
 
 // Fetches permissions for all commands for your application in a guild. Returns an array of guild application command permissions objects.
 pub fn (rest &REST) fetch_guild_application_command_permissions(application_id Snowflake, guild_id Snowflake) ![]GuildApplicationCommandPermissions {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/permissions')!.body)! as []json2.Any,
-		fn (j json2.Any) !GuildApplicationCommandPermissions {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/applications/${urllib.path_escape(application_id.str())}/guilds/${urllib.path_escape(guild_id.str())}/commands/permissions')!.body)! as []json2.Any, fn (j json2.Any) !GuildApplicationCommandPermissions {
 		return GuildApplicationCommandPermissions.parse(j)!
 	})!
 }

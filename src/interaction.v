@@ -5,7 +5,7 @@ import x.json2
 import net.urllib
 
 pub enum InteractionType {
-	ping                             = 1
+	ping = 1
 	application_command
 	message_component
 	application_command_autocomplete
@@ -50,41 +50,41 @@ pub fn Interaction.parse(j json2.Any) !Interaction {
 	match j {
 		map[string]json2.Any {
 			return Interaction{
-				id: Snowflake.parse(j['id']!)!
-				application_id: Snowflake.parse(j['application_id']!)!
-				typ: unsafe { InteractionType(j['type']!.int()) }
-				data: if o := j['data'] {
+				id:              Snowflake.parse(j['id']!)!
+				application_id:  Snowflake.parse(j['application_id']!)!
+				typ:             unsafe { InteractionType(j['type']!.int()) }
+				data:            if o := j['data'] {
 					o
 				} else {
 					none
 				}
-				guild_id: if s := j['guild_id'] {
+				guild_id:        if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				channel: if o := j['channel'] {
+				channel:         if o := j['channel'] {
 					PartialChannel.parse(o)!
 				} else {
 					none
 				}
-				channel_id: if s := j['channel_id'] {
+				channel_id:      if s := j['channel_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				member: if o := j['member'] {
+				member:          if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
 				}
-				user: if o := j['user'] {
+				user:            if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				token: j['token']! as string
-				message: if o := j['message'] {
+				token:           j['token']! as string
+				message:         if o := j['message'] {
 					Message.parse(o)!
 				} else {
 					none
@@ -94,17 +94,17 @@ pub fn Interaction.parse(j json2.Any) !Interaction {
 				} else {
 					none
 				}
-				locale: if s := j['locale'] {
+				locale:          if s := j['locale'] {
 					?Locale(s as string)
 				} else {
 					none
 				}
-				guild_locale: if s := j['guild_locale'] {
+				guild_locale:    if s := j['guild_locale'] {
 					?Locale(s as string)
 				} else {
 					none
 				}
-				entitlements: maybe_map(j['entitlements']! as []json2.Any, fn (k json2.Any) !Entitlement {
+				entitlements:    maybe_map(j['entitlements']! as []json2.Any, fn (k json2.Any) !Entitlement {
 					return Entitlement.parse(k)!
 				})!
 			}
@@ -206,9 +206,9 @@ pub fn ApplicationCommandInteractionDataOption.parse(j json2.Any) !ApplicationCo
 	match j {
 		map[string]json2.Any {
 			return ApplicationCommandInteractionDataOption{
-				name: j['name']! as string
-				typ: unsafe { ApplicationCommandOptionType(j['type']!.int()) }
-				value: if v := j['value'] {
+				name:    j['name']! as string
+				typ:     unsafe { ApplicationCommandOptionType(j['type']!.int()) }
+				value:   if v := j['value'] {
 					ApplicationCommandInteractionDataOptionValue.parse(v)!
 				} else {
 					none
@@ -255,22 +255,22 @@ pub fn ApplicationCommandData.parse(j json2.Any) !ApplicationCommandData {
 	match j {
 		map[string]json2.Any {
 			return ApplicationCommandData{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				typ: unsafe { ApplicationCommandType(j['type']!.int()) }
-				resolved: if o := j['resolved'] {
+				id:        Snowflake.parse(j['id']!)!
+				name:      j['name']! as string
+				typ:       unsafe { ApplicationCommandType(j['type']!.int()) }
+				resolved:  if o := j['resolved'] {
 					Resolved.parse(o)!
 				} else {
 					none
 				}
-				options: if a := j['options'] {
+				options:   if a := j['options'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ApplicationCommandInteractionDataOption {
 						return ApplicationCommandInteractionDataOption.parse(k)!
 					})!
 				} else {
 					none
 				}
-				guild_id: if s := j['guild_id'] {
+				guild_id:  if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -319,14 +319,14 @@ pub fn MessageComponentData.parse(j json2.Any) !MessageComponentData {
 	match j {
 		map[string]json2.Any {
 			return MessageComponentData{
-				custom_id: j['custom_id']! as string
+				custom_id:      j['custom_id']! as string
 				component_type: unsafe { ComponentType(j['component_type']!.int()) }
-				values: if a := j['values'] {
+				values:         if a := j['values'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				resolved: if o := j['resolved'] {
+				resolved:       if o := j['resolved'] {
 					Resolved.parse(o)!
 				} else {
 					none
@@ -355,7 +355,7 @@ pub fn ModalSubmitData.parse(j json2.Any) !ModalSubmitData {
 	match j {
 		map[string]json2.Any {
 			return ModalSubmitData{
-				custom_id: j['custom_id']! as string
+				custom_id:  j['custom_id']! as string
 				components: maybe_map(j['components']! as []json2.Any, fn (k json2.Any) !Component {
 					return Component.parse(k)!
 				})!
@@ -379,9 +379,9 @@ pub fn (i Interaction) get_modal_submit_data() !ModalSubmitData {
 
 pub enum InteractionResponseType {
 	// ACK a `Ping`
-	pong                                    = 1
+	pong = 1
 	// respond to an interaction with a message
-	channel_message_with_source             = 4
+	channel_message_with_source = 4
 	// ACK an interaction and edit a response later, the user sees a loading state
 	deferred_channel_message_with_source
 	// for components, ACK an interaction and edit the original message later; the user does not see a loading state
@@ -398,7 +398,7 @@ pub enum InteractionResponseType {
 
 pub interface InteractionResponseData {
 	is_interaction_response_data()
-	get_files() ?[]File
+	get_files() ?[]discord.File
 	build() json2.Any
 }
 
@@ -422,7 +422,7 @@ pub:
 
 pub fn (_ MessageResponseData) is_interaction_response_data() {}
 
-pub fn (mrd MessageResponseData) get_files() ?[]File {
+pub fn (mrd MessageResponseData) get_files() ?[]discord.File {
 	return mrd.files
 }
 
@@ -462,7 +462,7 @@ pub mut:
 
 pub fn (_ AutocompleteResponseData) is_interaction_response_data() {}
 
-pub fn (_ AutocompleteResponseData) get_files() ?[]File {
+pub fn (_ AutocompleteResponseData) get_files() ?[]discord.File {
 	return none
 }
 
@@ -484,7 +484,7 @@ pub:
 
 pub fn (_ ModalResponseData) is_interaction_response_data() {}
 
-pub fn (_ ModalResponseData) get_files() ?[]File {
+pub fn (_ ModalResponseData) get_files() ?[]discord.File {
 	return none
 }
 
@@ -498,7 +498,7 @@ pub fn (mrd ModalResponseData) build() json2.Any {
 
 pub interface IInteractionResponse {
 	is_interaction_response()
-	get_files() ?[]File
+	get_files() ?[]discord.File
 	build() json2.Any
 }
 
@@ -512,7 +512,7 @@ pub:
 
 fn (_ InteractionResponse) is_interaction_response() {}
 
-pub fn (ir InteractionResponse) get_files() ?[]File {
+pub fn (ir InteractionResponse) get_files() ?[]discord.File {
 	return ir.data?.get_files()
 }
 
@@ -532,7 +532,7 @@ pub struct MessageInteractionResponse {
 
 fn (_ MessageInteractionResponse) is_interaction_response() {}
 
-pub fn (r MessageInteractionResponse) get_files() ?[]File {
+pub fn (r MessageInteractionResponse) get_files() ?[]discord.File {
 	return r.MessageResponseData.files
 }
 
@@ -549,7 +549,7 @@ pub struct UpdateMessageInteractionResponse {
 
 fn (_ UpdateMessageInteractionResponse) is_interaction_response() {}
 
-pub fn (r UpdateMessageInteractionResponse) get_files() ?[]File {
+pub fn (r UpdateMessageInteractionResponse) get_files() ?[]discord.File {
 	return r.MessageResponseData.get_files()
 }
 
@@ -566,7 +566,7 @@ pub struct AutocompleteInteractionResponse {
 
 fn (_ AutocompleteInteractionResponse) is_interaction_response() {}
 
-pub fn (air AutocompleteInteractionResponse) get_files() ?[]File {
+pub fn (air AutocompleteInteractionResponse) get_files() ?[]discord.File {
 	return air.AutocompleteResponseData.get_files()
 }
 
@@ -589,7 +589,7 @@ pub:
 
 fn (_ ModalInteractionResponse) is_interaction_response() {}
 
-pub fn (_ ModalInteractionResponse) get_files() ?[]File {
+pub fn (_ ModalInteractionResponse) get_files() ?[]discord.File {
 	return none
 }
 
@@ -609,16 +609,18 @@ pub fn (mir ModalInteractionResponse) build() json2.Any {
 pub fn (rest &REST) create_interaction_response(interaction_id Snowflake, interaction_token string, response IInteractionResponse) ! {
 	if files := response.get_files() {
 		body, boundary := build_multipart_with_files(files, response.build())
-		rest.request(.post, '/interactions/${urllib.path_escape(interaction_id.str())}/${urllib.path_escape(interaction_token)}/callback',
-			body: body
+		rest.request(.post,
+			'/interactions/${urllib.path_escape(interaction_id.str())}/${urllib.path_escape(interaction_token)}/callback',
+			body:           body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
-			authenticate: false
+			authenticate:   false
 		)!
 	} else {
-		rest.request(.post, '/interactions/${urllib.path_escape(interaction_id.str())}/${urllib.path_escape(interaction_token)}/callback',
-			json: response.build()
+		rest.request(.post,
+			'/interactions/${urllib.path_escape(interaction_id.str())}/${urllib.path_escape(interaction_token)}/callback',
+			json:         response.build()
 			authenticate: false
 		)!
 	}
@@ -645,11 +647,11 @@ pub fn (rest &REST) create_followup_message(application_id Snowflake, interactio
 	unsafe {
 		return *rest.execute_webhook(application_id, interaction_token, ExecuteWebhookParams{
 			...params
-			wait: none
-			thread_id: none
-			username: none
-			avatar_url: none
-			thread_name: none
+			wait:         none
+			thread_id:    none
+			username:     none
+			avatar_url:   none
+			thread_name:  none
 			applied_tags: none
 		})!
 	}

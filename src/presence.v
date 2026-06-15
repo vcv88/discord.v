@@ -5,7 +5,7 @@ import x.json2
 
 pub enum ActivityType {
 	// Playing {name}: "Playing Rocket League"
-	game      = 0
+	game = 0
 	// Streaming {details}: "Streaming Rocket League"
 	streaming
 	// Listening to {name}: "Listening to Spotify"
@@ -35,7 +35,7 @@ pub fn ActivityTimestamps.parse(j json2.Any) !ActivityTimestamps {
 				} else {
 					none
 				}
-				end: if i := j['end'] {
+				end:   if i := j['end'] {
 					milliseconds_as_time(i.i64())
 				} else {
 					none
@@ -69,13 +69,13 @@ pub fn ActivityParty.parse(j json2.Any) !ActivityParty {
 				max_size = a[1].int()
 			}
 			return ActivityParty{
-				id: if s := j['id'] {
+				id:           if s := j['id'] {
 					s as string
 				} else {
 					none
 				}
 				current_size: current_size
-				max_size: max_size
+				max_size:     max_size
 			}
 		}
 		else {
@@ -105,7 +105,7 @@ pub fn ActivityAssets.parse(j json2.Any) !ActivityAssets {
 				} else {
 					none
 				}
-				large_text: if s := j['large_text'] {
+				large_text:  if s := j['large_text'] {
 					s as string
 				} else {
 					none
@@ -115,7 +115,7 @@ pub fn ActivityAssets.parse(j json2.Any) !ActivityAssets {
 				} else {
 					none
 				}
-				small_text: if s := j['small_text'] {
+				small_text:  if s := j['small_text'] {
 					s as string
 				} else {
 					none
@@ -142,7 +142,7 @@ pub fn ActivitySecrets.parse(j json2.Any) !ActivitySecrets {
 	match j {
 		map[string]json2.Any {
 			return ActivitySecrets{
-				join: if s := j['join'] {
+				join:     if s := j['join'] {
 					s as string
 				} else {
 					none
@@ -152,7 +152,7 @@ pub fn ActivitySecrets.parse(j json2.Any) !ActivitySecrets {
 				} else {
 					none
 				}
-				match_: if s := j['match'] {
+				match_:   if s := j['match'] {
 					s as string
 				} else {
 					none
@@ -191,7 +191,7 @@ pub fn ActivityButton.parse(j json2.Any) !ActivityButton {
 		map[string]json2.Any {
 			return ActivityButton{
 				label: j['label']! as string
-				url: j['url']! as string
+				url:   j['url']! as string
 			}
 		}
 		else {
@@ -214,8 +214,8 @@ pub fn ActivityEmoji.parse(j json2.Any) !ActivityEmoji {
 	match j {
 		map[string]json2.Any {
 			return ActivityEmoji{
-				name: j['name']! as string
-				id: if s := j['id'] {
+				name:     j['name']! as string
+				id:       if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -271,9 +271,9 @@ pub fn Activity.parse(j json2.Any) !Activity {
 	match j {
 		map[string]json2.Any {
 			return Activity{
-				name: j['name']! as string
-				typ: unsafe { ActivityType(j['type']!.int()) }
-				url: if s := j['url'] {
+				name:           j['name']! as string
+				typ:            unsafe { ActivityType(j['type']!.int()) }
+				url:            if s := j['url'] {
 					if s !is json2.Null {
 						some(s as string)
 					} else {
@@ -282,8 +282,8 @@ pub fn Activity.parse(j json2.Any) !Activity {
 				} else {
 					none
 				}
-				created_at: milliseconds_as_time(j['created_at']!.i64())
-				timestamps: if o := j['timestamps'] {
+				created_at:     milliseconds_as_time(j['created_at']!.i64())
+				timestamps:     if o := j['timestamps'] {
 					ActivityTimestamps.parse(o)!
 				} else {
 					none
@@ -293,7 +293,7 @@ pub fn Activity.parse(j json2.Any) !Activity {
 				} else {
 					none
 				}
-				details: if s := j['details'] {
+				details:        if s := j['details'] {
 					if s !is json2.Null {
 						some(s as string)
 					} else {
@@ -302,7 +302,7 @@ pub fn Activity.parse(j json2.Any) !Activity {
 				} else {
 					none
 				}
-				state: if s := j['state'] {
+				state:          if s := j['state'] {
 					if s !is json2.Null {
 						some(s as string)
 					} else {
@@ -311,7 +311,7 @@ pub fn Activity.parse(j json2.Any) !Activity {
 				} else {
 					none
 				}
-				emoji: if o := j['emoji'] {
+				emoji:          if o := j['emoji'] {
 					if o !is json2.Null {
 						some(ActivityEmoji.parse(o)!)
 					} else {
@@ -320,32 +320,32 @@ pub fn Activity.parse(j json2.Any) !Activity {
 				} else {
 					none
 				}
-				party: if o := j['party'] {
+				party:          if o := j['party'] {
 					ActivityParty.parse(o)!
 				} else {
 					none
 				}
-				assets: if o := j['assets'] {
+				assets:         if o := j['assets'] {
 					ActivityAssets.parse(o)!
 				} else {
 					none
 				}
-				secrets: if o := j['secrets'] {
+				secrets:        if o := j['secrets'] {
 					ActivitySecrets.parse(o)!
 				} else {
 					none
 				}
-				instance: if b := j['instance'] {
+				instance:       if b := j['instance'] {
 					b as bool
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:          if i := j['flags'] {
 					unsafe { ActivityFlags(i.int()) }
 				} else {
 					none
 				}
-				buttons: if a := j['buttons'] {
+				buttons:        if a := j['buttons'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ActivityButton {
 						return ActivityButton.parse(k)!
 					})!
@@ -454,12 +454,12 @@ pub fn ClientStatus.parse(j json2.Any) !ClientStatus {
 				} else {
 					none
 				}
-				mobile: if s := j['mobile'] {
+				mobile:  if s := j['mobile'] {
 					Status.parse(s)!
 				} else {
 					none
 				}
-				web: if s := j['web'] {
+				web:     if s := j['web'] {
 					Status.parse(s)!
 				} else {
 					none
@@ -490,10 +490,10 @@ pub fn Presence.parse(j json2.Any) !Presence {
 	match j {
 		map[string]json2.Any {
 			return Presence{
-				user: PartialUser.parse(j['user']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				status: Status.parse(j['status']!)!
-				activities: maybe_map(j['activities']! as []json2.Any, fn (k json2.Any) !Activity {
+				user:          PartialUser.parse(j['user']!)!
+				guild_id:      Snowflake.parse(j['guild_id']!)!
+				status:        Status.parse(j['status']!)!
+				activities:    maybe_map(j['activities']! as []json2.Any, fn (k json2.Any) !Activity {
 					return Activity.parse(k)!
 				})!
 				client_status: ClientStatus.parse(j['client_status']!)!

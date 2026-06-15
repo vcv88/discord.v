@@ -71,13 +71,13 @@ pub fn PartialApplication.parse(j json2.Any) !PartialApplication {
 	match j {
 		map[string]json2.Any {
 			return PartialApplication{
-				id: Snowflake.parse(j['id']!)!
-				name: if s := j['name'] {
+				id:                     Snowflake.parse(j['id']!)!
+				name:                   if s := j['name'] {
 					s as string
 				} else {
 					none
 				}
-				icon: if s := j['icon'] {
+				icon:                   if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -86,12 +86,12 @@ pub fn PartialApplication.parse(j json2.Any) !PartialApplication {
 				} else {
 					none
 				}
-				description: if s := j['description'] {
+				description:            if s := j['description'] {
 					s as string
 				} else {
 					none
 				}
-				bot_public: if b := j['bot_public'] {
+				bot_public:             if b := j['bot_public'] {
 					b as bool
 				} else {
 					none
@@ -101,23 +101,23 @@ pub fn PartialApplication.parse(j json2.Any) !PartialApplication {
 				} else {
 					none
 				}
-				terms_of_service_url: if s := j['terms_of_service_url'] {
+				terms_of_service_url:   if s := j['terms_of_service_url'] {
 					s as string
 				} else {
 					none
 				}
-				privacy_policy_url: if s := j['privacy_policy_url'] {
+				privacy_policy_url:     if s := j['privacy_policy_url'] {
 					s as string
 				} else {
 					none
 				}
-				verify_key: if s := j['verify_key'] {
+				verify_key:             if s := j['verify_key'] {
 					hex.decode(s as string)!
 				} else {
 					none
 				}
-				flags: unsafe { ApplicationFlags(j['flags']!.int()) }
-				tags: if a := j['tags'] {
+				flags:                  unsafe { ApplicationFlags(j['flags']!.int()) }
+				tags:                   if a := j['tags'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
@@ -131,7 +131,7 @@ pub fn PartialApplication.parse(j json2.Any) !PartialApplication {
 }
 
 pub enum MembershipState {
-	invited  = 1
+	invited = 1
 	accepted
 }
 
@@ -158,9 +158,9 @@ pub fn TeamMember.parse(j json2.Any) !TeamMember {
 		map[string]json2.Any {
 			return TeamMember{
 				membership_state: unsafe { MembershipState(j['membership_state']!.int()) }
-				team_id: Snowflake.parse(j['team_id']!)!
-				user: PartialUser.parse(j['user']!)!
-				role: TeamMemberRole(j['role']! as string)
+				team_id:          Snowflake.parse(j['team_id']!)!
+				user:             PartialUser.parse(j['user']!)!
+				role:             TeamMemberRole(j['role']! as string)
 			}
 		}
 		else {
@@ -188,16 +188,16 @@ pub fn Team.parse(j json2.Any) !Team {
 		map[string]json2.Any {
 			icon := j['icon']!
 			return Team{
-				id: Snowflake.parse(j['id']!)!
-				icon: if icon !is json2.Null {
+				id:            Snowflake.parse(j['id']!)!
+				icon:          if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				members: maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !TeamMember {
+				members:       maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !TeamMember {
 					return TeamMember.parse(k)!
 				})!
-				name: j['name']! as string
+				name:          j['name']! as string
 				owner_user_id: Snowflake.parse(j['owner_user_id']!)!
 			}
 		}
@@ -219,7 +219,7 @@ pub fn InstallParams.parse(j json2.Any) !InstallParams {
 	match j {
 		map[string]json2.Any {
 			return InstallParams{
-				scopes: (j['scopes']! as []json2.Any).map(|s| s as string)
+				scopes:      (j['scopes']! as []json2.Any).map(|s| s as string)
 				permissions: Permissions.parse(j['permissions']!)!
 			}
 		}
@@ -238,7 +238,7 @@ pub fn (ip InstallParams) build() json2.Any {
 
 pub enum ApplicationMonetizationState {
 	// Application has no monetization set up
-	none_   = 1
+	none_ = 1
 	// Application has monetization set up
 	enabled
 	// Application has been blocked from monetizing
@@ -247,7 +247,7 @@ pub enum ApplicationMonetizationState {
 
 pub enum ApplicationDiscoverabilityState {
 	// Application is ineligible for the application directory
-	ineligible       = 1
+	ineligible = 1
 	// Application is not listed in the application directory
 	not_discoverable
 	// Application is listed in the application directory
@@ -361,7 +361,7 @@ pub enum RPCApplicationState {
 
 pub enum StoreApplicationState {
 	// Application does not have a commerce license
-	none_     = 1
+	none_ = 1
 	// Application has a commerce license but has not yet submitted a store approval request
 	paid
 	// Application has submitted a store approval request
@@ -374,7 +374,7 @@ pub enum StoreApplicationState {
 
 pub enum ApplicationVerificationState {
 	// Application is ineligible for verification
-	ineligible  = 1
+	ineligible = 1
 	// Application has not yet been applied for verification
 	unsubmitted
 	// Application has submitted a verification request
@@ -469,88 +469,88 @@ pub fn Application.parse(j json2.Any) !Application {
 			icon := j['icon']!
 			team := j['team']!
 			return Application{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				icon: if icon !is json2.Null {
+				id:                                Snowflake.parse(j['id']!)!
+				name:                              j['name']! as string
+				icon:                              if icon !is json2.Null {
 					icon as string
 				} else {
 					none
 				}
-				description: j['description']! as string
-				rpc_origins: if a := j['rpc_origins'] {
+				description:                       j['description']! as string
+				rpc_origins:                       if a := j['rpc_origins'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				bot_public: j['bot_public']! as bool
-				bot_require_code_grant: j['bot_require_code_grant']! as bool
-				bot: if o := j['user'] {
+				bot_public:                        j['bot_public']! as bool
+				bot_require_code_grant:            j['bot_require_code_grant']! as bool
+				bot:                               if o := j['user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				terms_of_service_url: if s := j['terms_of_service_url'] {
+				terms_of_service_url:              if s := j['terms_of_service_url'] {
 					s as string
 				} else {
 					none
 				}
-				privacy_policy_url: if s := j['privacy_policy_url'] {
+				privacy_policy_url:                if s := j['privacy_policy_url'] {
 					s as string
 				} else {
 					none
 				}
-				owner: if o := j['owner'] {
+				owner:                             if o := j['owner'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				verify_key: hex.decode(j['verify_key']! as string)!
-				team: if team !is json2.Null {
+				verify_key:                        hex.decode(j['verify_key']! as string)!
+				team:                              if team !is json2.Null {
 					Team.parse(team)!
 				} else {
 					none
 				}
-				guild_id: if s := j['guild_id'] {
+				guild_id:                          if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				guild: if o := j['guild'] {
+				guild:                             if o := j['guild'] {
 					PartialGuild.parse(o)!
 				} else {
 					none
 				}
-				primary_sku_id: if s := j['primary_sku_id'] {
+				primary_sku_id:                    if s := j['primary_sku_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				slug: if s := j['slug'] {
+				slug:                              if s := j['slug'] {
 					s as string
 				} else {
 					none
 				}
-				cover_image: if s := j['cover_image'] {
+				cover_image:                       if s := j['cover_image'] {
 					s as string
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                             if i := j['flags'] {
 					unsafe { ApplicationFlags(i.int()) }
 				} else {
 					none
 				}
-				approximate_guild_count: if i := j['approximate_guild_count'] {
+				approximate_guild_count:           if i := j['approximate_guild_count'] {
 					i.int()
 				} else {
 					none
 				}
-				redirect_uris: if a := j['redirect_uris'] {
+				redirect_uris:                     if a := j['redirect_uris'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				interactions_endpoint_url: if s := j['interactions_endpoint_url'] {
+				interactions_endpoint_url:         if s := j['interactions_endpoint_url'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -568,69 +568,69 @@ pub fn Application.parse(j json2.Any) !Application {
 				} else {
 					none
 				}
-				tags: if a := j['tags'] {
+				tags:                              if a := j['tags'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				install_params: if o := j['install_params'] {
+				install_params:                    if o := j['install_params'] {
 					InstallParams.parse(o)!
 				} else {
 					none
 				}
-				custom_install_url: if s := j['custom_install_url'] {
+				custom_install_url:                if s := j['custom_install_url'] {
 					s as string
 				} else {
 					none
 				}
-				discoverability_state: if i := j['discoverability_state'] {
+				discoverability_state:             if i := j['discoverability_state'] {
 					unsafe { ApplicationDiscoverabilityState(i.int()) }
 				} else {
 					none
 				}
-				discovery_eligibility_flags: if i := j['discovery_eligibility_flags'] {
+				discovery_eligibility_flags:       if i := j['discovery_eligibility_flags'] {
 					unsafe { ApplicationDiscoveryEligibilityFlags(i.int()) }
 				} else {
 					none
 				}
-				explicit_content_filter: if i := j['explicit_content_filter'] {
+				explicit_content_filter:           if i := j['explicit_content_filter'] {
 					unsafe { ApplicationExplicitContentFilterLevel(i.int()) }
 				} else {
 					none
 				}
-				hook: j['hook']! as bool
-				interactions_event_types: if a := j['interactions_event_types'] {
+				hook:                              j['hook']! as bool
+				interactions_event_types:          if a := j['interactions_event_types'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				interactions_version: if i := j['interactions_version'] {
+				interactions_version:              if i := j['interactions_version'] {
 					unsafe { ApplicationInteractionsVersion(i.int()) }
 				} else {
 					none
 				}
-				is_monetized: j['is_monetized']! as bool
-				monetization_eligibility_flags: if i := j['monetization_eligibility_flags'] {
+				is_monetized:                      j['is_monetized']! as bool
+				monetization_eligibility_flags:    if i := j['monetization_eligibility_flags'] {
 					unsafe { ApplicationMonetizationEligibilityFlags(i.int()) }
 				} else {
 					none
 				}
-				monetization_state: if i := j['monetization_state'] {
+				monetization_state:                if i := j['monetization_state'] {
 					unsafe { ApplicationMonetizationState(i.int()) }
 				} else {
 					none
 				}
-				rpc_application_state: if i := j['rpc_application_state'] {
+				rpc_application_state:             if i := j['rpc_application_state'] {
 					unsafe { RPCApplicationState(i.int()) }
 				} else {
 					none
 				}
-				store_application_state: if i := j['store_application_state'] {
+				store_application_state:           if i := j['store_application_state'] {
 					unsafe { StoreApplicationState(i.int()) }
 				} else {
 					none
 				}
-				verification_state: if i := j['verification_state'] {
+				verification_state:                if i := j['verification_state'] {
 					unsafe { ApplicationVerificationState(i.int()) }
 				} else {
 					none

@@ -47,7 +47,7 @@ pub fn GatewayIntents.all() GatewayIntents {
 
 pub enum GatewayOpcode {
 	// An event was dispatched.
-	dispatch              = 0
+	dispatch = 0
 	// Fired periodically by the client to keep the connection alive.
 	heartbeat
 	// Starts a new session during the initial handshake.
@@ -57,7 +57,7 @@ pub enum GatewayOpcode {
 	// Used to join/leave or move between voice channels.
 	voice_state_update
 	// Resume a previous session that was disconnected.
-	resume                = 6
+	resume = 6
 	// You should attempt to reconnect and resume immediately.
 	reconnect
 	// Request information about offline guild members in a large guild.
@@ -85,8 +85,8 @@ fn GatewayMessage.parse(j json2.Any) !GatewayMessage {
 	m := j as map[string]json2.Any
 	return GatewayMessage{
 		opcode: unsafe { GatewayOpcode(m['op']!.int()) }
-		data: m['d'] or { json2.null }
-		seq: if s := m['s'] {
+		data:   m['d'] or { json2.null }
+		seq:    if s := m['s'] {
 			if s !is json2.Null {
 				s.int()
 			} else {
@@ -95,7 +95,7 @@ fn GatewayMessage.parse(j json2.Any) !GatewayMessage {
 		} else {
 			none
 		}
-		event: if t := m['t'] {
+		event:  if t := m['t'] {
 			if t !is json2.Null {
 				t.str()
 			} else {
@@ -152,7 +152,7 @@ pub:
 	intents         int
 	properties      Properties
 	large_threshold ?int
-	gateway_url     string = 'wss://gateway.discord.gg'
+	gateway_url     string      = 'wss://gateway.discord.gg'
 	log             &log.Logger = unsafe { log.get_logger() }
 	rest            REST
 	token           string
@@ -211,8 +211,8 @@ fn (mut c GatewayClient) error_logger() fn (int, IError) {
 fn (mut c GatewayClient) raw_dispatch(name string, data json2.Any) ! {
 	event := DispatchEvent{
 		creator: &c
-		name: name
-		data: data
+		name:    name
+		data:    data
 	}
 	if name == 'READY' {
 		m := data as map[string]json2.Any
@@ -387,70 +387,70 @@ struct GatewayCloseCode {
 
 const gateway_close_code_table = {
 	1000: GatewayCloseCode{
-		message: 'Discord disconnected us for some reason'
+		message:   'Discord disconnected us for some reason'
 		reconnect: true
 	}
 	4000: GatewayCloseCode{
-		message: "Unknown error: We're not sure what went wrong. Try reconnecting?"
+		message:   "Unknown error: We're not sure what went wrong. Try reconnecting?"
 		reconnect: true
 	}
 	4001: GatewayCloseCode{
-		message: "Unknown opcode: You sent an invalid Gateway opcode or an invalid payload for an opcode. Don't do that!"
+		message:   "Unknown opcode: You sent an invalid Gateway opcode or an invalid payload for an opcode. Don't do that!"
 		reconnect: true
 	}
 	4002: GatewayCloseCode{
-		message: "Decode error: You sent an invalid payload to Discord. Don't do that!"
+		message:   "Decode error: You sent an invalid payload to Discord. Don't do that!"
 		reconnect: true
 	}
 	4003: GatewayCloseCode{
-		message: 'Not authenticated: You sent us a payload prior to identifying'
+		message:   'Not authenticated: You sent us a payload prior to identifying'
 		reconnect: true
 	}
 	4004: GatewayCloseCode{
-		message: 'Authentication failed: The account token sent with identify payload is incorrect.'
+		message:   'Authentication failed: The account token sent with identify payload is incorrect.'
 		reconnect: false
 	}
 	4005: GatewayCloseCode{
-		message: "Already authenticated: You sent more than one identify payload. Don't do that!"
+		message:   "Already authenticated: You sent more than one identify payload. Don't do that!"
 		reconnect: true
 	}
 	4007: GatewayCloseCode{
-		message: 'Invalid `seq`: The sequence sent when resuming the session was invalid. Reconnect and start a new session.'
+		message:   'Invalid `seq`: The sequence sent when resuming the session was invalid. Reconnect and start a new session.'
 		reconnect: true
 	}
 	4008: GatewayCloseCode{
-		message: "Rate limited: Woah nelly! You're sending payloads to us too quickly. Slow it down! You will be disconnected on receiving this."
+		message:   "Rate limited: Woah nelly! You're sending payloads to us too quickly. Slow it down! You will be disconnected on receiving this."
 		reconnect: true
 	}
 	4009: GatewayCloseCode{
-		message: 'Session timed out: Your session timed out. Reconnect and start a new one.'
+		message:   'Session timed out: Your session timed out. Reconnect and start a new one.'
 		reconnect: true
 	}
 	4010: GatewayCloseCode{
-		message: 'Invalid shard: You sent us an invalid shard when identifying'
+		message:   'Invalid shard: You sent us an invalid shard when identifying'
 		reconnect: false
 	}
 	4011: GatewayCloseCode{
-		message: 'Sharding required: The session would have handled too many guilds - you are required to shard your connection in order to connect.'
+		message:   'Sharding required: The session would have handled too many guilds - you are required to shard your connection in order to connect.'
 		reconnect: false
 	}
 	4012: GatewayCloseCode{
-		message: 'Invalid API version: You sent an invalid version for the gateway.'
+		message:   'Invalid API version: You sent an invalid version for the gateway.'
 		reconnect: false
 	}
 	4013: GatewayCloseCode{
-		message: 'Invalid intent(s): You sent an invalid intent for a Gateway Intent. You may have incorrectly calculated the bitwise value.'
+		message:   'Invalid intent(s): You sent an invalid intent for a Gateway Intent. You may have incorrectly calculated the bitwise value.'
 		reconnect: false
 	}
 	4014: GatewayCloseCode{
-		message: 'Disallowed intent(s): You sent a disallowed intent for a Gateway Intent. You may have tried to specify an intent that you have not enabled or are not approved for.'
+		message:   'Disallowed intent(s): You sent a disallowed intent for a Gateway Intent. You may have tried to specify an intent that you have not enabled or are not approved for.'
 		reconnect: false
 	}
 }
 
 fn (mut c GatewayClient) websocket_opts() websocket.ClientOpt {
 	return websocket.ClientOpt{
-		read_timeout: c.read_timeout or { 10 * time.second }
+		read_timeout:  c.read_timeout or { 10 * time.second }
 		write_timeout: c.write_timeout or { 10 * time.second }
 	}
 }
@@ -524,9 +524,9 @@ pub fn (mut c GatewayClient) run() ! {
 			connected = false
 			continue
 		}
-		cc := discord.gateway_close_code_table[close_code] or {
+		cc := gateway_close_code_table[close_code] or {
 			GatewayCloseCode{
-				message: 'Unknown websocket close code ${close_code}'
+				message:   'Unknown websocket close code ${close_code}'
 				reconnect: false
 			}
 		}
@@ -597,9 +597,9 @@ pub fn SessionStartLimit.parse(j json2.Any) !SessionStartLimit {
 	match j {
 		map[string]json2.Any {
 			return SessionStartLimit{
-				total: j['total']!.int()
-				remaining: j['remaining']!.int()
-				reset_after: j['reset_after']!.i64() * time.millisecond
+				total:           j['total']!.int()
+				remaining:       j['remaining']!.int()
+				reset_after:     j['reset_after']!.i64() * time.millisecond
 				max_concurrency: j['max_concurrency']!.int()
 			}
 		}
@@ -623,8 +623,8 @@ pub fn GatewayConfiguration.parse(j json2.Any) !GatewayConfiguration {
 	match j {
 		map[string]json2.Any {
 			return GatewayConfiguration{
-				url: j['url']! as string
-				shards: j['shards']!.int()
+				url:                 j['url']! as string
+				shards:              j['shards']!.int()
 				session_start_limit: SessionStartLimit.parse(j['session_start_limit']!)!
 			}
 		}

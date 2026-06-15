@@ -24,7 +24,7 @@ pub struct REST {
 pub:
 	token      string
 	base_url   string = 'https://discord.com/api/v10'
-	user_agent string = discord.default_user_agent
+	user_agent string = default_user_agent
 	http       ?HTTPClient
 }
 
@@ -33,13 +33,13 @@ pub struct RESTConfig {
 pub:
 	base_url   string = 'https://discord.com/api/v10'
 	http       ?HTTPClient
-	user_agent string = discord.default_user_agent
+	user_agent string = default_user_agent
 }
 
 pub fn new_rest(token string, config RESTConfig) REST {
 	return REST{
-		token: token
-		http: config.http
+		token:      token
+		http:       config.http
 		user_agent: config.user_agent
 	}
 }
@@ -71,16 +71,16 @@ fn (config BotConfig) setup_logger() log.Log {
 // note: token should not contain `Bot` prefix
 pub fn bot(token string, config BotConfig) GatewayClient {
 	return GatewayClient{
-		token: 'Bot ${token}'
-		cache: config.cache
-		intents: int(config.intents)
+		token:           'Bot ${token}'
+		cache:           config.cache
+		intents:         int(config.intents)
 		large_threshold: config.large_threshold
-		logger: config.setup_logger()
-		presence: config.presence
-		properties: config.properties
-		read_timeout: config.read_timeout
-		rest: new_rest('Bot ${token}', config.RESTConfig)
-		write_timeout: config.write_timeout
+		logger:          config.setup_logger()
+		presence:        config.presence
+		properties:      config.properties
+		read_timeout:    config.read_timeout
+		rest:            new_rest('Bot ${token}', config.RESTConfig)
+		write_timeout:   config.write_timeout
 	}
 }
 
@@ -92,6 +92,5 @@ pub fn bearer(token string, config RESTConfig) REST {
 
 // `oauth2_app` accepts client ID and secret and returns [REST](#REST) with Basic token
 pub fn oauth2_app(client_id Snowflake, client_secret string, config RESTConfig) REST {
-	return new_rest('Basic ' + base64.encode_str('${client_id.build()}:${client_secret}'),
-		config)
+	return new_rest('Basic ' + base64.encode_str('${client_id.build()}:${client_secret}'), config)
 }

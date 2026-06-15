@@ -7,11 +7,11 @@ import x.json2
 pub enum InviteType {
 	guild
 	group_dm
-	friend	
+	friend
 }
 
 pub enum InviteTargetType {
-	stream               = 1
+	stream = 1
 	embedded_application
 }
 
@@ -64,11 +64,11 @@ pub fn InviteMetadata.parse(j json2.Any) !InviteMetadata {
 	match j {
 		map[string]json2.Any {
 			return InviteMetadata{
-				Invite: Invite.parse(j)!
-				uses: j['uses']!.int()
-				max_uses: j['max_uses']!.int()
-				max_age: j['max_age']!.int() * time.second
-				temporary: j['temporary']! as bool
+				Invite:     Invite.parse(j)!
+				uses:       j['uses']!.int()
+				max_uses:   j['max_uses']!.int()
+				max_age:    j['max_age']!.int() * time.second
+				temporary:  j['temporary']! as bool
 				created_at: time.parse_iso8601(j['created_at']! as string)!
 			}
 		}
@@ -82,14 +82,14 @@ pub fn Invite.parse(j json2.Any) !Invite {
 	match j {
 		map[string]json2.Any {
 			return Invite{
-				typ: unsafe { InviteType(j['type']!.int()) }
-				code: j['code']! as string
-				guild: if o := j['guild'] {
+				typ:                        unsafe { InviteType(j['type']!.int()) }
+				code:                       j['code']! as string
+				guild:                      if o := j['guild'] {
 					PartialGuild.parse(o)!
 				} else {
 					none
 				}
-				channel: if o := j['channel'] {
+				channel:                    if o := j['channel'] {
 					if o !is json2.Null {
 						PartialChannel.parse(o)!
 					} else {
@@ -98,22 +98,22 @@ pub fn Invite.parse(j json2.Any) !Invite {
 				} else {
 					none
 				}
-				inviter: if o := j['inviter'] {
+				inviter:                    if o := j['inviter'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				target_type: if i := j['target_type'] {
+				target_type:                if i := j['target_type'] {
 					unsafe { InviteTargetType(i.int()) }
 				} else {
 					none
 				}
-				target_user: if o := j['target_user'] {
+				target_user:                if o := j['target_user'] {
 					User.parse(o)!
 				} else {
 					none
 				}
-				target_application: if o := j['target_application'] {
+				target_application:         if o := j['target_application'] {
 					PartialApplication.parse(o)!
 				} else {
 					none
@@ -123,12 +123,12 @@ pub fn Invite.parse(j json2.Any) !Invite {
 				} else {
 					none
 				}
-				approximate_member_count: if i := j['approximate_member_count'] {
+				approximate_member_count:   if i := j['approximate_member_count'] {
 					i.int()
 				} else {
 					none
 				}
-				expires_at: if s := j['expires_at'] {
+				expires_at:                 if s := j['expires_at'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -137,7 +137,7 @@ pub fn Invite.parse(j json2.Any) !Invite {
 				} else {
 					none
 				}
-				guild_scheduled_event: if o := j['guild_scheduled_event'] {
+				guild_scheduled_event:      if o := j['guild_scheduled_event'] {
 					GuildScheduledEvent.parse(o)!
 				} else {
 					none

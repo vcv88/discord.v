@@ -12,9 +12,9 @@ pub:
 
 pub enum ChannelType {
 	// unknown type
-	unknown             = -1
+	unknown = -1
 	// a text channel within a server
-	guild_text          = 0
+	guild_text = 0
 	// a direct message between users
 	dm
 	// a voice channel within a server
@@ -63,10 +63,10 @@ pub fn PermissionOverwrite.parse(j json2.Any) !PermissionOverwrite {
 	match j {
 		map[string]json2.Any {
 			return PermissionOverwrite{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { PermissionOverwriteType(j['type']!.int()) }
+				id:    Snowflake.parse(j['id']!)!
+				typ:   unsafe { PermissionOverwriteType(j['type']!.int()) }
 				allow: Permissions.parse(j['allow']!)!
-				deny: Permissions.parse(j['deny']!)!
+				deny:  Permissions.parse(j['deny']!)!
 			}
 		}
 		else {
@@ -128,10 +128,10 @@ pub fn ForumTag.parse(j json2.Any) !ForumTag {
 			emoji_id := j['emoji_id']!
 			emoji_name := j['emoji_name']!
 			return ForumTag{
-				id: Snowflake.parse(j['id']!)!
-				name: j['name']! as string
-				moderated: j['moderated']! as bool
-				emoji_id: if emoji_id !is json2.Null {
+				id:         Snowflake.parse(j['id']!)!
+				name:       j['name']! as string
+				moderated:  j['moderated']! as bool
+				emoji_id:   if emoji_id !is json2.Null {
 					Snowflake.parse(emoji_id)!
 				} else {
 					none
@@ -211,14 +211,14 @@ pub fn PartialChannel.parse(j json2.Any) !PartialChannel {
 	match j {
 		map[string]json2.Any {
 			return PartialChannel{
-				id: Snowflake.parse(j['id']!)!
-				typ: if i := j['type'] {
+				id:          Snowflake.parse(j['id']!)!
+				typ:         if i := j['type'] {
 					unsafe { ChannelType(i.int()) }
 				} else {
 					.unknown
 				}
-				name: j['name']! as string
-				topic: if s := j['topic'] {
+				name:        j['name']! as string
+				topic:       if s := j['topic'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -232,7 +232,7 @@ pub fn PartialChannel.parse(j json2.Any) !PartialChannel {
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:       if i := j['flags'] {
 					unsafe { ChannelFlags(i.int()) }
 				} else {
 					none
@@ -312,16 +312,16 @@ pub fn ThreadMetadata.parse(j json2.Any) !ThreadMetadata {
 	match j {
 		map[string]json2.Any {
 			return ThreadMetadata{
-				archived: j['archived']! as bool
+				archived:              j['archived']! as bool
 				auto_archive_duration: j['auto_archive_duration']!.int() * time.minute
-				archive_timestamp: time.parse_iso8601(j['archive_timestamp']! as string)!
-				locked: j['locked']! as bool
-				invitable: if b := j['invitable'] {
+				archive_timestamp:     time.parse_iso8601(j['archive_timestamp']! as string)!
+				locked:                j['locked']! as bool
+				invitable:             if b := j['invitable'] {
 					b as bool
 				} else {
 					none
 				}
-				create_timestamp: if s := j['create_timestamp'] {
+				create_timestamp:      if s := j['create_timestamp'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -356,19 +356,19 @@ pub fn ThreadMember.parse(j json2.Any) !ThreadMember {
 	match j {
 		map[string]json2.Any {
 			return ThreadMember{
-				id: if s := j['id'] {
+				id:             if s := j['id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				user_id: if s := j['user_id'] {
+				user_id:        if s := j['user_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
 				join_timestamp: time.parse_iso8601(j['join_timestamp']! as string)!
-				flags: j['flags']!.int()
-				member: if o := j['member'] {
+				flags:          j['flags']!.int()
+				member:         if o := j['member'] {
 					GuildMember.parse(o)!
 				} else {
 					none
@@ -392,7 +392,7 @@ pub fn ThreadMember2.parse(j json2.Any) !ThreadMember2 {
 		map[string]json2.Any {
 			return ThreadMember2{
 				ThreadMember: ThreadMember.parse(j)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
+				guild_id:     Snowflake.parse(j['guild_id']!)!
 			}
 		}
 		else {
@@ -456,7 +456,7 @@ pub fn DefaultReaction.parse(j json2.Any) !DefaultReaction {
 			emoji_id := j['emoji_id']!
 			emoji_name := j['emoji_name']!
 			return DefaultReaction{
-				emoji_id: if emoji_id !is json2.Null {
+				emoji_id:   if emoji_id !is json2.Null {
 					Snowflake.parse(emoji_id)!
 				} else {
 					none
@@ -586,26 +586,26 @@ pub fn Channel.parse(j json2.Any) !Channel {
 	match j {
 		map[string]json2.Any {
 			return Channel{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { ChannelType(j['type']!.int()) }
-				guild_id: if s := j['guild_id'] {
+				id:                                 Snowflake.parse(j['id']!)!
+				typ:                                unsafe { ChannelType(j['type']!.int()) }
+				guild_id:                           if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				position: if i := j['position'] {
+				position:                           if i := j['position'] {
 					i.int()
 				} else {
 					none
 				}
-				permission_overwrites: if a := j['permission_overwrites'] {
+				permission_overwrites:              if a := j['permission_overwrites'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !PermissionOverwrite {
 						return PermissionOverwrite.parse(k)!
 					})!
 				} else {
 					none
 				}
-				name: if s := j['name'] {
+				name:                               if s := j['name'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -614,7 +614,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					''
 				}
-				topic: if s := j['topic'] {
+				topic:                              if s := j['topic'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -623,7 +623,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				status: if s := j['status'] {
+				status:                             if s := j['status'] {
 					if s !is json2.Null {
 						some(s as string)
 					} else {
@@ -632,12 +632,12 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				nsfw: if b := j['nsfw'] {
+				nsfw:                               if b := j['nsfw'] {
 					b as bool
 				} else {
 					none
 				}
-				last_message_id: if s := j['last_message_id'] {
+				last_message_id:                    if s := j['last_message_id'] {
 					if s !is json2.Null {
 						Snowflake.parse(s)!
 					} else {
@@ -646,29 +646,29 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				bitrate: if i := j['bitrate'] {
+				bitrate:                            if i := j['bitrate'] {
 					i.int()
 				} else {
 					none
 				}
-				user_limit: if i := j['user_limit'] {
+				user_limit:                         if i := j['user_limit'] {
 					i.int()
 				} else {
 					none
 				}
-				rate_limit_per_user: if i := j['rate_limit_per_user'] {
+				rate_limit_per_user:                if i := j['rate_limit_per_user'] {
 					i.int() * time.second
 				} else {
 					none
 				}
-				recipients: if a := j['recipients'] {
+				recipients:                         if a := j['recipients'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !User {
 						return User.parse(k)!
 					})!
 				} else {
 					none
 				}
-				icon: if s := j['icon'] {
+				icon:                               if s := j['icon'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -677,22 +677,22 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				owner_id: if s := j['owner_id'] {
+				owner_id:                           if s := j['owner_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				application_id: if s := j['application_id'] {
+				application_id:                     if s := j['application_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				managed: if b := j['managed'] {
+				managed:                            if b := j['managed'] {
 					b as bool
 				} else {
 					none
 				}
-				parent_id: if s := j['parent_id'] {
+				parent_id:                          if s := j['parent_id'] {
 					if s !is json2.Null {
 						Snowflake.parse(s)!
 					} else {
@@ -701,7 +701,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				last_pin_timestamp: if s := j['last_pin_timestamp'] {
+				last_pin_timestamp:                 if s := j['last_pin_timestamp'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -710,7 +710,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				rtc_region: if s := j['rtc_region'] {
+				rtc_region:                         if s := j['rtc_region'] {
 					if s !is json2.Null {
 						s as string
 					} else {
@@ -719,66 +719,66 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				video_quality_mode: if i := j['video_quality_mode'] {
+				video_quality_mode:                 if i := j['video_quality_mode'] {
 					unsafe { VideoQualityMode(i.int()) }
 				} else {
 					none
 				}
-				message_count: if i := j['message_count'] {
+				message_count:                      if i := j['message_count'] {
 					i.int()
 				} else {
 					none
 				}
-				member_count: if i := j['member_count'] {
+				member_count:                       if i := j['member_count'] {
 					i.int()
 				} else {
 					none
 				}
-				thread_metadata: if o := j['thread_metadata'] {
+				thread_metadata:                    if o := j['thread_metadata'] {
 					ThreadMetadata.parse(o)!
 				} else {
 					none
 				}
-				member: if o := j['member'] {
+				member:                             if o := j['member'] {
 					ThreadMember.parse(o)!
 				} else {
 					none
 				}
-				default_auto_archive_duration: if i := j['default_auto_archive_duration'] {
+				default_auto_archive_duration:      if i := j['default_auto_archive_duration'] {
 					i.int() * time.minute
 				} else {
 					none
 				}
-				permissions: if s := j['permissions'] {
+				permissions:                        if s := j['permissions'] {
 					Permissions.parse(s)!
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                              if i := j['flags'] {
 					unsafe { ChannelFlags(i.int()) }
 				} else {
 					none
 				}
-				total_message_sent: if i := j['total_message_sent'] {
+				total_message_sent:                 if i := j['total_message_sent'] {
 					i.int()
 				} else {
 					none
 				}
-				available_tags: if a := j['available_tags'] {
+				available_tags:                     if a := j['available_tags'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ForumTag {
 						return ForumTag.parse(k)!
 					})!
 				} else {
 					none
 				}
-				applied_tags: if a := j['applied_tags'] {
+				applied_tags:                       if a := j['applied_tags'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				default_reaction_emoji: if o := j['default_reaction_emoji'] {
+				default_reaction_emoji:             if o := j['default_reaction_emoji'] {
 					if o !is json2.Null {
 						DefaultReaction.parse(o)!
 					} else {
@@ -792,7 +792,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				default_sort_order: if i := j['default_sort_order'] {
+				default_sort_order:                 if i := j['default_sort_order'] {
 					if i !is json2.Null {
 						unsafe { SortOrderType(i.int()) }
 					} else {
@@ -801,7 +801,7 @@ pub fn Channel.parse(j json2.Any) !Channel {
 				} else {
 					none
 				}
-				default_forum_layout: if i := j['default_forum_layout'] {
+				default_forum_layout:               if i := j['default_forum_layout'] {
 					unsafe { ForumLayoutType(i.int()) }
 				} else {
 					none
@@ -816,7 +816,8 @@ pub fn Channel.parse(j json2.Any) !Channel {
 
 // Get a channel by ID. Returns a channel object. If the channel is a thread, a thread member object is included in the returned result.
 pub fn (rest &REST) fetch_channel(channel_id Snowflake) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}')!.body)!)!
+	return Channel.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}')!.body)!)!
 }
 
 pub interface EditChannelParams {
@@ -868,7 +869,7 @@ pub mut:
 	// the user limit of the voice or stage channel, max 99 for voice channels and 10,000 for stage channels (0 refers to no limit)
 	user_limit ?int = sentinel_int
 	// channel or category-specific permissions
-	permission_overwrites ?[]PermissionOverwrite = discord.sentinel_permission_overwrites
+	permission_overwrites ?[]PermissionOverwrite = sentinel_permission_overwrites
 	// id of the new parent category for a channel
 	parent_id ?Snowflake = sentinel_snowflake
 	// channel voice region id, automatic when set to none
@@ -882,11 +883,11 @@ pub mut:
 	// the set of tags that can be used in a GUILD_FORUM or a GUILD_MEDIA channel; limited to 20
 	available_tags ?[]EditForumTag
 	// the emoji to show in the add reaction button on a thread in a GUILD_FORUM or a GUILD_MEDIA channel
-	default_reaction_emoji ?DefaultReaction = discord.sentinel_default_reaction
+	default_reaction_emoji ?DefaultReaction = sentinel_default_reaction
 	// the initial rate_limit_per_user to set on newly created threads in a channel. this field is copied to the thread at creation time and does not live update.
 	default_thread_rate_limit_per_user ?time.Duration
 	// the default sort order type used to order posts in GUILD_FORUM and GUILD_MEDIA channels
-	default_sort_order ?SortOrderType = discord.sentinel_sort_order_type
+	default_sort_order ?SortOrderType = sentinel_sort_order_type
 	// the default forum layout type used to display posts in GUILD_FORUM channels
 	default_forum_layout ?ForumLayoutType
 }
@@ -940,7 +941,7 @@ pub fn (params EditGuildChannelParams) build() json2.Any {
 		r['user_limit'] = json2.null
 	}
 	if permission_overwrites := params.permission_overwrites {
-		if permission_overwrites.data != discord.sentinel_permission_overwrites.data {
+		if permission_overwrites.data != sentinel_permission_overwrites.data {
 			r['permission_overwrites'] = permission_overwrites.map(|po| po.build())
 		}
 	} else {
@@ -987,7 +988,7 @@ pub fn (params EditGuildChannelParams) build() json2.Any {
 		r['default_thread_rate_limit_per_user'] = default_thread_rate_limit_per_user / time.second
 	}
 	if default_sort_order := params.default_sort_order {
-		if default_sort_order != discord.sentinel_sort_order_type {
+		if default_sort_order != sentinel_sort_order_type {
 			r['default_sort_order'] = int(default_sort_order)
 		}
 	} else {
@@ -1045,9 +1046,10 @@ pub fn (params EditThreadChannelParams) build() json2.Any {
 
 // Update a channel's settings. Returns a channel on success, and a 400 BAD REQUEST on invalid parameters. All JSON parameters are optional.
 pub fn (rest &REST) edit_channel(channel_id Snowflake, params EditChannelParams) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/channels/${urllib.path_escape(channel_id.str())}',
 		reason: params.reason
-		json: params.build()
+		json:   params.build()
 	)!.body)!)!
 }
 
@@ -1087,7 +1089,7 @@ pub fn (params SetVoiceChannelStatusParams) build() json2.Any {
 // Set a voice channel's status. Requires the `.set_voice_channel_status` permission, and additionally the `.manage_channels` permission if the current user is not connected to the voice channel. Returns a 204 empty response on success. Fires a [Voice Channel Status Update](#VoiceChannelStatusUpdateEvent) event.
 pub fn (rest &REST) set_voice_channel_status(channel_id Snowflake, params SetVoiceChannelStatusParams) ! {
 	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/voice-status',
-		json: params.build()
+		json:   params.build()
 		reason: params.reason
 	)!
 }
@@ -1097,7 +1099,8 @@ pub fn (rest &REST) set_voice_channel_status(channel_id Snowflake, params SetVoi
 // Channel Update Gateway event will fire for each of them. Returns a channel object on success. Fires a Channel Delete Gateway
 // event (or Thread Delete if the channel was a thread).
 pub fn (rest &REST) delete_channel(channel_id Snowflake, params ReasonParam) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}',
+	return Channel.parse(json2.decode[json2.Any](rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}',
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1137,16 +1140,17 @@ pub fn (params EditChannelPermissionsParams) build() json2.Any {
 
 // Edit the channel permission overwrites for a user or role in a channel. Only usable for guild channels. Requires the `.manage_roles` permission. Only permissions your bot has in the guild or parent channel (if applicable) can be allowed/denied (unless your bot has a `.manage_roles` overwrite in the channel). Fires a Channel Update Gateway event. For more information about permissions, see [Permissions](#Permissions).
 pub fn (rest &REST) edit_channel_permissions(channel_id Snowflake, overwrite_id Snowflake, params EditChannelPermissionsParams) ! {
-	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/overwrites/${urllib.path_escape(overwrite_id.str())}',
-		json: params.build()
+	rest.request(.put,
+		'/channels/${urllib.path_escape(channel_id.str())}/overwrites/${urllib.path_escape(overwrite_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!
 }
 
 // Returns a list of invite objects (with invite metadata) for the channel. Only usable for guild channels. Requires the `.manage_channels` permission.
 pub fn (rest &REST) fetch_invites(channel_id Snowflake) ![]InviteMetadata {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/invites')!.body)! as []json2.Any,
-		fn (j json2.Any) !InviteMetadata {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/invites')!.body)! as []json2.Any, fn (j json2.Any) !InviteMetadata {
 		return InviteMetadata.parse(j)!
 	})!
 }
@@ -1198,14 +1202,16 @@ pub fn (params CreateInviteParams) build() json2.Any {
 
 // Create a new invite object for the channel. Only usable for guild channels. Requires the `.create_instant_invite` permission. All JSON parameters for this route are optional. Returns an invite object. Fires an Invite Create Gateway event.
 pub fn (rest &REST) create_invite(channel_id Snowflake, params CreateInviteParams) !Invite {
-	return Invite.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/invites',
+	return Invite.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/invites',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Delete a channel permission overwrite for a user or role in a channel. Only usable for guild channels. Requires the `.manage_roles` permission. Fires a Channel Update Gateway event. For more information about permissions, see [Permissions](#Permissions).
 pub fn (rest &REST) delete_channel_permission(channel_id Snowflake, overwrite_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/overwrites/${urllib.path_escape(overwrite_id.str())}',
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/overwrites/${urllib.path_escape(overwrite_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -1234,8 +1240,9 @@ pub fn FollowedChannel.parse(j json2.Any) !FollowedChannel {
 
 // Follow an Announcement Channel to send messages to a target channel. Requires the `.manage_webhooks` permission in the target channel. Fires a Webhooks Update Gateway event for the target channel.
 pub fn (rest &REST) follow_announcement_channel(channel_id Snowflake, webhook_channel_id Snowflake, params ReasonParam) !FollowedChannel {
-	return FollowedChannel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/followers',
-		json: {
+	return FollowedChannel.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/followers',
+		json:   {
 			'webhook_channel_id': webhook_channel_id.build()
 		}
 		reason: params.reason
@@ -1269,14 +1276,16 @@ pub fn (params GroupDMAddRecipientParams) build() json2.Any {
 
 // Adds a recipient to a Group DM using their access token.
 pub fn (rest &REST) group_dm_add_recipient(channel_id Snowflake, user_id Snowflake, params GroupDMAddRecipientParams) ! {
-	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/recipients/${urllib.path_escape(user_id.str())}',
+	rest.request(.put,
+		'/channels/${urllib.path_escape(channel_id.str())}/recipients/${urllib.path_escape(user_id.str())}',
 		json: params.build()
 	)!
 }
 
 // Removes a recipient from a Group DM.
 pub fn (rest &REST) group_dm_remove_recipient(channel_id Snowflake, user_id Snowflake) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/recipients/${urllib.path_escape(user_id.str())}')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/recipients/${urllib.path_escape(user_id.str())}')!
 }
 
 @[params]
@@ -1311,8 +1320,9 @@ pub fn (params StartThreadFromMessageParams) build() json2.Any {
 // Creates a new thread from an existing message. Fires a Thread Create and a Message Update Gateway event.
 // When called on a `.guild_text` channel, creates a `.public_thread`. When called on a `.guild_announcement` channel, creates a `.announcement_thread`. Does not work on a `.guild_forum` or a `.guild_media` channel. The id of the created thread will be the same as the id of the source message, and as such a message can only have a single thread created from it.
 pub fn (rest &REST) start_thread_from_message(channel_id Snowflake, message_id Snowflake, params StartThreadFromMessageParams) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/threads',
-		json: params.build()
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/threads',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1356,8 +1366,9 @@ pub fn (params StartThreadWithoutMessageParams) build() json2.Any {
 
 // Creates a new thread that is not connected to an existing message. Fires a Thread Create Gateway event.
 pub fn (rest &REST) start_thread_without_message(channel_id Snowflake, params StartThreadWithoutMessageParams) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
-		json: params.build()
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/threads',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -1369,7 +1380,8 @@ pub fn (rest &REST) join_thread(channel_id Snowflake) ! {
 
 // Adds another member to a thread. Requires the ability to send messages in the thread. Also requires the thread is not archived. Returns nothing if the member is successfully added or was already a member of the thread. Fires a Thread Members Update Gateway event.
 pub fn (rest &REST) add_thread_member(channel_id Snowflake, user_id Snowflake) ! {
-	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}')!
+	rest.request(.put,
+		'/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}')!
 }
 
 // Removes the current user from a thread. Also requires the thread is not archived. Returns nothing on success. Fires a Thread Members Update Gateway event.
@@ -1379,7 +1391,8 @@ pub fn (rest &REST) leave_thread(channel_id Snowflake) ! {
 
 // Removes another member from a thread. Requires the `.manage_threads` permission, or the creator of the thread if it is a `.private_thread`. Also requires the thread is not archived. Returns nothing on success. Fires a Thread Members Update Gateway event.
 pub fn (rest &REST) remove_thread_member(channel_id Snowflake, user_id Snowflake) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}')!
 }
 
 @[params]
@@ -1400,7 +1413,8 @@ pub fn (params FetchThreadMemberParams) build_query_values() urllib.Values {
 // Returns a thread member object for the specified user if they are a member of the thread, returns a 404 response otherwise.
 // When with_member is set to `true`, the thread member object will include a `member` field containing a guild member object.
 pub fn (rest &REST) fetch_thread_member(channel_id Snowflake, user_id Snowflake, params FetchThreadMemberParams) !ThreadMember {
-	return ThreadMember.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}',
+	return ThreadMember.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/thread-members/${urllib.path_escape(user_id.str())}',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1433,7 +1447,8 @@ pub fn (params ListThreadMembersParams) build_query_values() urllib.Values {
 // Returns array of thread members objects that are members of the thread.
 // When with_member is set to `true`, the results will be paginated and each thread member object will include a `member` field containing a guild member object.
 pub fn (rest &REST) list_thread_members(channel_id Snowflake, params FetchThreadMemberParams) ![]ThreadMember {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/thread-members',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/thread-members',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !ThreadMember {
 		return ThreadMember.parse(j)!
@@ -1474,10 +1489,10 @@ pub fn ListThreadsResponse.parse(j json2.Any) !ListThreadsResponse {
 	match j {
 		map[string]json2.Any {
 			return ListThreadsResponse{
-				threads: maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
+				threads:  maybe_map(j['threads']! as []json2.Any, fn (k json2.Any) !Channel {
 					return Channel.parse(k)!
 				})!
-				members: maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !ThreadMember {
+				members:  maybe_map(j['members']! as []json2.Any, fn (k json2.Any) !ThreadMember {
 					return ThreadMember.parse(k)!
 				})!
 				has_more: j['has_more']! as bool
@@ -1491,14 +1506,16 @@ pub fn ListThreadsResponse.parse(j json2.Any) !ListThreadsResponse {
 
 // Returns archived threads in the channel that are public. When called on a `.guild_text` channel, returns threads of type `.public_thread`. When called on a `.guild_announcement` channel returns threads of type `.announcement_thread`. Threads are ordered by `archive_timestamp`, in descending order. Requires the `.read_message_history` permission.
 pub fn (rest &REST) list_public_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/public',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/threads/archived/public',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
 
 // Returns archived threads in the channel that are of type `.private_thread`. Threads are ordered by `archive_timestamp`, in descending order. Requires both the `.read_message_history` and `.manage_threads` permissions.
 pub fn (rest &REST) list_private_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/threads/archived/private',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/threads/archived/private',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1525,7 +1542,8 @@ pub fn (params ListJoinedPrivateArchivedThreadsParams) build_query_values() urll
 
 // Returns archived threads in the channel that are of type `.private_threads`, and the user has joined. Threads are ordered by their `id`, in descending order. Requires the `.read_message_history` permission.
 pub fn (rest &REST) list_joined_private_archived_threads(channel_id Snowflake, params ListArchivedThreadsParams) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/users/@me/threads/archived/private',
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/users/@me/threads/archived/private',
 		query_params: params.build_query_values()
 	)!.body)!)!
 }
@@ -1549,7 +1567,7 @@ pub mut:
 	// sorting position of the channel
 	position ?int = sentinel_int
 	// the channel's permission overwrites
-	permission_overwrites ?[]PermissionOverwrite = discord.sentinel_permission_overwrites
+	permission_overwrites ?[]PermissionOverwrite = sentinel_permission_overwrites
 	// id of the parent category for a channel
 	parent_id ?Snowflake = sentinel_snowflake
 	// whether the channel is nsfw
@@ -1561,9 +1579,9 @@ pub mut:
 	// the default duration that the clients use (not the API) for newly created threads in the channel, in minutes, to automatically archive the thread after recent activity
 	default_auto_archive_duration ?time.Duration = sentinel_duration
 	// emoji to show in the add reaction button on a thread in a `.guild_forum` or a `.guild_media` channel
-	default_reaction_emoji ?DefaultReaction = discord.sentinel_default_reaction
+	default_reaction_emoji ?DefaultReaction = sentinel_default_reaction
 	// set of tags that can be used in a `.guild_forum` or a `.guild_media` channel
-	available_tags ?[]ForumTag = discord.sentinel_forum_tags
+	available_tags ?[]ForumTag = sentinel_forum_tags
 	// the default sort order type used to order posts in `.guild_forum` and `.guild_media`  channels
 	default_sort_order ?SortOrderType = unsafe { SortOrderType(sentinel_int) }
 	// the default forum layout view used to display posts in `.guild_forum` channels
@@ -1621,7 +1639,7 @@ pub fn (params CreateGuildChannelParams) build() json2.Any {
 		r['position'] = json2.null
 	}
 	if permission_overwrites := params.permission_overwrites {
-		if permission_overwrites.data != discord.sentinel_permission_overwrites.data {
+		if permission_overwrites.data != sentinel_permission_overwrites.data {
 			r['permission_overwrites'] = permission_overwrites.map(|po| po.build())
 		}
 	} else {
@@ -1667,7 +1685,7 @@ pub fn (params CreateGuildChannelParams) build() json2.Any {
 		r['default_reaction_emoji'] = json2.null
 	}
 	if available_tags := params.available_tags {
-		if available_tags.data != discord.sentinel_forum_tags.data {
+		if available_tags.data != sentinel_forum_tags.data {
 			r['available_tags'] = available_tags.map(|ft| ft.build())
 		}
 	} else {
@@ -1701,15 +1719,17 @@ pub fn (params CreateGuildChannelParams) build() json2.Any {
 
 // Create a new channel object for the guild. Requires the `.manage_channels` permission. If setting permission overwrites, only permissions your bot has in the guild can be allowed/denied. Setting `.manage_roles` permission in channels is only possible for guild administrators. Returns the new [channel](#Channel) object on success. Fires a Channel Create Gateway event.
 pub fn (rest &REST) create_guild_channel(guild_id Snowflake, params CreateGuildChannelParams) !Channel {
-	return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/channels',
-		json: params.build()
+	return Channel.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/channels',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Returns all active threads in the guild, including public and private threads. Threads are ordered by their [`id`](#Snowflake), in descending order.
 pub fn (rest &REST) list_active_guild_threads(guild_id Snowflake) !ListThreadsResponse {
-	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/threads/active')!.body)!)!
+	return ListThreadsResponse.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/threads/active')!.body)!)!
 }
 
 fn compute_base_permissions(member GuildMember, guild Guild) Permissions {

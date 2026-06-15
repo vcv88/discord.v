@@ -91,52 +91,52 @@ pub fn REST.do_request(rest &REST, method http.Method, route string, options Req
 		} as map[string]json2.Any
 		if res.status_code >= 500 {
 			return InternalServerError{
-				code: code
+				code:    code
 				message: message
-				errors: errors
-				status: status
+				errors:  errors
+				status:  status
 			}
 		}
 		match res.status_code {
 			401 {
 				return Unauthorized{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			403 {
 				return Forbidden{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			404 {
 				return NotFound{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 			429 {
 				return Ratelimit{
-					code: code
-					message: message
-					errors: errors
-					status: status
+					code:        code
+					message:     message
+					errors:      errors
+					status:      status
 					retry_after: er['retry_after']!.f32()
 				}
 			}
 			else {
 				return RestError{
-					code: code
+					code:    code
 					message: message
-					errors: errors
-					status: status
+					errors:  errors
+					status:  status
 				}
 			}
 		}

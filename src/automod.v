@@ -7,9 +7,9 @@ import x.json2
 // Characterizes the type of content which can trigger the rule.
 pub enum TriggerType {
 	// check if content contains words from a user defined list of keywords
-	keyword        = 1
+	keyword = 1
 	// check if content represents generic spam
-	spam           = 3
+	spam = 3
 	// check if content contains words from internal pre-defined wordsets
 	keyword_preset
 	// check if content contains more unique mentions than allowed
@@ -18,7 +18,7 @@ pub enum TriggerType {
 
 pub enum KeywordPresetType {
 	// words that may be considered forms of swearing or cursing
-	profanity      = 1
+	profanity = 1
 	// words that refer to sexually explicit behavior or activity
 	sexual_content
 	// personal insults or words that may be considered hate speech
@@ -75,27 +75,27 @@ pub fn TriggerMetadata.parse(j json2.Any) !TriggerMetadata {
 	match j {
 		map[string]json2.Any {
 			return TriggerMetadata{
-				keyword_filter: if a := j['keyword_filter'] {
+				keyword_filter:                  if a := j['keyword_filter'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				regex_patterns: if a := j['regex_patterns'] {
+				regex_patterns:                  if a := j['regex_patterns'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				presets: if a := j['presets'] {
+				presets:                         if a := j['presets'] {
 					(a as []json2.Any).map(|i| unsafe { KeywordPresetType(i.int()) })
 				} else {
 					none
 				}
-				allow_list: if a := j['allow_list'] {
+				allow_list:                      if a := j['allow_list'] {
 					(a as []json2.Any).map(|s| s as string)
 				} else {
 					none
 				}
-				mention_total_limit: if i := j['mention_total_limit'] {
+				mention_total_limit:             if i := j['mention_total_limit'] {
 					i.int()
 				} else {
 					none
@@ -115,7 +115,7 @@ pub fn TriggerMetadata.parse(j json2.Any) !TriggerMetadata {
 
 pub enum ActionType {
 	// blocks a member's message and prevents it from being posted. A custom explanation can be specified and shown to members whenever their message is blocked.
-	block_message      = 1
+	block_message = 1
 	// logs user content to a specified channel
 	send_alert_message
 	// timeout user for a specified duration
@@ -150,7 +150,7 @@ pub fn ActionMetadata.parse(j json2.Any) !ActionMetadata {
 	match j {
 		map[string]json2.Any {
 			return ActionMetadata{
-				channel_id: if s := j['channel_id'] {
+				channel_id:       if s := j['channel_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -160,7 +160,7 @@ pub fn ActionMetadata.parse(j json2.Any) !ActionMetadata {
 				} else {
 					none
 				}
-				custom_message: if s := j['custom_message'] {
+				custom_message:   if s := j['custom_message'] {
 					s as string
 				} else {
 					none
@@ -195,7 +195,7 @@ pub fn Action.parse(j json2.Any) !Action {
 	match j {
 		map[string]json2.Any {
 			return Action{
-				typ: unsafe { ActionType(j['type']!.int()) }
+				typ:      unsafe { ActionType(j['type']!.int()) }
 				metadata: if o := j['metadata'] {
 					ActionMetadata.parse(o)!
 				} else {
@@ -239,21 +239,21 @@ pub fn AutoModerationRule.parse(j json2.Any) !AutoModerationRule {
 	match j {
 		map[string]json2.Any {
 			return AutoModerationRule{
-				id: Snowflake.parse(j['id']!)!
-				guild_id: Snowflake.parse(j['guild_id']!)!
-				name: j['name']! as string
-				creator_id: Snowflake.parse(j['creator_id']!)!
-				event_type: unsafe { EventType(j['event_type']!.int()) }
-				trigger_type: unsafe { TriggerType(j['trigger_type']!.int()) }
+				id:               Snowflake.parse(j['id']!)!
+				guild_id:         Snowflake.parse(j['guild_id']!)!
+				name:             j['name']! as string
+				creator_id:       Snowflake.parse(j['creator_id']!)!
+				event_type:       unsafe { EventType(j['event_type']!.int()) }
+				trigger_type:     unsafe { TriggerType(j['trigger_type']!.int()) }
 				trigger_metadata: TriggerMetadata.parse(j['trigger_metadata']!)!
-				actions: maybe_map(j['actions']! as []json2.Any, fn (k json2.Any) !Action {
+				actions:          maybe_map(j['actions']! as []json2.Any, fn (k json2.Any) !Action {
 					return Action.parse(k)!
 				})!
-				enabled: j['enabled']! as bool
-				exempt_roles: maybe_map(j['exempt_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				enabled:          j['enabled']! as bool
+				exempt_roles:     maybe_map(j['exempt_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				exempt_channels: maybe_map(j['exempt_channels']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				exempt_channels:  maybe_map(j['exempt_channels']! as []json2.Any, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
 			}
@@ -266,15 +266,16 @@ pub fn AutoModerationRule.parse(j json2.Any) !AutoModerationRule {
 
 // Get a list of all rules currently configured for the guild. Returns a list of auto moderation rule objects for the given guild.
 pub fn (rest &REST) list_auto_moderation_rules_for_guild(guild_id Snowflake) ![]AutoModerationRule {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules')!.body)! as []json2.Any,
-		fn (j json2.Any) !AutoModerationRule {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules')!.body)! as []json2.Any, fn (j json2.Any) !AutoModerationRule {
 		return AutoModerationRule.parse(j)!
 	})!
 }
 
 // Get a single rule. Returns an auto moderation rule object.
 pub fn (rest &REST) fetch_auto_moderation_rule(guild_id Snowflake, auto_moderation_rule_id Snowflake) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}')!.body)!)!
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}')!.body)!)!
 }
 
 @[params]
@@ -323,8 +324,9 @@ pub fn (params CreateAutoModerationRuleParams) build() json2.Any {
 
 // Create a new rule. Returns an auto moderation rule on success. Fires an Auto Moderation Rule Create Gateway event.
 pub fn (rest &REST) create_auto_moderation_rule(guild_id Snowflake, params CreateAutoModerationRuleParams) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules',
-		json: params.build()
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
@@ -382,15 +384,17 @@ pub fn (params EditAutoModerationRuleParams) build() json2.Any {
 
 // Modify an existing rule. Returns an auto moderation rule on success. Fires an Auto Moderation Rule Update Gateway event.
 pub fn (rest &REST) edit_auto_moderation_rule(guild_id Snowflake, auto_moderation_rule_id Snowflake, params EditAutoModerationRuleParams) !AutoModerationRule {
-	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
-		json: params.build()
+	return AutoModerationRule.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
+		json:   params.build()
 		reason: params.reason
 	)!.body)!)!
 }
 
 // Delete a rule. Returns a 204 on success. Fires an Auto Moderation Rule Delete Gateway event.
 pub fn (rest &REST) delete_auto_moderation_rule(guild_id Snowflake, auto_moderation_rule_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
+	rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/auto-moderation/rules/${urllib.path_escape(auto_moderation_rule_id.str())}',
 		reason: params.reason
 	)!
 }

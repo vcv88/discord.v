@@ -21,10 +21,10 @@ pub fn ChannelMention.parse(j json2.Any) !ChannelMention {
 	match j {
 		map[string]json2.Any {
 			return ChannelMention{
-				id: Snowflake.parse(j['id']!)!
+				id:       Snowflake.parse(j['id']!)!
 				guild_id: Snowflake.parse(j['guild_id']!)!
-				typ: unsafe { ChannelType(j['type']!.int()) }
-				name: j['name']! as string
+				typ:      unsafe { ChannelType(j['type']!.int()) }
+				name:     j['name']! as string
 			}
 		}
 		else {
@@ -49,18 +49,18 @@ pub fn EmbedThumbnail.parse(j json2.Any) !EmbedThumbnail {
 	match j {
 		map[string]json2.Any {
 			return EmbedThumbnail{
-				url: j['url']! as string
+				url:       j['url']! as string
 				proxy_url: if s := j['proxy_url'] {
 					s as string
 				} else {
 					none
 				}
-				height: if i := j['height'] {
+				height:    if i := j['height'] {
 					i.int()
 				} else {
 					none
 				}
-				width: if i := j['width'] {
+				width:     if i := j['width'] {
 					i.int()
 				} else {
 					none
@@ -95,7 +95,7 @@ pub fn EmbedVideo.parse(j json2.Any) !EmbedVideo {
 	match j {
 		map[string]json2.Any {
 			return EmbedVideo{
-				url: if s := j['url'] {
+				url:       if s := j['url'] {
 					s as string
 				} else {
 					none
@@ -105,12 +105,12 @@ pub fn EmbedVideo.parse(j json2.Any) !EmbedVideo {
 				} else {
 					none
 				}
-				height: if i := j['height'] {
+				height:    if i := j['height'] {
 					i.int()
 				} else {
 					none
 				}
-				width: if i := j['width'] {
+				width:     if i := j['width'] {
 					i.int()
 				} else {
 					none
@@ -145,18 +145,18 @@ pub fn EmbedImage.parse(j json2.Any) !EmbedImage {
 	match j {
 		map[string]json2.Any {
 			return EmbedImage{
-				url: j['url']! as string
+				url:       j['url']! as string
 				proxy_url: if s := j['proxy_url'] {
 					s as string
 				} else {
 					none
 				}
-				height: if i := j['height'] {
+				height:    if i := j['height'] {
 					i.int()
 				} else {
 					none
 				}
-				width: if i := j['width'] {
+				width:     if i := j['width'] {
 					i.int()
 				} else {
 					none
@@ -188,7 +188,7 @@ pub fn EmbedProvider.parse(j json2.Any) !EmbedProvider {
 		map[string]json2.Any {
 			return EmbedProvider{
 				name: j['name']! as string
-				url: if s := j['url'] {
+				url:  if s := j['url'] {
 					s as string
 				} else {
 					none
@@ -227,13 +227,13 @@ pub fn EmbedAuthor.parse(j json2.Any) !EmbedAuthor {
 	match j {
 		map[string]json2.Any {
 			return EmbedAuthor{
-				name: j['name']! as string
-				url: if s := j['url'] {
+				name:           j['name']! as string
+				url:            if s := j['url'] {
 					s as string
 				} else {
 					none
 				}
-				icon_url: if s := j['icon_url'] {
+				icon_url:       if s := j['icon_url'] {
 					s as string
 				} else {
 					none
@@ -278,8 +278,8 @@ pub fn EmbedFooter.parse(j json2.Any) !EmbedFooter {
 	match j {
 		map[string]json2.Any {
 			return EmbedFooter{
-				text: j['text']! as string
-				icon_url: if s := j['icon_url'] {
+				text:           j['text']! as string
+				icon_url:       if s := j['icon_url'] {
 					s as string
 				} else {
 					none
@@ -321,8 +321,8 @@ pub fn EmbedField.parse(j json2.Any) !EmbedField {
 	match j {
 		map[string]json2.Any {
 			return EmbedField{
-				name: j['name']! as string
-				value: j['value']! as string
+				name:   j['name']! as string
+				value:  j['value']! as string
 				inline: if b := j['inline'] {
 					b as bool
 				} else {
@@ -381,12 +381,12 @@ pub fn Embed.parse(j json2.Any) !Embed {
 	match j {
 		map[string]json2.Any {
 			return Embed{
-				title: if s := j['title'] {
+				title:       if s := j['title'] {
 					s as string
 				} else {
 					none
 				}
-				typ: if s := j['type'] {
+				typ:         if s := j['type'] {
 					s as string
 				} else {
 					none
@@ -396,52 +396,52 @@ pub fn Embed.parse(j json2.Any) !Embed {
 				} else {
 					none
 				}
-				url: if s := j['url'] {
+				url:         if s := j['url'] {
 					s as string
 				} else {
 					none
 				}
-				timestamp: if s := j['timestamp'] {
+				timestamp:   if s := j['timestamp'] {
 					time.parse_iso8601(s as string)!
 				} else {
 					none
 				}
-				color: if i := j['color'] {
+				color:       if i := j['color'] {
 					i.int()
 				} else {
 					none
 				}
-				footer: if o := j['footer'] {
+				footer:      if o := j['footer'] {
 					EmbedFooter.parse(o)!
 				} else {
 					none
 				}
-				image: if o := j['image'] {
+				image:       if o := j['image'] {
 					EmbedImage.parse(o)!
 				} else {
 					none
 				}
-				thumbnail: if o := j['thumbnail'] {
+				thumbnail:   if o := j['thumbnail'] {
 					EmbedThumbnail.parse(o)!
 				} else {
 					none
 				}
-				video: if o := j['video'] {
+				video:       if o := j['video'] {
 					EmbedVideo.parse(o)!
 				} else {
 					none
 				}
-				provider: if o := j['provider'] {
+				provider:    if o := j['provider'] {
 					EmbedProvider.parse(o)!
 				} else {
 					none
 				}
-				author: if o := j['author'] {
+				author:      if o := j['author'] {
 					EmbedAuthor.parse(o)!
 				} else {
 					none
 				}
-				fields: if a := j['fields'] {
+				fields:      if a := j['fields'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !EmbedField {
 						return EmbedField.parse(k)!
 					})!
@@ -516,7 +516,7 @@ pub enum MessageType {
 	guild_boost_tier_2
 	guild_boost_tier_3
 	channel_follow_add
-	guild_discovery_disqualified                = 14
+	guild_discovery_disqualified      = 14
 	guild_discovery_requalified
 	guild_discovery_grace_period_inital_warning
 	guild_discovery_grace_period_final_warning
@@ -532,16 +532,16 @@ pub enum MessageType {
 	stage_start
 	stage_end
 	stage_speaker
-	stage_topic                                 = 31
+	stage_topic                       = 31
 	guild_application_premium_subscription
-	guild_incident_alert_mode_enabled           = 36
+	guild_incident_alert_mode_enabled = 36
 	guild_incident_alert_mode_disabled
 	guild_incident_report_raid
 	guild_incident_report_false_alarm
 }
 
 pub enum MessageActivityType {
-	join         = 1
+	join = 1
 	spectate
 	listen
 	join_request
@@ -559,7 +559,7 @@ pub fn MessageActivity.parse(j json2.Any) !MessageActivity {
 	match j {
 		map[string]json2.Any {
 			return MessageActivity{
-				typ: unsafe { MessageActivityType(j['type']!.int()) }
+				typ:      unsafe { MessageActivityType(j['type']!.int()) }
 				party_id: if s := j['party_id'] {
 					Snowflake.parse(s)!
 				} else {
@@ -599,7 +599,7 @@ pub fn MessageReference.parse(j json2.Any) !MessageReference {
 				} else {
 					none
 				}
-				guild_id: if s := j['guild_id'] {
+				guild_id:   if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
@@ -665,10 +665,10 @@ pub fn MessageInteraction.parse(j json2.Any) !MessageInteraction {
 	match j {
 		map[string]json2.Any {
 			return MessageInteraction{
-				id: Snowflake.parse(j['id']!)!
-				typ: unsafe { InteractionType(j['type']!.int()) }
-				name: j['name']! as string
-				user: User.parse(j['user']!)!
+				id:     Snowflake.parse(j['id']!)!
+				typ:    unsafe { InteractionType(j['type']!.int()) }
+				name:   j['name']! as string
+				user:   User.parse(j['user']!)!
 				member: if o := j['member'] {
 					PartialGuildMember.parse(o)!
 				} else {
@@ -699,9 +699,9 @@ pub fn RoleSubscriptionData.parse(j json2.Any) !RoleSubscriptionData {
 		map[string]json2.Any {
 			return RoleSubscriptionData{
 				role_subscription_listing_id: Snowflake.parse(j['role_subscription_listing_id']!)!
-				tier_name: j['tier_name']! as string
-				total_months_subscribed: j['total_months_subscribed']!.int()
-				is_renewal: j['is_renewal']! as bool
+				tier_name:                    j['tier_name']! as string
+				total_months_subscribed:      j['total_months_subscribed']!.int()
+				is_renewal:                   j['is_renewal']! as bool
 			}
 		}
 		else {
@@ -783,45 +783,45 @@ pub fn Message.parse(j json2.Any) !Message {
 		map[string]json2.Any {
 			edited_timestamp := j['edited_timestamp']!
 			return Message{
-				id: Snowflake.parse(j['id']!)!
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				author: User.parse(j['author']!)!
-				content: j['content']! as string
-				timestamp: time.parse_iso8601(j['timestamp']! as string)!
-				edited_timestamp: if edited_timestamp !is json2.Null {
+				id:                     Snowflake.parse(j['id']!)!
+				channel_id:             Snowflake.parse(j['channel_id']!)!
+				author:                 User.parse(j['author']!)!
+				content:                j['content']! as string
+				timestamp:              time.parse_iso8601(j['timestamp']! as string)!
+				edited_timestamp:       if edited_timestamp !is json2.Null {
 					?time.Time(time.parse_iso8601(edited_timestamp as string)!)
 				} else {
 					none
 				}
-				tts: j['tts']! as bool
-				mention_everyone: j['mention_everyone']! as bool
-				mentions: maybe_map(j['mentions']! as []json2.Any, fn (k json2.Any) !User {
+				tts:                    j['tts']! as bool
+				mention_everyone:       j['mention_everyone']! as bool
+				mentions:               maybe_map(j['mentions']! as []json2.Any, fn (k json2.Any) !User {
 					return User.parse(k)!
 				})!
-				mention_roles: maybe_map(j['mention_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
+				mention_roles:          maybe_map(j['mention_roles']! as []json2.Any, fn (k json2.Any) !Snowflake {
 					return Snowflake.parse(k)!
 				})!
-				mention_channels: if a := j['mention_channels'] {
+				mention_channels:       if a := j['mention_channels'] {
 					?[]ChannelMention(maybe_map(a as []json2.Any, fn (k json2.Any) !ChannelMention {
 						return ChannelMention.parse(k)!
 					})!)
 				} else {
 					none
 				}
-				attachments: maybe_map(j['attachments']! as []json2.Any, fn (k json2.Any) !Attachment {
+				attachments:            maybe_map(j['attachments']! as []json2.Any, fn (k json2.Any) !Attachment {
 					return Attachment.parse(k)!
 				})!
-				embeds: maybe_map(j['embeds']! as []json2.Any, fn (k json2.Any) !Embed {
+				embeds:                 maybe_map(j['embeds']! as []json2.Any, fn (k json2.Any) !Embed {
 					return Embed.parse(k)!
 				})!
-				reactions: if a := j['reactions'] {
+				reactions:              if a := j['reactions'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Reaction {
 						return Reaction.parse(k)!
 					})!
 				} else {
 					none
 				}
-				nonce: if o := j['nonce'] {
+				nonce:                  if o := j['nonce'] {
 					match o {
 						string {
 							?Nonce(o)
@@ -836,39 +836,39 @@ pub fn Message.parse(j json2.Any) !Message {
 				} else {
 					none
 				}
-				pinned: j['pinned']! as bool
-				webhook_id: if s := j['webhook_id'] {
+				pinned:                 j['pinned']! as bool
+				webhook_id:             if s := j['webhook_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				typ: unsafe { MessageType(j['type']!.int()) }
-				activity: if o := j['activity'] {
+				typ:                    unsafe { MessageType(j['type']!.int()) }
+				activity:               if o := j['activity'] {
 					MessageActivity.parse(o)!
 				} else {
 					none
 				}
-				application: if o := j['application'] {
+				application:            if o := j['application'] {
 					PartialApplication.parse(o)!
 				} else {
 					none
 				}
-				application_id: if s := j['application_id'] {
+				application_id:         if s := j['application_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				message_reference: if o := j['message_reference'] {
+				message_reference:      if o := j['message_reference'] {
 					MessageReference.parse(o)!
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                  if i := j['flags'] {
 					unsafe { MessageFlags(i.int()) }
 				} else {
 					none
 				}
-				referenced_message: if o := j['referenced_message'] {
+				referenced_message:     if o := j['referenced_message'] {
 					if o !is json2.Null {
 						Message.parse(o)!
 					} else {
@@ -877,31 +877,31 @@ pub fn Message.parse(j json2.Any) !Message {
 				} else {
 					none
 				}
-				interaction: if o := j['interaction'] {
+				interaction:            if o := j['interaction'] {
 					MessageInteraction.parse(o)!
 				} else {
 					none
 				}
-				thread: if o := j['thread'] {
+				thread:                 if o := j['thread'] {
 					Channel.parse(o)!
 				} else {
 					none
 				}
-				components: if a := j['components'] {
+				components:             if a := j['components'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Component {
 						return Component.parse(k)!
 					})!
 				} else {
 					none
 				}
-				sticker_items: if a := j['sticker_items'] {
+				sticker_items:          if a := j['sticker_items'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !StickerItem {
 						return StickerItem.parse(k)!
 					})!
 				} else {
 					none
 				}
-				position: if i := j['position'] {
+				position:               if i := j['position'] {
 					i.int()
 				} else {
 					none
@@ -911,7 +911,7 @@ pub fn Message.parse(j json2.Any) !Message {
 				} else {
 					none
 				}
-				resolved: if o := j['resolved'] {
+				resolved:               if o := j['resolved'] {
 					Resolved.parse(o)!
 				} else {
 					none
@@ -937,13 +937,13 @@ pub fn Message2.parse(j json2.Any) !Message2 {
 	match j {
 		map[string]json2.Any {
 			return Message2{
-				Message: Message.parse(j)!
+				Message:  Message.parse(j)!
 				guild_id: if s := j['guild_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				member: if s := j['member'] {
+				member:   if s := j['member'] {
 					PartialGuildMember.parse(s)!
 				} else {
 					none
@@ -1024,20 +1024,20 @@ pub fn PartialMessage.parse(j json2.Any) !PartialMessage {
 	match j {
 		map[string]json2.Any {
 			return PartialMessage{
-				id: Snowflake.parse(j['id']!)!
-				channel_id: Snowflake.parse(j['channel_id']!)!
-				author: User.parse(j['author']!)!
-				content: if s := j['content'] {
+				id:                     Snowflake.parse(j['id']!)!
+				channel_id:             Snowflake.parse(j['channel_id']!)!
+				author:                 User.parse(j['author']!)!
+				content:                if s := j['content'] {
 					s as string
 				} else {
 					none
 				}
-				timestamp: if s := j['timestamp'] {
+				timestamp:              if s := j['timestamp'] {
 					time.parse_iso8601(s as string)!
 				} else {
 					none
 				}
-				edited_timestamp: if s := j['edited_timestamp'] {
+				edited_timestamp:       if s := j['edited_timestamp'] {
 					if s !is json2.Null {
 						time.parse_iso8601(s as string)!
 					} else {
@@ -1046,59 +1046,59 @@ pub fn PartialMessage.parse(j json2.Any) !PartialMessage {
 				} else {
 					none
 				}
-				tts: if b := j['tts'] {
+				tts:                    if b := j['tts'] {
 					b as bool
 				} else {
 					none
 				}
-				mention_everyone: if b := j['mention_everyone'] {
+				mention_everyone:       if b := j['mention_everyone'] {
 					b as bool
 				} else {
 					none
 				}
-				mentions: if a := j['mentions'] {
+				mentions:               if a := j['mentions'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !User {
 						return User.parse(k)!
 					})!
 				} else {
 					none
 				}
-				mention_roles: if a := j['mention_roles'] {
+				mention_roles:          if a := j['mention_roles'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Snowflake {
 						return Snowflake.parse(k)!
 					})!
 				} else {
 					none
 				}
-				mention_channels: if a := j['mention_channels'] {
+				mention_channels:       if a := j['mention_channels'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !ChannelMention {
 						return ChannelMention.parse(k)!
 					})!
 				} else {
 					none
 				}
-				attachments: if a := j['attachments'] {
+				attachments:            if a := j['attachments'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Attachment {
 						return Attachment.parse(k)!
 					})!
 				} else {
 					none
 				}
-				embeds: if a := j['embeds'] {
+				embeds:                 if a := j['embeds'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Embed {
 						return Embed.parse(k)!
 					})!
 				} else {
 					none
 				}
-				reactions: if a := j['reactions'] {
+				reactions:              if a := j['reactions'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Reaction {
 						return Reaction.parse(k)!
 					})!
 				} else {
 					none
 				}
-				nonce: if o := j['nonce'] {
+				nonce:                  if o := j['nonce'] {
 					match o {
 						string {
 							?Nonce(o)
@@ -1113,47 +1113,47 @@ pub fn PartialMessage.parse(j json2.Any) !PartialMessage {
 				} else {
 					none
 				}
-				pinned: if b := j['pinned'] {
+				pinned:                 if b := j['pinned'] {
 					b as bool
 				} else {
 					none
 				}
-				webhook_id: if s := j['webhook_id'] {
+				webhook_id:             if s := j['webhook_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				typ: if i := j['type'] {
+				typ:                    if i := j['type'] {
 					unsafe { MessageType(i.int()) }
 				} else {
 					none
 				}
-				activity: if o := j['activity'] {
+				activity:               if o := j['activity'] {
 					MessageActivity.parse(o)!
 				} else {
 					none
 				}
-				application: if o := j['application'] {
+				application:            if o := j['application'] {
 					PartialApplication.parse(o)!
 				} else {
 					none
 				}
-				application_id: if s := j['application_id'] {
+				application_id:         if s := j['application_id'] {
 					Snowflake.parse(s)!
 				} else {
 					none
 				}
-				message_reference: if o := j['message_reference'] {
+				message_reference:      if o := j['message_reference'] {
 					MessageReference.parse(o)!
 				} else {
 					none
 				}
-				flags: if i := j['flags'] {
+				flags:                  if i := j['flags'] {
 					unsafe { MessageFlags(i.int()) }
 				} else {
 					none
 				}
-				referenced_message: if o := j['referenced_message'] {
+				referenced_message:     if o := j['referenced_message'] {
 					if o !is json2.Null {
 						m := Message.parse(o)!
 						?&Message(&m)
@@ -1163,31 +1163,31 @@ pub fn PartialMessage.parse(j json2.Any) !PartialMessage {
 				} else {
 					none
 				}
-				interaction: if o := j['interaction'] {
+				interaction:            if o := j['interaction'] {
 					MessageInteraction.parse(o)!
 				} else {
 					none
 				}
-				thread: if o := j['thread'] {
+				thread:                 if o := j['thread'] {
 					Channel.parse(o)!
 				} else {
 					none
 				}
-				components: if a := j['components'] {
+				components:             if a := j['components'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !Component {
 						return Component.parse(k)!
 					})!
 				} else {
 					none
 				}
-				sticker_items: if a := j['sticker_items'] {
+				sticker_items:          if a := j['sticker_items'] {
 					maybe_map(a as []json2.Any, fn (k json2.Any) !StickerItem {
 						return StickerItem.parse(k)!
 					})!
 				} else {
 					none
 				}
-				position: if i := j['position'] {
+				position:               if i := j['position'] {
 					i.int()
 				} else {
 					none
@@ -1236,7 +1236,8 @@ pub fn (params GetChannelMessagesParams) build_query_values() urllib.Values {
 }
 
 pub fn (rest &REST) fetch_messages(channel_id Snowflake, params GetChannelMessagesParams) ![]Message {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !Message {
 		return Message.parse(j)!
@@ -1244,7 +1245,8 @@ pub fn (rest &REST) fetch_messages(channel_id Snowflake, params GetChannelMessag
 }
 
 pub fn (rest &REST) fetch_message(channel_id Snowflake, message_id Snowflake) !Message {
-	return Message.parse(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}')!.body)!)!
+	return Message.parse(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}')!.body)!)!
 }
 
 pub enum AllowedMentionType {
@@ -1366,14 +1368,16 @@ pub fn (params CreateMessageParams) build() json2.Any {
 pub fn (rest &REST) create_message(channel_id Snowflake, params CreateMessageParams) !Message {
 	if files := params.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
-			body: body
+		return Message.parse(json2.decode[json2.Any](rest.request(.post,
+			'/channels/${urllib.path_escape(channel_id.str())}/messages',
+			body:           body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
 		)!.body)!)!
 	} else {
-		return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages',
+		return Message.parse(json2.decode[json2.Any](rest.request(.post,
+			'/channels/${urllib.path_escape(channel_id.str())}/messages',
 			json: params.build()
 		)!.body)!)!
 	}
@@ -1382,14 +1386,15 @@ pub fn (rest &REST) create_message(channel_id Snowflake, params CreateMessagePar
 // Crosspost a message in an Announcement Channel to following channels. This endpoint requires the SEND_MESSAGES permission, if the current user sent the message, or additionally the `.manage_messages` permission, for all other messages, to be present for the current user.
 // Returns a [`message`](#Message) object. Fires a Message Update Gateway event.
 pub fn (rest &REST) crosspost_message(channel_id Snowflake, message_id Snowflake) !Message {
-	return Message.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/crosspost')!.body)!)!
+	return Message.parse(json2.decode[json2.Any](rest.request(.post,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/crosspost')!.body)!)!
 }
 
 @[params]
 pub struct ReactionParams {
 pub mut:
 	id   ?Snowflake
-	name string     @[required]
+	name string @[required]
 }
 
 pub fn (params ReactionParams) build() string {
@@ -1402,17 +1407,20 @@ pub fn (params ReactionParams) build() string {
 
 // Create a reaction for the message. This endpoint requires the `.read_message_history` permission to be present on the current user. Additionally, if nobody else has reacted to the message using this emoji, this endpoint requires the `.add_reactions` permission to be present on the current user. Fires a Message Reaction Add Gateway event.
 pub fn (rest &REST) create_reaction(channel_id Snowflake, message_id Snowflake, params ReactionParams) ! {
-	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/@me')!
+	rest.request(.put,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/@me')!
 }
 
 // Delete a reaction the current user has made for the message. Fires a Message Reaction Remove Gateway event.
 pub fn (rest &REST) delete_own_reaction(channel_id Snowflake, message_id Snowflake, params ReactionParams) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/@me')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/@me')!
 }
 
 // Deletes another user's reaction. This endpoint requires the `.manage_messages` permission to be present on the current user. Fires a Message Reaction Remove Gateway event.
 pub fn (rest &REST) delete_user_reaction(channel_id Snowflake, message_id Snowflake, user_id Snowflake, params ReactionParams) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/${urllib.path_escape(user_id.str())}')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}/${urllib.path_escape(user_id.str())}')!
 }
 
 pub enum ReactionType {
@@ -1446,7 +1454,8 @@ pub fn (params FetchReactionsParams) build_query_values() urllib.Values {
 
 // Get a list of users that reacted with this emoji. Returns an array of [user](#User) objects on success.
 pub fn (rest &REST) fetch_reactions(channel_id Snowflake, message_id Snowflake, params FetchReactionsParams) ![]User {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}',
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}',
 		query_params: params.build_query_values()
 	)!.body)! as []json2.Any, fn (j json2.Any) !User {
 		return User.parse(j)!
@@ -1455,12 +1464,14 @@ pub fn (rest &REST) fetch_reactions(channel_id Snowflake, message_id Snowflake, 
 
 // Deletes all reactions on a message. This endpoint requires the `.manage_messages` permission to be present on the current user. Fires a Message Reaction Remove All Gateway event.
 pub fn (rest &REST) delete_all_reactions(channel_id Snowflake, message_id Snowflake) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions')!
 }
 
 // Deletes all the reactions for a given emoji on a message. This endpoint requires the `.manage_messages` permission to be present on the current user. Fires a Message Reaction Remove Emoji Gateway event.
 pub fn (rest &REST) delete_all_reactions_for_emoji(channel_id Snowflake, message_id Snowflake, params ReactionParams) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}')!
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}/reactions/${params.build()}')!
 }
 
 @[params]
@@ -1515,21 +1526,24 @@ pub fn (params EditMessageParams) build() json2.Any {
 pub fn (rest &REST) edit_message(channel_id Snowflake, message_id Snowflake, params EditMessageParams) !Message {
 	if fs := params.files {
 		body, boundary := build_multipart_with_files(fs, params.build())
-		return Message.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
-			body: body
+		return Message.parse(json2.decode[json2.Any](rest.request(.patch,
+			'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
+			body:           body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
 		)!.body)!)!
 	}
-	return Message.parse(json2.decode[json2.Any](rest.request(.patch, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
+	return Message.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Delete a message. If operating on a guild channel and trying to delete a message that was not sent by the current user, this endpoint requires the `.manage_messages` permission. Fires a Message Delete Gateway event.
 pub fn (rest &REST) delete_message(channel_id Snowflake, message_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/messages/${urllib.path_escape(message_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -1540,7 +1554,7 @@ pub fn (rest &REST) delete_message(channel_id Snowflake, message_id Snowflake, p
 pub fn (rest &REST) delete_messages(channel_id Snowflake, message_ids []Snowflake, params ReasonParam) ! {
 	rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/messages/bulk-delete',
 		reason: params.reason
-		json: {
+		json:   {
 			'messages': json2.Any(message_ids.map(|s| s.build()))
 		}
 	)!
@@ -1548,22 +1562,24 @@ pub fn (rest &REST) delete_messages(channel_id Snowflake, message_ids []Snowflak
 
 // Returns all pinned messages in the channel as an array of message objects.
 pub fn (rest &REST) fetch_pinned_messagse(channel_id Snowflake) ![]Message {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/channels/${urllib.path_escape(channel_id.str())}/pins')!.body)! as []json2.Any,
-		fn (j json2.Any) !Message {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/channels/${urllib.path_escape(channel_id.str())}/pins')!.body)! as []json2.Any, fn (j json2.Any) !Message {
 		return Message.parse(j)!
 	})!
 }
 
 // Pin a message in a channel. Requires the `.manage_messages` permission. Fires a Channel Pins Update Gateway event.
 pub fn (rest &REST) pin_message(channel_id Snowflake, message_id Snowflake, params ReasonParam) ! {
-	rest.request(.put, '/channels/${urllib.path_escape(channel_id.str())}/pins/${urllib.path_escape(message_id.str())}',
+	rest.request(.put,
+		'/channels/${urllib.path_escape(channel_id.str())}/pins/${urllib.path_escape(message_id.str())}',
 		reason: params.reason
 	)!
 }
 
 // Unpin a message in a channel. Requires the `.manage_messages` permission. Fires a Channel Pins Update Gateway event.
 pub fn (rest &REST) unpin_message(channel_id Snowflake, message_id Snowflake, params ReasonParam) ! {
-	rest.request(.delete, '/channels/${urllib.path_escape(channel_id.str())}/pins/${urllib.path_escape(message_id.str())}',
+	rest.request(.delete,
+		'/channels/${urllib.path_escape(channel_id.str())}/pins/${urllib.path_escape(message_id.str())}',
 		reason: params.reason
 	)!
 }
@@ -1658,16 +1674,18 @@ pub fn (params StartThreadInForumChannelParams) build() json2.Any {
 pub fn (rest &REST) start_thread_in_forum_channel(channel_id Snowflake, params StartThreadInForumChannelParams) !Channel {
 	if files := params.message.files {
 		body, boundary := build_multipart_with_files(files, params.build())
-		return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
-			body: body
+		return Channel.parse(json2.decode[json2.Any](rest.request(.post,
+			'/channels/${urllib.path_escape(channel_id.str())}/threads',
+			body:           body
 			common_headers: {
 				.content_type: 'multipart/form-data; boundary="${boundary}"'
 			}
-			reason: params.reason
+			reason:         params.reason
 		)!.body)!)!
 	} else {
-		return Channel.parse(json2.decode[json2.Any](rest.request(.post, '/channels/${urllib.path_escape(channel_id.str())}/threads',
-			json: params.build()
+		return Channel.parse(json2.decode[json2.Any](rest.request(.post,
+			'/channels/${urllib.path_escape(channel_id.str())}/threads',
+			json:   params.build()
 			reason: params.reason
 		)!.body)!)!
 	}

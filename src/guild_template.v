@@ -36,21 +36,21 @@ pub fn GuildTemplate.parse(j json2.Any) !GuildTemplate {
 			description := j['description']!
 			is_dirty := j['is_dirty']!
 			return GuildTemplate{
-				code: j['code']! as string
-				name: j['name']! as string
-				description: if description !is json2.Null {
+				code:                    j['code']! as string
+				name:                    j['name']! as string
+				description:             if description !is json2.Null {
 					description as string
 				} else {
 					none
 				}
-				usage_count: j['usage_count']!.int()
-				creator_id: Snowflake.parse(j['creator_id']!)!
-				creator: User.parse(j['creator']!)!
-				created_at: time.parse_iso8601(j['created_at']! as string)!
-				updated_at: time.parse_iso8601(j['updated_at']! as string)!
-				source_guild_id: Snowflake.parse(j['source_guild_id']!)!
+				usage_count:             j['usage_count']!.int()
+				creator_id:              Snowflake.parse(j['creator_id']!)!
+				creator:                 User.parse(j['creator']!)!
+				created_at:              time.parse_iso8601(j['created_at']! as string)!
+				updated_at:              time.parse_iso8601(j['updated_at']! as string)!
+				source_guild_id:         Snowflake.parse(j['source_guild_id']!)!
 				serialized_source_guild: PartialGuild.parse(j['serialized_source_guild']!)!
-				is_dirty: if is_dirty !is json2.Null {
+				is_dirty:                if is_dirty !is json2.Null {
 					is_dirty as bool
 				} else {
 					none
@@ -65,7 +65,8 @@ pub fn GuildTemplate.parse(j json2.Any) !GuildTemplate {
 
 // Returns a [guild template](#GuildTemplate) object for the given code.
 pub fn (rest &REST) fetch_guild_template(template_code string) !GuildTemplate {
-	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.get, '/guilds/templates/${urllib.path_escape(template_code)}')!.body)!)!
+	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/templates/${urllib.path_escape(template_code)}')!.body)!)!
 }
 
 @[params]
@@ -90,15 +91,16 @@ pub fn (params CreateGuildFromGuildTemplateParams) build() json2.Any {
 // Create a new guild based on a template. Returns a [guild](#Guild) object on success. Fires a [Guild Create](#GuildCreateEvent) Gateway event.
 // > i This endpoint can be used only by bots in less than 10 guilds.
 pub fn (rest &REST) create_guild_from_guild_template(template_code string, params CreateGuildFromGuildTemplateParams) !Guild {
-	return Guild.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/templates/${urllib.path_escape(template_code)}',
+	return Guild.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/templates/${urllib.path_escape(template_code)}',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Returns an array of [guild template](#GuildTemplate) objects. Requires the `.manage_guild` permission.
 pub fn (rest &REST) fetch_guild_templates(guild_id Snowflake) ![]GuildTemplate {
-	return maybe_map(json2.decode[json2.Any](rest.request(.get, '/guilds/${urllib.path_escape(guild_id.str())}/templates')!.body)! as []json2.Any,
-		fn (j json2.Any) !GuildTemplate {
+	return maybe_map(json2.decode[json2.Any](rest.request(.get,
+		'/guilds/${urllib.path_escape(guild_id.str())}/templates')!.body)! as []json2.Any, fn (j json2.Any) !GuildTemplate {
 		return GuildTemplate.parse(j)!
 	})!
 }
@@ -128,14 +130,16 @@ pub fn (params CreateGuildTemplateParams) build() json2.Any {
 
 // Creates a template for the guild. Requires the `.manage_guild` permission. Returns the created [guild template](#GuildTemplate) object on success.
 pub fn (rest &REST) create_guild_template(guild_id Snowflake, params CreateGuildTemplateParams) !GuildTemplate {
-	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.post, '/guilds/${urllib.path_escape(guild_id.str())}/templates',
+	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.post,
+		'/guilds/${urllib.path_escape(guild_id.str())}/templates',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Syncs the template to the guild's current state. Requires the `.manage_guild` permission. Returns the [guild template](#GuildTemplate) object on success.
 pub fn (rest &REST) sync_guild_template(guild_id Snowflake, template_code string) !GuildTemplate {
-	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.put, '/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}')!.body)!)!
+	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.put,
+		'/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}')!.body)!)!
 }
 
 @[params]
@@ -164,12 +168,14 @@ pub fn (params EditGuildTemplateParams) build() json2.Any {
 
 // Modifies the template's metadata. Requires the `.manage_guild` permission. Returns the [guild template](#GuildTemplate) object on success.
 pub fn (rest &REST) edit_guild_template(guild_id Snowflake, template_code string, params EditGuildTemplateParams) !GuildTemplate {
-	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.patch, '/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}',
+	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.patch,
+		'/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}',
 		json: params.build()
 	)!.body)!)!
 }
 
 // Deletes the template. Requires the `.manage_guild` permission. Returns the deleted [guild template](#GuildTemplate) object on success.
 pub fn (rest &REST) delete_guild_template(guild_id Snowflake, template_code string) !GuildTemplate {
-	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.delete, '/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}')!.body)!)!
+	return GuildTemplate.parse(json2.decode[json2.Any](rest.request(.delete,
+		'/guilds/${urllib.path_escape(guild_id.str())}/templates/${urllib.path_escape(template_code)}')!.body)!)!
 }
